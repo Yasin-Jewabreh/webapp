@@ -13,19 +13,18 @@ nav_order: 1
 {: .text-delta }
 </details>
 
-`For convenience reasons, the following value proposition is given in German`
-
 ## The Problem
 Unsere Webapp behandelt zwei Probleme:
 
-Im Dezember 2023 gab es in Deutschland ungefähr 5,7 Millionen Pflegebedürftige, insbesondere ältere Personen. Folgt man der Tendenz der Kurve, kann man annehmen, dass die Zahl bis heute stark angestiegen ist. Diese Pflegebedürftigen haben je nach Pflegegrad unter anderem einen Anspruch auf Pflegegeld, Pflegeleistungen, einen Entlastungsbetrag oder auf das Entlastungsbudget.
+Im Dezember 2023 gab es in Deutschland ungefähr 5,7 Millionen Pflegebedürftige[^1], insbesondere ältere Personen. Folgt man der Tendenz der Kurve, kann man annehmen, dass die Zahl bis heute stark angestiegen ist. Diese Pflegebedürftigen haben je nach Pflegegrad unter anderem einen Anspruch auf Pflegegeld, Pflegeleistungen, einen Entlastungsbetrag oder auf das Entlastungsbudget[^2].
 
 Dieser Anspruch wird jedoch häufig nicht geltend gemacht, sei es, weil man keine Familie hat oder einfach das Verständnis fehlt.
 
 Auf der anderen Seite, sind viele Studenten, Schüler oder Auszubildende auf der Suche nach einem Job, um sich neben Ihrer Haupttätigkeit etwas dazu zu verdienen und den steigenden Kosten im Alltag entgegenzuwirken. Diese sind jedoch zeitlich oft sehr eingeschränkt, weshalb nicht jeder einen Job findet.
 
-https://www.destatis.de/DE/Themen/Querschnitt/Demografischer-Wandel/Hintergruende-Auswirkungen/demografie-pflege.html
-https://sanubi.de/pflegegrade-einfach-erklaert/?utm_source=google&utm_medium=sea&utm_campaign=snb_sea-txt_generic_pflege&utm_id=21411571809&utm_group=165570223804&utm_term=snb_sea-txt_generic_pflege-grad&_utm_placement=gsa_&gad_source=1&gad_campaignid=21411571809&gbraid=0AAAAADSBeFxX0VqNs5m176R0HVApT_RTB&gclid=CjwKCAjwqubPBhBOEiwAzgZX2gwLVlZVGLl3Ml2iTg-FUKFnIAsIn4YXKOCsiZymK9tyScXOBVbwoxoCuRkQAvD_BwE
+[^1]<small>https://www.destatis.de/DE/Themen/Querschnitt/Demografischer-Wandel/Hintergruende-Auswirkungen/demografie-pflege.html</small>
+
+[^2]<small>https://sanubi.de/pflegegrade-einfach-erklaert/?utm_source=google&utm_medium=sea&utm_campaign=snb_sea-txt_generic_pflege&utm_id=21411571809&utm_group=165570223804&utm_term=snb_sea-txt_generic_pflege-grad&_utm_placement=gsa_&gad_source=1&gad_campaignid=21411571809&gbraid=0AAAAADSBeFxX0VqNs5m176R0HVApT_RTB&gclid=CjwKCAjwqubPBhBOEiwAzgZX2gwLVlZVGLl3Ml2iTg-FUKFnIAsIn4YXKOCsiZymK9tyScXOBVbwoxoCuRkQAvD_BwE</small>
 
 ## Our Solution
 
@@ -39,8 +38,13 @@ In der Realität müsste ein Bewerbungsprozess für die Helfer implementiert wer
 
 ## Target User(s)
 
-[Scope your target user(s), e.g., with the help of personas.]
+**Erste Zielgruppe:**
+Pflegebedürftige Person im Hohen Alter, ohne viele Angehörige.
 
+**Zweite Zielgruppe:**
+Studenten, Schüler und Azubis, welche sich sozial engagieren wollen und mit einem flexiblen Nebenjob etwas dazuverdienen sollen. 
+
+`Der Happy Path wird im Laufe des Projektes ausgefüllt`
 ##  Happy Path
 
 [Illustrate the app "happy path", from the app's entry point to a completed task. You might want to show the path as (schematic) screen flows. Ensure that your "happy path" (a) is consistent with the Value Proposition, and (b) shows the features as implemented in the submitted web app.]
@@ -48,6 +52,8 @@ In der Realität müsste ein Bewerbungsprozess für die Helfer implementiert wer
 ---
 
 ## Target Scope
+Bevor man sich einloggt bzw. registriert, sehen Nutzer eine Startseite mit Leistungsübersicht:
+![alt text](<WhatsApp Image 2026-05-05 at 21.45.58.jpeg>)
 
 Die Helfer sehen hier eine Übersicht neuer Aufträge und können diese an- bzw. ablehnen (PP legen in der Regel nur einen Auftrag an):
 ![alt text](<WhatsApp Image 2026-05-05 at 21.50.56.jpeg>)
