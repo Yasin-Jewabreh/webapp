@@ -49,4 +49,11 @@ In der Realität müsste ein Bewerbungsprozess für die Helfer implementiert wer
 
 ## Target Scope
 
-[Include your visual scoping of the web app (e.g., UI screens scribbles), as elaborated at start of the project as part of your Assignment.]
+Die Helfer sehen hier eine Übersicht neuer Aufträge und können diese an- bzw. ablehnen (PP legen in der Regel nur einen Auftrag an):
+![alt text](<WhatsApp Image 2026-05-05 at 21.50.56.jpeg>)
+
+Die angenommenen Aufträge können in der Kalenderansicht gepflegt werden und können auch als Liste betrachtet werden. Entsprechend erhalten auch die PP eine Übersicht ihrer Termine:
+![alt text](<WhatsApp Image 2026-05-05 at 21.51.01.jpeg>) 
+
+Die Helfer und PP können miteinander chatten:
+![alt text](<WhatsApp Image 2026-05-05 at 21.50.46.jpeg>)

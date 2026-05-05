@@ -1,18 +1,11 @@
 ---
-title: Jane Dane
+title: Salih Öztürk
 parent: Individual Contributions
 nav_order: 1
 ---
 
-{: .attention }
-> Create a separate, individual file for every team member, proposed naming scheme: `📄firstname-lastname.md`.
->
-> *Find and replace* (VS Code: <kbd>Ctrl</kbd>+<kbd>H</kbd> / <kbd>⌘</kbd>+<kbd>H</kbd>) `Jane Dane` with the student's name. On this template page, you will find this name 4 times (including in this `attention` box). 
->
-> You may delete this `attention` box.
-
 {: .no_toc }
-# Jane Dane
+# Salih Öztürk
 
 <details open markdown="block">
 <summary>Table of contents</summary>
@@ -25,17 +18,18 @@ nav_order: 1
 
 ### Target grade
 
-[State your target grade for this module. This is meant as a signal to your fellow team members.]
+Ich strebe in diesem Modul eine gute bis sehr gute Note (1,7 – 1,3) an.
 
 ### Personal goals
 
-[Spell out your personal goals regarding this Module, to create transparency among the team members.]
+Mein Ziel ist es, meine Fähigkeiten im Bereich Fullstack Web Development zu verbessern.  
+Ich möchte insbesondere den Umgang mit GitHub, Teamarbeit in Softwareprojekten sowie Backend- und Frontend-Integration besser verstehen.
 
 ---
 
 ## Eidesstattliche Erklärung
 
-**[Jane Dane, Matrikelnr.: 1234567]**
+**[Salih Öztürk, Matrikelnr.: 77204798325 ]**
 
 Ich erkläre an Eides statt:
 
@@ -51,9 +45,11 @@ Mir ist weiterhin bewusst, dass ich, sofern ich zur Erstellung dieser Arbeit KI-
 
 | \# | My contribution | Why I am proud of it | Which challenge I overcame |
 | :-- | :-- | :-- | :-- |
-| 1 | [Describe your individual contribution] |  |  |
-| 2 |  |  |  |
-| 3 |  |  |  |
+| 1 | Einrichtung meines GitHub-Zugangs | | |
+| 2 | Erstellung meiner Contributions-Seite | | |
+| 3 | Mitarbeit am Repository | | |
+
+---
 
 ## Design Decisions that I led
 
@@ -66,20 +62,14 @@ Mir ist weiterhin bewusst, dass ich, sofern ich zur Erstellung dieser Arbeit KI-
 
 | Contribution | Proof, e.g., git commits | Sources used |
 | :-- | :-- | :-- |
-| [Design Challenge research] | [Research traces](../product-discovery/01-design-challenge.md#raw-materia) | See left |
-| [Refactor to use Flask Blueprints] | [Commit 1](https://github.com/hwrberlin/fswd/commit/d816e4), [Commit 2](https://github.com/hwrberlin/fswd/commit/75a6c1) | [Flask Documentation](https://flask.palletsprojects.com/en/stable/blueprints/#the-concept-of-blueprints) |
-|  |  |  |
-|  |  |  |
+| Mitarbeit an der Webapp | Eigene Commits im Repository | GitHub Dokumentation |
+| Strukturierung der Dateien | Commits ersichtlich | VS Code |
 |  |  |  |
 
 ---
 
 ## AI Directory
 
-[You must maintain a comprehensive AI Directory, as per [FB1 Regulations on Generative AI Use](../assets/pdf/FB1_KI_Regelung_DE_ENG.pdf). "Catch-all" disclosure (like "AI Tool used for bugfixing") is generally not sufficient. You may list an *AI Tool* multiple times, e.g., if you have used it for different purposes / in different parts of your project. Any use of Agentic AI is **forbidden**.]
-
-| #   | AI Tool | Purpose of Use | Affected Sections (Code + Docs) | Remarks, Procedure, Prompts |
-| :-- | :--     | :--            | :--                             | :--                         |
-| 01  |         |                |                                 |                             |
-| 02  |         |                |                                 |                             |
-| ... |         |                |                                 |                             |
+| #   | AI Tool | Purpose of Use | Affected Sections (Code + Docs) | Remarks |
+| :-- | :--     | :--            | :--                             | :--     |
+| 01 | ChatGPT | Unterstützung beim Verständnis | contributions Datei | Inhalte angepasst |
