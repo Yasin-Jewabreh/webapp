@@ -45,9 +45,9 @@ Mir ist weiterhin bewusst, dass ich, sofern ich zur Erstellung dieser Arbeit KI-
 
 | \# | My contribution | Why I am proud of it | Which challenge I overcame |
 | :-- | :-- | :-- | :-- |
-| 1 | Einrichtung meines GitHub-Zugangs | | |
-| 2 | Erstellung meiner Contributions-Seite | | |
-| 3 | Mitarbeit am Repository | | |
+| 1 |  | | |
+| 2 |  | | |
+| 3 |  | | |
 
 ---
 
@@ -62,8 +62,8 @@ Mir ist weiterhin bewusst, dass ich, sofern ich zur Erstellung dieser Arbeit KI-
 
 | Contribution | Proof, e.g., git commits | Sources used |
 | :-- | :-- | :-- |
-| Mitarbeit an der Webapp | Eigene Commits im Repository | GitHub Dokumentation |
-| Strukturierung der Dateien | Commits ersichtlich | VS Code |
+|  |  |  |
+|  |  |  |
 |  |  |  |
 
 ---
