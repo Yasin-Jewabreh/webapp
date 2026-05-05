@@ -1,20 +1,12 @@
 ---
-<<<<<<< HEAD
 title: Yavuz Tiryaki
-=======
-title: Yavuz Selim Tiryaki
->>>>>>> 5f939951b4025f05a8a0d46664dec82cd9633643
 parent: Individual Contributions
 nav_order: 1
 ---
 
 
 {: .no_toc }
-<<<<<<< HEAD
 # Yavuz Tiryaki
-=======
-# Yavuz Selim Tiryaki
->>>>>>> 5f939951b4025f05a8a0d46664dec82cd9633643
 
 <details open markdown="block">
 <summary>Table of contents</summary>
