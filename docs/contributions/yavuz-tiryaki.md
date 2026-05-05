@@ -27,12 +27,12 @@ nav_order: 1
 
 ### Target grade
 
-My targeted grade would be 1.0. Ofcourse therefor I'm going to give my best to achieve my goal
+Meine Zielnote ist die 1,0 hierfür werde ich mein bestes geben
 
 ### Personal goals
 
-The primary goal is to learn the usage of python. Because this is one of the first courses where I have to use python and I'm also sure that it won't be the last one.
-There are also other goals like improving the handling with github. And also understand the theoretical Points of the website Development like the system behind websites etc.
+Primär will ich mir aus dem Kurs den Umgang mit python beibringen. Denn ich bin mir sicher das, dass nicht das letzte Mal sein wird das ich python nutzen muss. 
+Außerdem ist es auch das erstemal das ich github nutzen muss weswegen es mir auch wichtig ist die Bedinung dessen zu erlernen. Sowie auch die Theoretischen Punkte der Website Development zu verstehen und einsetzen zu können
 
 ---
 
