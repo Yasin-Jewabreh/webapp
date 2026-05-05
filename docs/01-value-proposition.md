@@ -18,13 +18,11 @@ nav_order: 1
 ## The Problem
 Unsere Webapp behandelt zwei Probleme:
 
-    1.
-    Im Dezember 2023 gab es in Deutschland ungefähr 5,7 Millionen Pflegebedürftige, insbesondere ältere Personen. Folgt man der Tendenz der Kurve, kann man annehmen, dass die Zahl bis heute stark angestiegen ist. Diese Pflegebedürftigen haben je nach Pflegegrad unter anderem einen Anspruch auf Pflegegeld, Pflegeleistungen, einen Entlastungsbetrag oder auf das Entlastungsbudget.
-    
-    Dieser Anspruch wird jedoch häufig nicht geltend gemacht, sei es, weil man keine Familie hat oder einfach das Verständnis fehlt.
+Im Dezember 2023 gab es in Deutschland ungefähr 5,7 Millionen Pflegebedürftige, insbesondere ältere Personen. Folgt man der Tendenz der Kurve, kann man annehmen, dass die Zahl bis heute stark angestiegen ist. Diese Pflegebedürftigen haben je nach Pflegegrad unter anderem einen Anspruch auf Pflegegeld, Pflegeleistungen, einen Entlastungsbetrag oder auf das Entlastungsbudget.
 
-    2. 
-    Auf der anderen Seite, sind viele Studenten, Schüler oder Auszubildende auf der Suche nach einem Job, um sich neben Ihrer Haupttätigkeit etwas dazu zu verdienen und den steigenden Kosten im Alltag entgegenzuwirken. Diese sind jedoch zeitlich oft sehr eingeschränkt, weshalb nicht jeder einen Job findet.
+Dieser Anspruch wird jedoch häufig nicht geltend gemacht, sei es, weil man keine Familie hat oder einfach das Verständnis fehlt.
+
+Auf der anderen Seite, sind viele Studenten, Schüler oder Auszubildende auf der Suche nach einem Job, um sich neben Ihrer Haupttätigkeit etwas dazu zu verdienen und den steigenden Kosten im Alltag entgegenzuwirken. Diese sind jedoch zeitlich oft sehr eingeschränkt, weshalb nicht jeder einen Job findet.
 
 https://www.destatis.de/DE/Themen/Querschnitt/Demografischer-Wandel/Hintergruende-Auswirkungen/demografie-pflege.html
 https://sanubi.de/pflegegrade-einfach-erklaert/?utm_source=google&utm_medium=sea&utm_campaign=snb_sea-txt_generic_pflege&utm_id=21411571809&utm_group=165570223804&utm_term=snb_sea-txt_generic_pflege-grad&_utm_placement=gsa_&gad_source=1&gad_campaignid=21411571809&gbraid=0AAAAADSBeFxX0VqNs5m176R0HVApT_RTB&gclid=CjwKCAjwqubPBhBOEiwAzgZX2gwLVlZVGLl3Ml2iTg-FUKFnIAsIn4YXKOCsiZymK9tyScXOBVbwoxoCuRkQAvD_BwE
