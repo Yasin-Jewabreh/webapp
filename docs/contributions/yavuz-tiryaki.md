@@ -1,5 +1,5 @@
 ---
-title: Jane Dane
+title: Yavuz Selim Tiryaki
 parent: Individual Contributions
 nav_order: 1
 ---
@@ -12,7 +12,7 @@ nav_order: 1
 > You may delete this `attention` box.
 
 {: .no_toc }
-# Jane Dane
+# Yavuz Selim Tiryaki
 
 <details open markdown="block">
 <summary>Table of contents</summary>
@@ -25,17 +25,18 @@ nav_order: 1
 
 ### Target grade
 
-[State your target grade for this module. This is meant as a signal to your fellow team members.]
+My targeted grade would be 1.0. Ofcourse therefor I'm going to give my best to achieve my goal
 
 ### Personal goals
 
-[Spell out your personal goals regarding this Module, to create transparency among the team members.]
+The primary goal is to learn the usage of python. Because this is one of the first courses where I have to use python and I'm also sure that it won't be the last one.
+There are also other goals like improving the handling with github. And also understand the theoretical Points of the website Development like the system behind websites etc.
 
 ---
 
 ## Eidesstattliche Erklärung
 
-**[Jane Dane, Matrikelnr.: 1234567]**
+**[Yavuz Selim Tiryaki 77209615722]**
 
 Ich erkläre an Eides statt:
 
