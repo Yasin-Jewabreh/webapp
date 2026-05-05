@@ -17,18 +17,17 @@ nav_order: 1
 
 ### Target grade
 
-I aim and try my best to achieve a 1.0 in this module. 
+Ich strebe eine 1.0 an und werde das nötige dafür tun.
 
 ### Personal goals
 
-I have mulitple goals regarding this module:
-
-    1. I want to learn to use python and be somewhat independent using it
-    2. I want to be able to use git and github independently and understanding it without looking at the provided tutorial all the time
-    3. I want to be able to code a simple webapp by myself
+Ich habe mehrere Ziele in Bezug auf diesen Kurs:
+1. Ich möchte lernen, mit Python umzugehen und es möglichst ohne Hilfe nutzen zu können
+2. Ich möchte git und github unabhänig nutzen und verstehen kann, ohne ständing ins Tutorial gucken zu müssen
+3. Ich möchte eine simple Webapp alleine codieren können
 ---
 
-`the following is filled out in the later progress of the project`
+`Das Folgende wird im weiteren Verlauf des Projektes ausgefüllt!`
 
 ## Eidesstattliche Erklärung
 
