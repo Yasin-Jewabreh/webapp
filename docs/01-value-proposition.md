@@ -60,6 +60,9 @@ Studenten, Schüler und Azubis ab 18 Jahren, welche sich sozial engagieren wolle
 
 ## Target Scope
 
+Da das Projekt lediglich die Kernfunktionen des Projektes abbilden soll, wird auf den Startseitenscreen verzichtet.
+![alt text](image.png)
+
 Die Helfer sehen hier eine Übersicht neuer Aufträge und können diese an- bzw. ablehnen (PP legen in der Regel nur einen Auftrag an):
 ![alt text](<WhatsApp Image 2026-05-05 at 21.50.56.jpeg>)
 
