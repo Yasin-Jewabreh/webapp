@@ -1,18 +1,12 @@
 ---
-title: Jane Dane
+title: Yavuz Tiryaki
 parent: Individual Contributions
 nav_order: 1
 ---
 
-{: .attention }
-> Create a separate, individual file for every team member, proposed naming scheme: `📄firstname-lastname.md`.
->
-> *Find and replace* (VS Code: <kbd>Ctrl</kbd>+<kbd>H</kbd> / <kbd>⌘</kbd>+<kbd>H</kbd>) `Jane Dane` with the student's name. On this template page, you will find this name 4 times (including in this `attention` box). 
->
-> You may delete this `attention` box.
 
 {: .no_toc }
-# Jane Dane
+# Yavuz Tiryaki
 
 <details open markdown="block">
 <summary>Table of contents</summary>
@@ -25,17 +19,18 @@ nav_order: 1
 
 ### Target grade
 
-[State your target grade for this module. This is meant as a signal to your fellow team members.]
+Meine Zielnote ist die 1,0 hierfür werde ich mein bestes geben
 
 ### Personal goals
 
-[Spell out your personal goals regarding this Module, to create transparency among the team members.]
+Primär will ich mir aus dem Kurs den Umgang mit python beibringen. Denn ich bin mir sicher das, dass nicht das letzte Mal sein wird das ich python nutzen muss. 
+Außerdem ist es auch das erstemal das ich github nutzen muss weswegen es mir auch wichtig ist die Bedinung dessen zu erlernen. Sowie auch die Theoretischen Punkte der Website Development zu verstehen und einsetzen zu können
 
 ---
 
 ## Eidesstattliche Erklärung
 
-**[Jane Dane, Matrikelnr.: 1234567]**
+**[Yavuz Selim Tiryaki 77209615722]**
 
 Ich erkläre an Eides statt:
 
