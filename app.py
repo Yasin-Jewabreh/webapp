@@ -1,5 +1,7 @@
 import database
 from flask import Flask, render_template, redirect, url_for, request
+from flsk_sqlalchemy import SQLAlchemy
+from sqlalchemy import orm
 import os 
 import database
 
@@ -7,9 +9,10 @@ app = Flask(__name__)
 
 os.makedirs(app.instance_path, exist_ok=True)
 
-app.config.from_mapping(
-    DATABASE = os.path.join(app.instance_path, "Pflegehilfe.db")
-    )
+app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///pflegehilfe.db"
+
+db = SQLAlchemy()
+db.init_app(app)
 
 database.init_app(app)
 
