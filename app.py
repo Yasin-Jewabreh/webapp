@@ -28,5 +28,9 @@ def db_test():
 
     return f"Datenbank funktioniert: {result[0]}"
 
+@app.route("Kalender")
+def kalender():
+    return render_template("calendar.html")
+
 if __name__ == "__main__":
     app.run(debug=True)
