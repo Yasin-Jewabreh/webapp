@@ -1,7 +1,6 @@
 import database
 from flask import Flask, render_template, redirect, url_for, request
 import os 
-import database
 
 app = Flask(__name__)
 
@@ -28,7 +27,7 @@ def db_test():
 
     return f"Datenbank funktioniert: {result[0]}"
 
-@app.route("Kalender")
+@app.route("/kalender")
 def kalender():
     return render_template("calendar.html")
 
