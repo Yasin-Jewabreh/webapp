@@ -1,4 +1,4 @@
-import database
+import db
 from flask import Flask, render_template, redirect, url_for, request
 import os 
 
@@ -10,7 +10,8 @@ app.config.from_mapping(
     DATABASE = os.path.join(app.instance_path, "Pflegehilfe.db")
     )
 
-database.init_app(app)
+app.cli.add_command(db.init_db)
+app.teardown_appcontext(db.close_db_con)
 
 @app.route("/")
 def startseite():
@@ -22,7 +23,7 @@ def auftraege():
 
 @app.route("/db-test")
 def db_test():
-    db_con = database.get_db_con()
+    db_con = db.get_db_con()
     result =db_con.execute("Select 1").fetchone() #ohne fetchone würde es nur drauf zeigen: <sqlite3.Cursor object at 0x...>
 
     return f"Datenbank funktioniert: {result[0]}"

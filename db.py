@@ -30,10 +30,10 @@ def init_db():
     
     db_con = get_db_con()
 
-    with current_app.open_resource("Pflegehilfe/drop_table.sql") as f:
+    with current_app.open_resource("sql/drop_table.sql") as f:
         db_con.executescript(f.read().decode("utf-8"))
 
-    with current_app.open_resource("Pflegehilfe/create_tables.sql") as f:
+    with current_app.open_resource("sql/create_tables.sql") as f:
         db_con.executescript(f.read().decode("utf-8"))
 
     click.echo("Database has been initialized")
