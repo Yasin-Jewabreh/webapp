@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+
+{% block TITLE %}
+Register
+{% endblock %}
+
+{% block CONTENT %}
+<h2>Registrieren</h2>
+
+<form method="POST">
+    <label>Vorname</label>
+    <input type="text" name="vorname">
+
+    <label>Nachname</label>
+    <input type="text" name="nachname">
+
+    <label>Geschlecht</label>
+    <input type="text" name="geschlecht">
+
+    <label>Geburtsdatum</label>
+    <input type="date" name="geburtsdatum">
+
+    <label>Adresse</label>
+    <input type="text" name="adresse">
+
+    <label>PLZ</label>
+    <input type="text" name="plz">
+
+    <label>Ort</label>
+    <input type="text" name="ort">
+
+    <label>E-Mail</label>
+    <input type="email" name="email">
+
+    <label>Passwort</label>
+    <input type="password" name="passwort">
+
+<label>Passwort bestätigen</label>
+<input type="password" name="passwort2">
+
+<label>Rolle</label>
+<select name="rolle">
+    <option value="pflegebeduerftiger">Pflegebedürftiger</option>
+<option value="helfer">Helfer</option>
+</select>   
+
+    <button type="submit">Registrieren</button>
+</form>
+{% endblock %}
