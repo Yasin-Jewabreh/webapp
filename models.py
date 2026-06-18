@@ -46,7 +46,7 @@ class Termin (db.Model):
     datum = db.Column(db.Date, nullable = False)
     uhrzeit_beginn = db.Column(db.Time, nullable = False)
     uhrzeit_ende = db.Column(db.Time, nullable = False)
-    complete = db.Column(db.Boolean, default = "false")
+    complete = db.Column(db.Boolean, default = False, nullable = False)
 
     
 
