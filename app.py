@@ -11,7 +11,7 @@ db.init_app(app)
 
 with app.app_context():
     db.create_all()
-    
+
 @app.route("/")
 def startseite():
     return "Die Startseite funktioniert"
@@ -20,9 +20,9 @@ def startseite():
 def auftraege():
     return "Auftragsübersicht funktioniert"
 
-@app.route("/kalender")
+@app.route("/termine")
 def kalender():
-    return render_template("calendar.html")
+    return render_template("termine.html")
 
 if __name__ == "__main__":
     app.run(debug=True)
