@@ -22,7 +22,7 @@ class Auftrag(db.Model):
     wohnsituation = db.Column(db.String(100), nullable = False)
     beschreibung = db.Column(db.String(500), nullable = False)
     status = db.Column(db.String(50), default = "offen", nullable = False)
-    nutzer_id = db.Column("nutzer_id", db.ForeignKey("Nutzer.id"), nullable = False)
+    nutzer_id = db.Column("nutzer_id", db.ForeignKey("nutzer.id"), nullable = False)
     
     
 class Nachricht (db.Model):
@@ -31,15 +31,15 @@ class Nachricht (db.Model):
     id = db.Column(db.Integer, primary_key = True)
     inhalt = db.Column(db.String(500), nullable=False)
     zeitstempel = db.Column(db.DateTime, default=db.func.now())
-    sender_id=db.Column("sender_id", db.ForeignKey("Nutzer.id"), nullable = False)
-    empfaenger_id= db.Column('empfaenger_id', db.ForeignKey("Nutzer.id"), nullable = False)
+    sender_id=db.Column("sender_id", db.ForeignKey("nutzer.id"), nullable = False)
+    empfaenger_id= db.Column('empfaenger_id', db.ForeignKey("nutzer.id"), nullable = False)
  
 class Termin (db.Model):
     __tablename__ = "termin"
 
     id = db.Column(db.Integer, primary_key = True, index = True)
-    helfer_id = db.Column("helfer_id", db.ForeignKey("Nutzer.id"), nullable = False)
-    pp_id = db.Column("pp_id", db.ForeignKey("Nutzer.id"), nullable = False)
+    helfer_id = db.Column("helfer_id", db.ForeignKey("nutzer.id"), nullable = False)
+    pp_id = db.Column("pp_id", db.ForeignKey("nutzer.id"), nullable = False)
     titel = db.Column(db.String(), nullable = False)
     notizen = db.Column(db.String(200), nullable = True)
     datum = db.Column(db.Date, nullable = False)
