@@ -1,6 +1,6 @@
 from db import db
 from flask import Flask, render_template, redirect, url_for, request
-import models
+from models import Termin, Nutzer, Auftrag, Nachricht
 
 app = Flask(__name__)
 
@@ -21,8 +21,11 @@ def auftraege():
     return "Auftragsübersicht funktioniert"
 
 @app.route("/termine")
-def kalender():
-    return render_template("termine.html")
+def termine():
+    
+    termin_liste=  db.session.execute(db.select(Termin).order_by(Termin.datum, Termin.uhrzeit_beginn)).scalars()
+    
+    return render_template("termine.html",termine = termin_liste)
 
 if __name__ == "__main__":
     app.run(debug=True)
