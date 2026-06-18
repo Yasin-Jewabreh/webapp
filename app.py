@@ -22,9 +22,7 @@ def auftraege():
 
 @app.route("/termine")
 def termine():
-    
-    termin_liste=  db.session.execute(db.select(Termin).order_by(Termin.datum, Termin.uhrzeit_beginn)).scalars()
-    
+    termin_liste=  db.session.execute(db.select(Termin).order_by(Termin.datum, Termin.uhrzeit_beginn)).scalars().all()
     return render_template("termine.html",termine = termin_liste)
 
 if __name__ == "__main__":
