@@ -47,6 +47,10 @@ class Termin (db.Model):
     uhrzeit_beginn = db.Column(db.Time, nullable = False)
     uhrzeit_ende = db.Column(db.Time, nullable = False)
     complete = db.Column(db.Boolean, default = False, nullable = False)
+    
+    helfer = db.relationship("Nutzer", foreign_keys=[helfer_id], backref="helfer_termine")
+    pp = db.relationship("Nutzer", foreign_keys=[pp_id], backref="pp_termine")
+    auftrag = db.relationship("Auftrag", backref="termine")
 
     
 

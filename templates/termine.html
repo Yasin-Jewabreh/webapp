@@ -9,11 +9,8 @@
     <ul>
     {% for t in termine%}
         <li>
-            <input type= "checkbox" disabled = "disabled" id = "{{t.id}}"
-                {% if t.complete%} checked {% endif %}
-            >
             <label for = "{{t.id}}">
-                <strong> {{t.datum}} ({{t.uhrzeit_beginn}}):</strong> {{t.notizen}}</label>
+                <strong> {{t.datum.strftime('%d.%m.%Y')}}: Bei {{t.pp.vorname}} von {{t.uhrzeit_beginn.strftime('%H:%M')}} bis {{t.uhrzeit_ende.strftime('%H:%M')}}</strong></label>
         </li>
     {% else %}
     <li class="text-muted"><em>Aktuell stehen keine Termine an. Alles erledigt!</em></li>
