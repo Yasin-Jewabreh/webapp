@@ -2,9 +2,11 @@ from db import db
 from models import Pflegebeduerftiger
 from flask import Flask, render_template, redirect, url_for, request
 import os 
+from flask_bootstrap import Bootstrap5
 
 
 app = Flask(__name__)
+bootstrap = Bootstrap5(app)
 
 os.makedirs(app.instance_path, exist_ok=True)
 
@@ -40,7 +42,7 @@ def pflegeprofil_erstellen():
             )
         )
 
-    return render_template("pflegeprofil_erstellen.html")
+    return render_template("auftrag_erstellen.html")
 
 
 @app.route("/pflegeprofil/<int:profil_id>")
