@@ -5,4 +5,21 @@
 {% block content%}
     <h1> Anstehende Termine</h1>
     <p>Das sind deine nächsten Termine:</p>
+
+    <ul>
+    {% for t in termine%}
+        <li>
+            <input type= "checkbox" disabled = "disabled" id = "{{t.id}}"
+                {% if t.complete%} checked {% endif %}
+            >
+            <label for = "{{t.id}}">
+                <strong> {{t.datum}} ({{t.uhrzeit_beginn}}):</strong> {{t.notizen}}</label>
+        </li>
+    {% else %}
+    <li class="text-muted"><em>Aktuell stehen keine Termine an. Alles erledigt!</em></li>
+    {%endfor%}
+
+
+    </ul>
+
 {% endblock %}
