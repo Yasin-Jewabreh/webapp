@@ -13,25 +13,37 @@ class nutzer(db.Model):
     email = db.Column(db.String(), nullable = False, unique = True)
     passwort = db.Column(db.String(), nullable = False)
     rolle = db.Column(db.String(), nullable = False, index = True)
-    
-
-
 
 class auftrag(db.Model):
     __tablename__ = "auftrag"
     id = db.Column(db.Integer, primary_key = True, index = True)
     wohnsituation = db.Column(db.String(100), nullable = False)
-    beschreibung = db.Column(db.String(200), nullable = False)
+    beschreibung = db.Column(db.String(500), nullable = False)
     status = db.Column(db.String(50), default = "offen", nullable = "False")
     db.Column('nutzer_id', db.ForeignKey('nutzer.id'), primary_key=True)
     
-    #Datum? Hilfeart?
     
-    class Message (db.Model):
-        __tablename__ = "nachrichten"
+class nachricht (db.Model):
+    __tablename__ = "nachricht"
 
-        id = db.Column(db.Integer, primary_key = True)
-        sender_id = db.Column(db.Integer, nullable=False)
-        empfaenger_id = db.Column(db.Integer, nullable=False)
-        inhalt = db.Column(db.String(500), nullable=False)
-        zeitstempel = db.Column(db.DateTime, default=db.func.now())
+    id = db.Column(db.Integer, primary_key = True)
+    inhalt = db.Column(db.String(500), nullable=False)
+    zeitstempel = db.Column(db.DateTime, default=db.func.now())
+    db.Column('sender_id', db.ForeignKey('nutzer.id'), primary_key=True)
+    db.Column('empfaenger_id', db.ForeignKey('nutzer.id'), primary_key=True)
+
+class termin (db.Model):
+    _tablename_ = "termin"
+    id = db.Column(db.Integer, primary_key = True, index = True)
+    db.Column('helfer_id', db.ForeignKey('nutzer.id'), primary_key=True)
+    db.Column('pp_id', db.ForeignKey('nutzer.id'), primary_key=True)
+    titel = db.Column(db.String(), nullable = False)
+    notizen = db.Column(db.String(200), nullable = True)
+    datum = db.Column(db.Date, nullable = False)
+    uhrzeit_beginn = db.Column(db.Time, nullable = False)
+    uhrzeit_ende = db.Column(db.Time, nullable = False)
+
+    
+
+
+
