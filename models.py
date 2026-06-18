@@ -1,7 +1,8 @@
 from db import db
 
 class nutzer(db.Model):
-    _tablename_ = "nutzer"
+    __tablename__ = "nutzer"
+
     id = db.Column(db.Integer, primary_key = True, index = True)
     vorname = db.Column(db.String(50), nullable = False)
     nachname = db.Column(db.String(50), nullable = False)
@@ -16,11 +17,12 @@ class nutzer(db.Model):
 
 class auftrag(db.Model):
     __tablename__ = "auftrag"
+
     id = db.Column(db.Integer, primary_key = True, index = True)
     wohnsituation = db.Column(db.String(100), nullable = False)
     beschreibung = db.Column(db.String(500), nullable = False)
-    status = db.Column(db.String(50), default = "offen", nullable = "False")
-    db.Column('nutzer_id', db.ForeignKey('nutzer.id'), primary_key=True)
+    status = db.Column(db.String(50), default = "offen", nullable = False)
+    nutzer_id = db.Column("nutzer_id", db.ForeignKey("nutzer.id"), nullable = False)
     
     
 class nachricht (db.Model):
@@ -29,14 +31,15 @@ class nachricht (db.Model):
     id = db.Column(db.Integer, primary_key = True)
     inhalt = db.Column(db.String(500), nullable=False)
     zeitstempel = db.Column(db.DateTime, default=db.func.now())
-    db.Column('sender_id', db.ForeignKey('nutzer.id'), primary_key=True)
-    db.Column('empfaenger_id', db.ForeignKey('nutzer.id'), primary_key=True)
-
+    sender_id=db.Column("sender_id", db.ForeignKey("nutzer.id"), nullable = False)
+    empfaenger_id= db.Column('empfaenger_id', db.ForeignKey("nutzer.id"), nullable = False)
+ 
 class termin (db.Model):
-    _tablename_ = "termin"
+    __tablename__ = "termin"
+
     id = db.Column(db.Integer, primary_key = True, index = True)
-    db.Column('helfer_id', db.ForeignKey('nutzer.id'), primary_key=True)
-    db.Column('pp_id', db.ForeignKey('nutzer.id'), primary_key=True)
+    helfer_id = db.Column("helfer_id", db.ForeignKey("nutzer.id"), nullable = False)
+    pp_id = db.Column("pp_id", db.ForeignKey("nutzer.id"), nullable = False)
     titel = db.Column(db.String(), nullable = False)
     notizen = db.Column(db.String(200), nullable = True)
     datum = db.Column(db.Date, nullable = False)
