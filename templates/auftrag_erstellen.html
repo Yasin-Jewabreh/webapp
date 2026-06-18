@@ -1,0 +1,202 @@
+{% extends "base.html" %}
+
+{% block title %}
+    Pflegeprofil erstellen
+{% endblock %}
+
+{%blockhead%}
+<link 
+    rel = "stylesheet"
+    href = "{{ url_for('static', filename = 'css/pflegeprofil.css') }}">
+
+{%endblock%}
+
+{% block content %}
+<main class="profile-page">
+    <div class="container">
+        <div class="profile-card">
+
+            <div class="profile-header">
+                <span class="profile-label">Pflegeprofil</span>
+
+                <h1>Erstelle dein persönliches Profil</h1>
+
+                <p>
+                    Beschreibe dich kurz, damit Studierende einen ersten
+                    Eindruck von dir bekommen. Weitere Einzelheiten zur
+                    Unterstützung könnt ihr später im Chat besprechen.
+                </p>
+            </div>
+
+            <form
+                method="POST"
+                action="{{ url_for('pflegeprofil_erstellen') }}"
+                class="profile-form"
+            >
+                <div class="form-group">
+                    <label for="name">
+                        Vollständiger Name
+                    </label>
+
+                    <input
+                        type="text"
+                        id="name"
+                        name="name"
+                        class="form-control"
+                        maxlength="100"
+                        placeholder="Zum Beispiel Helga Müller"
+                        required
+                    >
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="alter">
+                            Alter
+                        </label>
+
+                        <input
+                            type="number"
+                            id="alter"
+                            name="alter"
+                            class="form-control"
+                            min="18"
+                            max="120"
+                            placeholder="Zum Beispiel 76"
+                            required
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label for="geschlecht">
+                            Geschlecht
+                        </label>
+
+                        <select
+                            id="geschlecht"
+                            name="geschlecht"
+                            class="form-select"
+                            required
+                        >
+                            <option value="" selected disabled>
+                                Bitte auswählen
+                            </option>
+
+                            <option value="weiblich">
+                                Weiblich
+                            </option>
+
+                            <option value="maennlich">
+                                Männlich
+                            </option>
+
+                            <option value="divers">
+                                Divers
+                            </option>
+
+                            <option value="keine_angabe">
+                                Keine Angabe
+                            </option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="wohnsituation">
+                        Wohnsituation
+                    </label>
+
+                    <select
+                        id="wohnsituation"
+                        name="wohnsituation"
+                        class="form-select"
+                        required
+                    >
+                        <option value="" selected disabled>
+                            Bitte auswählen
+                        </option>
+
+                        <option value="allein">
+                            Ich lebe allein
+                        </option>
+
+                        <option value="partner">
+                            Ich lebe mit meinem Partner oder meiner Partnerin
+                        </option>
+
+                        <option value="familie">
+                            Ich lebe mit meiner Familie
+                        </option>
+
+                        <option value="wohngemeinschaft">
+                            Ich lebe in einer Wohngemeinschaft
+                        </option>
+
+                        <option value="pflegeeinrichtung">
+                            Ich lebe in einer Pflegeeinrichtung
+                        </option>
+
+                        <option value="andere">
+                            Andere Wohnsituation
+                        </option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="beschreibung">
+                        Über mich
+                    </label>
+
+                    <textarea
+                        id="beschreibung"
+                        name="beschreibung"
+                        class="form-control description-field"
+                        rows="7"
+                        maxlength="500"
+                        placeholder="Erzähle etwas über dich, deinen Alltag und in welchen Bereichen du grundsätzlich Unterstützung gebrauchen könntest."
+                        required
+                    ></textarea>
+
+                    <p class="form-hint">
+                        Bitte teile hier keine sensiblen medizinischen Daten.
+                        Konkrete Details könnt ihr später im Chat klären.
+                    </p>
+                </div>
+
+                <div class="privacy-box">
+                    <input
+                        type="checkbox"
+                        id="bestaetigung"
+                        name="bestaetigung"
+                        value="akzeptiert"
+                        required
+                    >
+
+                    <label for="bestaetigung">
+                        Ich bestätige, dass die angegebenen Informationen in
+                        meinem Profil für registrierte Studierende sichtbar
+                        sein dürfen.
+                    </label>
+                </div>
+
+                <div class="form-actions">
+                    <a
+                        href="{{ url_for('index') }}"
+                        class="btn btn-outline-secondary"
+                    >
+                        Abbrechen
+                    </a>
+
+                    <button
+                        type="submit"
+                        class="btn btn-primary publish-button"
+                    >
+                        Profil veröffentlichen
+                    </button>
+                </div>
+            </form>
+
+        </div>
+    </div>
+</main>
+{% endblock %}

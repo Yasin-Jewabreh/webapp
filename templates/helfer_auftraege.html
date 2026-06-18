@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block title %}
+    Offene Aufträge
+{% endblock %}
+
+{% block content %}
+
+    <h1>Offene Aufträge</h1>
+    <p>Finde einen Auftrag, bei dem du helfen willst.</p>
+
+    <section class= "auftragsliste">
+    
+    {%for auftrag in auftraege %}
+
+        <article class = "auftrag-karte">
+         <h2>{{auftrag.name}}</h2>
+
+        <p>
+        
+        <strong>Adresse:</strong>
+        {{auftrag.adresse}}
+        
+        </p>
+
+
+
+        </article>    
+    </section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</html>
