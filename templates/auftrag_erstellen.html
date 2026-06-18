@@ -33,19 +33,18 @@
                 action="{{ url_for('pflegeprofil_erstellen') }}"
                 class="profile-form"
             >
-                <div class="form-group">
+            <div class="form-row">
+            <div class = "form-group"> 
                     <label for="name">
                         Vorname
                     </label>
 
                     <input
                         type="text"
-                        id="name"
-                        name="name"
+                        id="vorname"
                         class="form-control"
-                        maxlength="50"
-                        placeholder="Zum Beispiel Thomas"
-                        required
+                        value="{{nutzer.vorname}}"
+                        readonly
                     >
                 </div>
 
@@ -57,28 +56,26 @@
                        <input
                             type="text"
                             id="name"
-                            name="name"
-                            class="form-" 
-                        
-                        
+                            class="form-control"
+                            value="{{nutzer.name}}"
+                            readonly 
+                        >
                         </div>
+                    </div>
 
                 <div class="form-row">
-                    <div class="form-group">
-                        <label for="alter">
-                            Alter
+                    <div class="form-row">
+                        <label for="geburtsdatum">
+                            Geburtsdatum
                         </label>
 
                         <input
-                            type="number"
-                            id="alter"
-                            name="alter"
+                            type="text"
+                            id="geburtsdatum"
                             class="form-control"
-                            min="18"
-                            max="120"
-                            placeholder="Zum Beispiel 76"
-                            required
-                        >
+                            value="{{nutzer.geburtsdatum}}"
+                            readonly
+                            >
                     </div>
 
                     <div class="form-group">
@@ -88,33 +85,61 @@
 
                         <select
                             id="geschlecht"
-                            name="geschlecht"
-                            class="form-select"
-                            required
+                            class="form-control"
+                            value="{{nutzer.geschlecht}}"
+                            readonly
                         >
-                            <option value="" selected disabled>
-                                Bitte auswählen
-                            </option>
 
-                            <option value="weiblich">
-                                Weiblich
-                            </option>
+                        </div>
+                 </div>
 
-                            <option value="maennlich">
-                                Männlich
-                            </option>
-
-                            <option value="divers">
-                                Divers
-                            </option>
-
-                            <option value="keine_angabe">
-                                Keine Angabe
-                            </option>
-                        </select>
+                <div class="form-group">
+                    <label for="Adresse">
+                            Adresse                    
+                    </label>
+                    
+                    <input 
+                        type="text"
+                        id="adresse"
+                        class="form-control"
+                        value="{{nutzer.adresse}}"
+                        readonly
+                        >
                     </div>
-                </div>
 
+
+                <div class="form-row">
+                    <label for="plz">
+                            Postleitzahl
+                    </label>
+                
+                <input 
+                    type="text"
+                    id="postleitzahl"
+                    class="form-control"
+                    value="{{nutzer.postleitzahl}}"
+                    readonly 
+                >
+                </div>
+            </div>
+
+
+                <div class="form-group">
+                    <label for="ort">
+                            Ort
+                    </label>
+                
+                <input 
+                    type="text"
+                    id="ort"
+                    class="form-control"
+                    value="{{nutzer.ort}}"
+                    readonly 
+                >
+                </div>
+            </div>
+
+            <h2>Angaben zum Auftrag</h2>
                 <div class="form-group">
                     <label for="wohnsituation">
                         Wohnsituation
@@ -205,7 +230,7 @@
                         type="submit"
                         class="btn btn-primary publish-button"
                     >
-                        Profil veröffentlichen
+                        Auftrag veröffentlichen
                     </button>
                 </div>
             </form>
