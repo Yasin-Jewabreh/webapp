@@ -39,12 +39,14 @@ class Termin (db.Model):
 
     id = db.Column(db.Integer, primary_key = True, index = True)
     helfer_id = db.Column("helfer_id", db.ForeignKey("nutzer.id"), nullable = False)
+    auftrag_id = db.Column("auftrag_id", db.ForeignKey("auftrag.id"), nullable = False)
     pp_id = db.Column("pp_id", db.ForeignKey("nutzer.id"), nullable = False)
     titel = db.Column(db.String(), nullable = False)
     notizen = db.Column(db.String(200), nullable = True)
     datum = db.Column(db.Date, nullable = False)
     uhrzeit_beginn = db.Column(db.Time, nullable = False)
     uhrzeit_ende = db.Column(db.Time, nullable = False)
+    complete = db.Column(db.Boolean, default = "false")
 
     
 
