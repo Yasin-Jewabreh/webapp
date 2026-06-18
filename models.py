@@ -25,4 +25,13 @@ class auftrag(db.Model):
     status = db.Column(db.String(50), default = "offen", nullable = "False")
     db.Column('nutzer_id', db.ForeignKey('nutzer.id'), primary_key=True)
     
+    #Datum? Hilfeart?
+    
+    class Message (db.Model):
+        __tablename__ = "nachrichten"
 
+        id = db.Column(db.Integer, primary_key = True)
+        sender_id = db.Column(db.Integer, nullable=False)
+        empfaenger_id = db.Column(db.Integer, nullable=False)
+        inhalt = db.Column(db.String(500), nullable=False)
+        zeitstempel = db.Column(db.DateTime, default=db.func.now())
