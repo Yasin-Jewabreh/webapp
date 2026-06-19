@@ -1,8 +1,15 @@
 from db import db
 from flask import Flask, render_template, redirect, url_for, request
 import models
+from models import Nutzer, Auftrag
+from flask_login import LoginManager, login_user, login_required, current_user
 
 app = Flask(__name__)
+app.secret_key = "your_secret_key"
+
+login_manager = LoginManager()
+login_manager.init_app(app)
+login_manager.login_view = "login"
 
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///helpyourneighbour.db"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
@@ -16,12 +23,42 @@ with app.app_context():
 def startseite():
     return "Die Startseite funktioniert"
 
-@app.route("/register")
+@app.route("/register", methods=["GET", "POST"])
 def register():
+    if request.method == "POST":
+        neuer_nutzer = Nutzer(
+            vorname = request.form["vorname"],
+            nachname = request.form["nachname"],
+            geschlecht = request.form["geschlecht"],
+            geburtsdatum = request.form["geburtsdatum"],
+            adresse = request.form["adresse"],
+            plz = request.form["plz"],
+            ort = request.form["ort"],
+            email = request.form["email"],
+            telefonnummer = request.form["telefonnummer"],
+            passwort = request.form["passwort"],
+            rolle = request.form["rolle"]
+        )
+
+        db.session.add(neuer_nutzer)
+        db.session.commit()
+
+        return redirect(url_for("login"))
+
     return render_template("register.html")
 
-@app.route("/login")
+@app.route("/login", methods=["GET", "POST"])
 def login():
+    if request.method == "POST":
+        email = request.form["email"]
+        passwort = request.form["passwort"]
+
+        nutzer = Nutzer.query.filter_by(email=email).first()
+
+        if nutzer and nutzer.passwort == passwort:
+            login_user(nutzer)
+            return redirect(url_for("auftraege_start"))
+
     return render_template("login.html")
 
 @app.route("/auftraege")
@@ -39,7 +76,7 @@ def auftraege_start():
 @login_required
 def auftrag_erstellen():
     if request.method == "POST":
-        neuer_auftrag = auftrag(
+        neuer_auftrag = Auftrag(
             wohnsituation = request.form["wohnsituation"],
             beschreibung = request.form["beschreibung"],
             status = "offen",
