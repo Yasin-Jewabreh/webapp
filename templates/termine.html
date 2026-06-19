@@ -15,6 +15,12 @@
     {% else %}
     <li class="text-muted"><em>Aktuell stehen keine Termine an. Alles erledigt!</em></li>
     {%endfor%}
+    <h2> Neuen Termin eintragen </h2>
+    <form action="{{ url_for('termine') }}" method="post">
+    {{ form.csrf_token }}
+    {{form.datum}}: Von {{form.uhrzeit_beginn}} bis {{form.uhrzeit_ende}}. Deine Notizen:{{form.notizen}}
+    {{form.eintragen}}
+    </form>
 
 
     </ul>
