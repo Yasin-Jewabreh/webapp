@@ -12,6 +12,7 @@ class Nutzer(db.Model):
     plz = db.Column(db.String(10), nullable = False)
     ort = db.Column(db.String(50), nullable = False)
     email = db.Column(db.String(), nullable = False, unique = True)
+    telefon = db.Column(db.String(30), nullable =False, unique = True)
     passwort = db.Column(db.String(), nullable = False)
     rolle = db.Column(db.String(), nullable = False, index = True)
 
