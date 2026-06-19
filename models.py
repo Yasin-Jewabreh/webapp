@@ -21,9 +21,10 @@ class Auftrag(db.Model):
     id = db.Column(db.Integer, primary_key = True, index = True)
     wohnsituation = db.Column(db.String(100), nullable = False)
     beschreibung = db.Column(db.String(500), nullable = False)
-    status = db.Column(db.String(50), default = "offen", nullable = False)
-    nutzer_id = db.Column("nutzer_id", db.ForeignKey("nutzer.id"), nullable = False)
-    
+    angenommen = db.Column(db.Boolean, default = False, nullable = False)
+    helfer_id = db.Column("helfer_id", db.ForeignKey("nutzer.id"), nullable = False)
+    pp_id = db.Column("pp_id", db.ForeignKey("nutzer.id"), nullable = False)
+
     
 class Nachricht (db.Model):
     __tablename__ = "nachricht"
@@ -41,7 +42,6 @@ class Termin (db.Model):
     helfer_id = db.Column("helfer_id", db.ForeignKey("nutzer.id"), nullable = False)
     auftrag_id = db.Column("auftrag_id", db.ForeignKey("auftrag.id"), nullable = False)
     pp_id = db.Column("pp_id", db.ForeignKey("nutzer.id"), nullable = False)
-    titel = db.Column(db.String(), nullable = False)
     notizen = db.Column(db.String(200), nullable = True)
     datum = db.Column(db.Date, nullable = False)
     uhrzeit_beginn = db.Column(db.Time, nullable = False)
