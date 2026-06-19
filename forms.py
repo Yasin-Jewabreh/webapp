@@ -3,7 +3,7 @@ from wtforms import StringField, TextAreaField, SelectField, SubmitField, DateFi
 from wtforms.validators import InputRequired, Length, Optional
 
 class TerminErstellenForm(FlaskForm):
-    auftrag_id = SelectField("Der Termin ist mit:", coerce=int, validators=[InputRequired()])
+    teilnehmer = SelectField("Der Termin ist mit:", validators=[InputRequired()])
     datum = DateField("Am",validators=[InputRequired()], format='%Y-%m-%d')
     uhrzeit_beginn = TimeField("Von",validators=[InputRequired()])
     uhrzeit_ende = TimeField("Bis",validators=[InputRequired()])
