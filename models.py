@@ -14,6 +14,7 @@ class Nutzer(db.Model):
     email = db.Column(db.String(), nullable = False, unique = True)
     email_verified = db.Colmun(db.Boolean, default = False, nulllable = False)
     passwort = db.Column(db.String(), nullable = False)
+    telefon = db.Column(db.String(30), nullable =False, unique = True)
     rolle = db.Column(db.String(), nullable = False, index = True)
 
 class Auftrag(db.Model):
