@@ -22,9 +22,11 @@ class Auftrag(db.Model):
     wohnsituation = db.Column(db.String(100), nullable = False)
     beschreibung = db.Column(db.String(500), nullable = False)
     angenommen = db.Column(db.Boolean, default = False, nullable = False)
-    helfer_id = db.Column("helfer_id", db.ForeignKey("nutzer.id"), nullable = False)
+    helfer_id = db.Column("helfer_id", db.ForeignKey("nutzer.id"), nullable = True)
     pp_id = db.Column("pp_id", db.ForeignKey("nutzer.id"), nullable = False)
 
+    pp = db.relationship("Nutzer", foreign_keys=[pp_id], backref="erstellte_auftraege")
+    helfer = db.relationship("Nutzer", foreign_keys=[helfer_id], backref="angenommene_auftraege")
     
 class Nachricht (db.Model):
     __tablename__ = "nachricht"
