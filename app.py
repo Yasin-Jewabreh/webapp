@@ -21,37 +21,43 @@ db.init_app(app)
 def startseite():
     return "Die Startseite funktioniert"
 
-@app.route("/pflegeprofil/erstellen", methods=["GET", "POST"])
-def pflegeprofil_erstellen():
+@app.route("/auftraege")
+@login_required
+def auftraege_start():
+   
+   
+   
+   
+   
+   ''''
+    if current_user.rolle == "PP":
+        return redirect (url_for("auftrag_erstellen"))
+
+    if current_user.rolle == "Helfer":
+        return redirect (url_for("helfer_auftraege"))
+
+    return "Unbekante Benutzerrolle", 403
+
+    '''
+@app.route("/auftrag/erstellen", methods =["GET", "POST"])
+@login_required
+def auftrag_erstellen():
     if request.method == "POST":
-        neues_profil = Pflegebeduerftiger(
-            name=request.form["name"],
-            alter=int(request.form["alter"]),
-            geschlecht=request.form["geschlecht"],
-            wohnsituation=request.form["wohnsituation"],
-            beschreibung=request.form["beschreibung"]
+        neuer_auftrag = auftrag(
+            wohnsituation = request.form["wohnsituation"],
+            beschreibung = request.form["beschreibung"],
+            status = "offen",
+            nutzer_id = current_user.id
         )
 
-        db.session.add(neues_profil)
+        db.session.add(neuer_auftrag)
         db.session.commit()
 
-        return redirect(
-            url_for(
-                "pflegeprofil_anzeigen",
-                profil_id=neues_profil.id
-            )
-        )
-
-    return render_template("auftrag_erstellen.html")
-
-
-@app.route("/pflegeprofil/<int:profil_id>")
-def pflegeprofil_anzeigen(profil_id):
-    profil = db.get_or_404(Pflegebeduerftiger, profil_id)
-
+        return redirect(url_for("auftraege_start"))
+    
     return render_template(
-        "pflegeprofil_anzeigen.html",
-        profil=profil
+        "auftrag_erstellen.html",
+        nutzer = current_user
     )
 
 
