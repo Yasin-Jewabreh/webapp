@@ -140,6 +140,8 @@ def termin(id):
             db.session.commit()
             flash("Der Termin wurde erfolgreich gelöscht!", "success")
             return redirect(url_for('termine'), 303)
+        elif form.zurueck.data == True:
+            return redirect(url_for('termine'))
         else:
             flash("Nichts passiert", "info")
             return redirect(url_for('termin', id=id))
