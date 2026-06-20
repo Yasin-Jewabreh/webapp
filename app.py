@@ -1,5 +1,5 @@
 from datetime import date, time, datetime
-from flask import Flask, render_template, redirect, url_for, request, flash
+from flask import Flask, render_template, redirect, url_for, request, flash, abort
 from flask_bootstrap import Bootstrap5
 import forms
 
@@ -58,9 +58,7 @@ def termine():
                 Termin.complete == False,
                 (Termin.helfer_id == auftrag.helfer_id)| (Termin.pp_id == auftrag.pp_id),
                 Termin.uhrzeit_beginn < form.uhrzeit_ende.data,
-                Termin.uhrzeit_ende > form.uhrzeit_beginn.data
-
-            )).scalars().first()
+                Termin.uhrzeit_ende > form.uhrzeit_beginn.data)).scalars().first()
 
             if ueberschneidung:
                     flash("Fehler: Zu dieser Uhrzeit gibt es eine Terminüberschneidung!", "danger")
@@ -77,10 +75,73 @@ def termine():
             db.session.commit()
             flash("Termin wurde eingetragen.", "success")
         else:
-            flash("Ups, hat nicht geklappt", "warning")
+            flash("Der Termin konnte leider nicht eingetragen werden", "warning")
         return render_template("termine.html", termine=termin_liste, form=form, nutzer=aktueller_nutzer)
 
 
+@app.route('/termine/<int:id>', methods=['GET', 'POST'])
+def termin(id):
+    termin = db.session.get(Termin, id) 
+    form = forms.TerminBearbeiternForm(obj=termin)
+    
+    aktueller_nutzer = db.session.execute(db.select(Nutzer).where(Nutzer.rolle == "Helfer")).scalars().first()
+
+    if aktueller_nutzer.rolle == "Helfer":
+        verfuegbare_auftraege = db.session.execute(db.select(Auftrag).where(Auftrag.helfer_id == aktueller_nutzer.id)).scalars().all()
+        form.teilnehmer.choices = [(a.id, f"{a.pp.vorname} {a.pp.nachname}") for a in verfuegbare_auftraege]
+
+    elif aktueller_nutzer.rolle == "PP":
+        verfuegbare_auftraege = db.session.execute(db.select(Auftrag).where(Auftrag.pp_id == aktueller_nutzer.id)).scalars().all()
+        form.teilnehmer.choices = [(a.id, f"{a.helfer.vorname} {a.helfer.nachname}") for a in verfuegbare_auftraege]
+
+    if aktueller_nutzer.rolle == "Helfer":
+        termin_liste =  db.session.execute(db.select(Termin).where(Termin.helfer_id == aktueller_nutzer.id,Termin.complete == False).order_by(Termin.datum, Termin.uhrzeit_beginn)).scalars().all()
+    elif aktueller_nutzer.rolle == "PP":
+         termin_liste =  db.session.execute(db.select(Termin).where(Termin.pp_id == aktueller_nutzer.id,Termin.complete == False).order_by(Termin.datum, Termin.uhrzeit_beginn)).scalars().all()
+
+    if request.method == 'GET':
+        if termin:
+            return render_template('termin-bearbeiten.html', form=form)
+        else:
+            abort(404)
+    else:
+        if form.speichern.data == True:
+            if form.validate():
+                form.populate_obj(termin)
+                
+                gewaehlter_auftrag_id = int(form.teilnehmer.data)
+                auftrag = db.session.get(Auftrag, gewaehlter_auftrag_id)
+
+                ueberschneidung = db.session.execute(db.select(Termin).where(
+                    Termin.id != id,
+                    Termin.datum == form.datum.data,
+                    Termin.complete == False,
+                    (Termin.helfer_id == auftrag.helfer_id)| (Termin.pp_id == auftrag.pp_id),
+                    Termin.uhrzeit_beginn < form.uhrzeit_ende.data,
+                    Termin.uhrzeit_ende > form.uhrzeit_beginn.data)).scalars().first()
+
+                if ueberschneidung:
+                    flash("Fehler: Zu dieser Uhrzeit gibt es eine Terminüberschneidung!", "danger")
+                    return redirect(url_for('termin', id=id))
+                termin.auftrag_id= gewaehlter_auftrag_id
+                termin.pp_id = auftrag.pp.id
+                termin.helfer_id = auftrag.helfer.id
+                db.session.add(termin)
+                db.session.commit()
+                flash("Deine Änderungen wurden erfolgreich gespeichert", "success")
+                return redirect(url_for('termine'))
+            else:
+                flash("Deine Änderungen konnten leider nicht gespeichert werden!", "warning")
+            return render_template('termin-bearbeiten.html', form=form)
+        elif form.entfernen.data == True:
+            db.session.delete(termin)  
+            db.session.commit()
+            flash("Der Termin wurde erfolgreich gelöscht!", "success")
+            return redirect(url_for('termine'), 303)
+        else:
+            flash("Nichts passiert", "info")
+            return redirect(url_for('termin', id=id))
+        
 
 if __name__ == "__main__":
     app.run(debug=True)
