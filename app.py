@@ -3,14 +3,20 @@ from datetime import date, datetime
 from flask import Flask, render_template, redirect, url_for, request
 from flask_bootstrap import Bootstrap5
 from models import db, Nutzer, Auftrag, Termin  # Termin mitimportiert
+from forms import AuftragFormular
 
 app = Flask(__name__)
-bootstrap = Bootstrap5(app)
+
+
 
 os.makedirs(app.instance_path, exist_ok=True)
-app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///pflegehilfe.db"
-db.init_app(app)
 
+app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///pflegehilfe.db"
+
+app.config["SECRET_KEY"]= "ein_geheimes_passwort"
+
+db.init_app(app)
+bootstrap = Bootstrap5(app)
 
 @app.route("/")
 def startseite():
@@ -22,23 +28,25 @@ def auftrag_erstellen():
     
     aktueller_nutzer = Nutzer.query.get(3)
 
-    print("Gefundener Nutzer:", aktueller_nutzer)
-    if aktueller_nutzer:
-        print("Vorname:", aktueller_nutzer.vorname)
-        print("Adresse:", aktueller_nutzer.adresse)
+    form = AuftragFormular()
 
-    if request.method == "POST":
+    
+    if form.validate_on_submit():
         neuer_auftrag = Auftrag(
-            wohnsituation=request.form["wohnsituation"],
-            beschreibung=request.form["beschreibung"],
+            wohnsituation=form.wohnsituation.data,  
+            beschreibung=form.beschreibung.data,
             nutzer_id=aktueller_nutzer.id if aktueller_nutzer else 3
         )
 
         db.session.add(neuer_auftrag)
         db.session.commit()
+
+
         return redirect(url_for("startseite")) 
     
-    return render_template("auftrag_erstellen.html", nutzer=aktueller_nutzer)
+
+
+    return render_template("auftrag_erstellen.html", nutzer=aktueller_nutzer, form =form)
 
 
 
@@ -48,7 +56,7 @@ if __name__ == "__main__":
         db.create_all()
         
         
-        if Nutzer.query.first() is None:
+        if Nutzer.query.get(4) is None:
             
             helfer1 = Nutzer(vorname="Yasin", nachname="Jason", geschlecht="M", 
                              geburtsdatum=datetime.strptime("27.12.2008", "%d.%m.%Y").date(),
