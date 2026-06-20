@@ -1,28 +1,41 @@
 {% extends "base.html" %}
-
+{% from 'bootstrap5/form.html' import render_form %}
 {% block TITLE %} Terminübersicht {% endblock %}
 
 {% block CONTENT%}
     <h1> Anstehende Termine</h1>
     <p>Das sind deine nächsten Termine:</p>
 
-    <ul>
-    {% for t in termine%}
-        <li>
-            <label for = "{{t.id}}">
-                <strong> {{t.datum.strftime('%d.%m.%Y')}}: Bei {{t.pp.vorname}} von {{t.uhrzeit_beginn.strftime('%H:%M')}} bis {{t.uhrzeit_ende.strftime('%H:%M')}}</strong></label>
-        </li>
-    {% else %}
-    <li class="text-muted"><em>Aktuell stehen keine Termine an. Alles erledigt!</em></li>
-    {%endfor%}
+
+    <table class = "table">
+        <thead>
+            <tr> <th>Deine Terminübersicht</th></tr>
+        </thead>
+        <tbody>
+        {% for t in termine%}
+            <tr>
+                <td>
+                    <strong> {{t.datum.strftime('%d.%m.%Y')}}:</strong>  
+                    {% if nutzer.rolle == "Helfer"%}
+                        Bei {{t.pp.vorname}} {{t.pp.nachname}}
+                    {% elif nutzer.rolle == "PP"%}
+                         Mit {{t.helfer.vorname}} {{t.helfer.nachname}}
+                    {%endif%}
+                    von {{t.uhrzeit_beginn.strftime('%H:%M')}} bis {{t.uhrzeit_ende.strftime('%H:%M')}}
+                </td>
+            
+            </tr>
+         {%endfor%}
+        </tbody>
+    </table>
+
+    <hr>
     <h2> Neuen Termin eintragen </h2>
-    <form action="{{ url_for('termine') }}" method="post">
-    {{ form.csrf_token }}
-    {{form.datum}}: Von {{form.uhrzeit_beginn}} bis {{form.uhrzeit_ende}}. Deine Notizen:{{form.notizen}}
-    {{form.eintragen}}
-    </form>
-
-
-    </ul>
+   
+    <div class = "row">
+        <div class = "col-md-6">
+            {{ render_form(form)}}
+        </div>
+    </div>
 
 {% endblock %}
