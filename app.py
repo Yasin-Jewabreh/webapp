@@ -17,6 +17,7 @@ app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 db.init_app(app)
 bootstrap = Bootstrap5(app)
 
+
 @app.route("/")
 def startseite():
     return "Die Startseite funktioniert"
@@ -40,14 +41,17 @@ def termine():
         form.teilnehmer.choices = [(a.id, f"{a.helfer.vorname} {a.helfer.nachname}") for a in verfuegbare_auftraege]
 
     if aktueller_nutzer.rolle == "Helfer":
-        termin_liste =  db.session.execute(db.select(Termin).where(Termin.helfer_id == aktueller_nutzer.id,Termin.complete == False).order_by(Termin.datum, Termin.uhrzeit_beginn)).scalars().all()
+        bestaetigte_termine =  db.session.execute(db.select(Termin).where(Termin.helfer_id == aktueller_nutzer.id,Termin.complete == False,Termin.bestaetigt == True).order_by(Termin.datum, Termin.uhrzeit_beginn)).scalars().all()
+        offene_termine =  db.session.execute(db.select(Termin).where(Termin.helfer_id == aktueller_nutzer.id,Termin.complete == False,Termin.bestaetigt == False, Termin.ersteller_id != aktueller_nutzer.id).order_by(Termin.datum, Termin.uhrzeit_beginn)).scalars().all()
+
     elif aktueller_nutzer.rolle == "PP":
-         termin_liste =  db.session.execute(db.select(Termin).where(Termin.pp_id == aktueller_nutzer.id,Termin.complete == False).order_by(Termin.datum, Termin.uhrzeit_beginn)).scalars().all()
+        bestaetigte_termine =  db.session.execute(db.select(Termin).where(Termin.pp_id == aktueller_nutzer.id,Termin.complete == False,Termin.bestaetigt == True).order_by(Termin.datum, Termin.uhrzeit_beginn)).scalars().all()
+        offene_termine =  db.session.execute(db.select(Termin).where(Termin.pp_id == aktueller_nutzer.id,Termin.complete == False,Termin.bestaetigt == False, Termin.ersteller_id != aktueller_nutzer.id).order_by(Termin.datum, Termin.uhrzeit_beginn)).scalars().all()
 
     form.teilnehmer.choices.insert(0,(0, "---Bitte wählen---"))
 
     if request.method == "GET":
-        return render_template("termine.html", termine = termin_liste, form = form, nutzer= aktueller_nutzer)
+        return render_template("termine.html", bestaetigte = bestaetigte_termine, offene = offene_termine, form = form, nutzer= aktueller_nutzer)
     else:
         if "erledigen_id" in request.form:
             termin_id = int(request.form.get("erledigen_id"))
@@ -57,7 +61,24 @@ def termine():
                 db.session.commit()
                 flash("Termin als erledigt markiert!", "success")
             return redirect(url_for("termine"))
-
+        
+        if "bestaetigen_id" in request.form:
+            termin_id = int(request.form.get("bestaetigen_id"))
+            termin = db.session.get(Termin,termin_id)
+            if termin:
+                termin.bestaetigt = True
+                db.session.commit()
+                flash("Termin erfolgreich bestätigt!", "success")
+            return redirect(url_for("termine"))
+       
+        if "ablehnen_id" in request.form:
+            termin_id = int(request.form.get("ablehnen_id"))
+            termin = db.session.get(Termin,termin_id)
+            if termin:
+                db.session.delete(termin)  
+                db.session.commit()
+                flash("Termin abgelehnt!", "warning")
+            return redirect(url_for("termine"))
 
         if form.validate():
 
@@ -73,14 +94,15 @@ def termine():
 
             if ueberschneidung:
                     flash("Fehler: Zu dieser Uhrzeit gibt es eine Terminüberschneidung!", "danger")
-                    return render_template("termine.html", termine=termin_liste, form=form, nutzer=aktueller_nutzer)
+                    return render_template("termine.html", bestaetigte = bestaetigte_termine, offene = offene_termine, form = form, nutzer= aktueller_nutzer)
             termin = Termin(helfer_id = auftrag.helfer.id,
                             auftrag_id = auftrag.id,
                             pp_id = auftrag.pp_id,
                             notizen = form.notizen.data, 
                             datum=form.datum.data, 
                             uhrzeit_beginn = form.uhrzeit_beginn.data, 
-                            uhrzeit_ende = form.uhrzeit_ende.data                                                          
+                            uhrzeit_ende = form.uhrzeit_ende.data,
+                            ersteller_id = aktueller_nutzer.id                                                       
                             )
             db.session.add(termin)
             db.session.commit()
@@ -88,7 +110,7 @@ def termine():
             return redirect(url_for("termine"))
         else:
             flash("Der Termin konnte leider nicht eingetragen werden", "warning")
-        return render_template("termine.html", termine=termin_liste, form=form, nutzer=aktueller_nutzer)
+        return render_template("termine.html", bestaetigte = bestaetigte_termine, offene = offene_termine, form = form, nutzer= aktueller_nutzer)
 
 
 @app.route('/termine/<int:id>', methods=['GET', 'POST'])
