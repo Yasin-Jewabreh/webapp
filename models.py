@@ -22,9 +22,10 @@ class Auftrag(db.Model):
     id = db.Column(db.Integer, primary_key = True, index = True)
     wohnsituation = db.Column(db.String(100), nullable = False)
     beschreibung = db.Column(db.String(500), nullable = False)
-    status = db.Column(db.String(50), default = "offen", nullable = False)
+    angenommen = db.Column(db.String(50), default = "offen", nullable = False)
     nutzer_id = db.Column("nutzer_id", db.ForeignKey("nutzer.id"), nullable = False)
     
+    nutzer = db.relationship("Nutzer", backref="auftraege", lazy=True)
     
 class Nachricht (db.Model):
     __tablename__ = "nachricht"
