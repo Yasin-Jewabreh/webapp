@@ -49,6 +49,16 @@ def termine():
     if request.method == "GET":
         return render_template("termine.html", termine = termin_liste, form = form, nutzer= aktueller_nutzer)
     else:
+        if "erledigen_id" in request.form:
+            termin_id = int(request.form.get("erledigen_id"))
+            termin = db.session.get(Termin,termin_id)
+            if termin:
+                termin.complete = True
+                db.session.commit()
+                flash("Termin als erledigt markiert!", "success")
+            return redirect(url_for("termine"))
+
+
         if form.validate():
 
             gewaehlter_auftrag_id = int(form.teilnehmer.data)
