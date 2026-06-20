@@ -1,7 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, SelectField, SubmitField
-from wtforms.fields import DateField, TimeField
-from wtforms.widgets import DateInput, TimeInput
+from wtforms import StringField, SelectField, SubmitField, DateField, TimeField, HiddenField
 from wtforms.validators import InputRequired, Optional, ValidationError
 from datetime import date
 
@@ -23,3 +21,13 @@ class TerminErstellenForm(FlaskForm):
     uhrzeit_ende = TimeField("Bis",validators=[InputRequired(), check_uhrzeit], format='%H:%M')
     notizen = StringField("Trage hier deine Notizen ein",validators=[Optional()])
     eintragen = SubmitField("Termin eintragen")
+
+class TerminBearbeiternForm(FlaskForm):
+    id = HiddenField()
+    teilnehmer = SelectField("Der Termin ist mit:", coerce=int, validators=[InputRequired()])
+    datum = DateField("Am",validators=[InputRequired(), check_datum], format='%Y-%m-%d')
+    uhrzeit_beginn = TimeField("Von",validators=[InputRequired()],format='%H:%M')
+    uhrzeit_ende = TimeField("Bis",validators=[InputRequired(), check_uhrzeit], format='%H:%M')
+    notizen = StringField("Trage hier deine Notizen ein",validators=[Optional()])
+    speichern = SubmitField("Änderungen Speichern")
+    entfernen = SubmitField("Termin löschen")
