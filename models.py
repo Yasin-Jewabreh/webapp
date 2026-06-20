@@ -50,7 +50,7 @@ class Termin (db.Model):
     uhrzeit_ende = db.Column(db.Time, nullable = False)
     complete = db.Column(db.Boolean, default = False, nullable = False)
     bestaetigt = db.Column(db.Boolean, default = False, nullable = False)
-    
+    ersteller_id = db.Column(db.Integer, nullable = False, index = True)
     helfer = db.relationship("Nutzer", foreign_keys=[helfer_id], backref="helfer_termine")
     pp = db.relationship("Nutzer", foreign_keys=[pp_id], backref="pp_termine")
     auftrag = db.relationship("Auftrag", backref="termine")
