@@ -34,4 +34,5 @@ class TerminBearbeiternForm(FlaskForm):
     uhrzeit_ende = TimeField("Bis",validators=[InputRequired(), check_uhrzeit], format='%H:%M')
     notizen = TextAreaField("Trage hier deine Notizen ein",validators=[Optional()])
     speichern = SubmitField("Änderungen Speichern")
-    entfernen = SubmitField("Termin löschen")
+    entfernen = SubmitField("Termin löschen", render_kw = {"class": "btn btn-outline-danger"})
+    zurueck = SubmitField("Zurück", render_kw={"class": "btn btn-info"})
