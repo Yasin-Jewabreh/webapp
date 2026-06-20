@@ -14,6 +14,21 @@
 </nav>
 
 <main class="container">
+<div class="container mt-3">
+    {# 1. Hole alle gespeicherten Flash-Nachrichten aus der Session #}
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                {# 2. Erzeuge für jede Nachricht ein passendes Bootstrap-Banner #}
+                {# 'danger' wird rot, 'success' wird grün, 'warning' wird gelb #}
+                <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+</div>
      {% block CONTENT %}{% endblock %}
       </main>
     {{bootstrap.load_js()}}
