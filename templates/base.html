@@ -15,15 +15,12 @@
 
 <main class="container">
 <div class="container mt-3">
-    {# 1. Hole alle gespeicherten Flash-Nachrichten aus der Session #}
     {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
             {% for category, message in messages %}
-                {# 2. Erzeuge für jede Nachricht ein passendes Bootstrap-Banner #}
-                {# 'danger' wird rot, 'success' wird grün, 'warning' wird gelb #}
-                <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
-                    {{ message }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                <div class="alert alert-{{ category }} alert-dismissible fade show col-md-6 mx-auto flash-message py-2" role="alert">
+                  {{ message }}
+                  <button type="button" class="btn-close py-2.5" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
             {% endfor %}
         {% endif %}
@@ -32,5 +29,26 @@
      {% block CONTENT %}{% endblock %}
       </main>
     {{bootstrap.load_js()}}
+    <script>
+    document.addEventListener("DOMContentLoaded", function() {
+        // 1. Suche alle Flash-Meldungen auf der Seite
+        const alertElements = document.querySelectorAll('.flash-message');
+        
+        alertElements.forEach(function(alertEl) {
+            // 2. Warte 5000 Millisekunden (5 Sekunden)
+            setTimeout(function() {
+                // 3. Nutze das eingebaute Bootstrap-Objekt, um die Meldung elegant zu schließen
+                if (typeof bootstrap !== 'undefined' && bootstrap.Alert) {
+                    const bsAlert = new bootstrap.Alert(alertEl);
+                    bsAlert.close();
+                } else {
+                    // Fallback: Falls Bootstrap noch nicht geladen war, einfach so ausblenden
+                    alertEl.classList.remove('show');
+                    setTimeout(() => alertEl.remove(), 500);
+                }
+            }, 3000);
+        });
+    });
+</script>
 </body>
 </html>
