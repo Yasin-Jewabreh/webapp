@@ -1,8 +1,12 @@
 from db import db
 from flask import Flask, render_template, redirect, url_for, request
+from models import Nachricht
+from flask_bootstrap import Bootstrap5
 import models
 
 app = Flask(__name__)
+app.secret_key = "helpyourneighbour"
+bootstrap = Bootstrap5(app)
 
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///helpyourneighbour.db"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
@@ -17,7 +21,7 @@ def startseite():
     return "Die Startseite funktioniert"
 
 @app.route("/auftraege")
-@login_required
+#@login_required
 def auftraege_start():
     if current_user.rolle == "PP":
         return redirect (url_for("auftrag_erstellen"))
@@ -28,7 +32,7 @@ def auftraege_start():
     return "Unbekante Benutzerrolle", 403
 
 @app.route("/auftrag/erstellen", methods =["GET", "POST"])
-@login_required
+#@login_required
 def auftrag_erstellen():
     if request.method == "POST":
         neuer_auftrag = auftrag(
@@ -52,6 +56,25 @@ def auftrag_erstellen():
 @app.route("/termine")
 def kalender():
     return render_template("termine.html")
+
+@app.route("/chat/<int:empfaenger_id>", methods=["GET", "POST"])
+def chat(empfaenger_id):
+    if request.method == "POST":
+        neue_nachricht = Nachricht(
+            inhalt = request.form["inhalt"],
+            sender_id = 1,
+            empfaenger_id = empfaenger_id
+        )
+
+        db.session.add(neue_nachricht)
+        db.session.commit()
+
+    nachrichten = Nachricht.query.filter(
+        (Nachricht.sender_id == 1) | 
+        (Nachricht.empfaenger_id == 1)
+    ).all()
+
+    return render_template("chat.html", nachrichten=nachrichten)
 
 if __name__ == "__main__":
     app.run(debug=True)
