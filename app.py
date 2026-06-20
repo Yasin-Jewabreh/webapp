@@ -17,6 +17,7 @@ app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 db.init_app(app)
 bootstrap = Bootstrap5(app)
 
+"""
 with app.app_context():
     db.session.execute(db.delete(Nutzer))
     db.session.execute(db.delete(Auftrag))
@@ -54,18 +55,13 @@ with app.app_context():
                        beschreibung = "Spende bittööö",
                        angenommen = True, helfer_id = helfer1.id, pp_id = pp1.id)
     
-    db.session.add_all([auftrag1])
-    db.session.commit()
+    auftrag2 = Auftrag(wohnsituation = "Alleinstehend", 
+                       beschreibung = "Spende bittööö",
+                       angenommen = True, helfer_id = helfer1.id, pp_id = pp2.id)
     
-    termin1 = Termin(helfer_id = helfer1.id, auftrag_id = auftrag1.id, 
-                     pp_id = pp1.id, notizen = "Bring bitte Geld mit", 
-                     datum = datetime.strptime("23.06.2026", "%d.%m.%Y").date(),   
-                     uhrzeit_beginn = datetime.strptime("12:30", "%H:%M").time(),         
-                     uhrzeit_ende = datetime.strptime("14:30", "%H:%M").time(), complete = False)
-    
-    db.session.add_all( [termin1])
+    db.session.add_all([auftrag1, auftrag2])
     db.session.commit()
-
+"""
 
 
 @app.route("/")
@@ -79,14 +75,47 @@ def auftraege():
 @app.route("/termine/", methods = ["GET", "POST"])
 def termine():
     form = forms.TerminErstellenForm()
+    
+    aktueller_nutzer = db.session.execute(db.select(Nutzer).where(Nutzer.rolle == "PP")).scalars().first()
+
+    if aktueller_nutzer.rolle == "Helfer":
+        verfuegbare_auftraege = db.session.execute(db.select(Auftrag).where(Auftrag.helfer_id == aktueller_nutzer.id)).scalars().all()
+        form.teilnehmer.choices = [(a.id, f"{a.pp.vorname} {a.pp.nachname}") for a in verfuegbare_auftraege]
+
+    elif aktueller_nutzer.rolle == "PP":
+        verfuegbare_auftraege = db.session.execute(db.select(Auftrag).where(Auftrag.pp_id == aktueller_nutzer.id)).scalars().all()
+        form.teilnehmer.choices = [(a.id, f"{a.helfer.vorname} {a.helfer.nachname}") for a in verfuegbare_auftraege]
+
+
     if request.method == "GET":
-        termin_liste=  db.session.execute(db.select(Termin).where(Termin.complete == False).order_by(Termin.datum, Termin.uhrzeit_beginn)).scalars().all()
-        return render_template("termine.html", termine = termin_liste, form = form)
+        if aktueller_nutzer.rolle == "Helfer":
+            termin_liste =  db.session.execute(db.select(Termin).where(Termin.helfer_id == aktueller_nutzer.id,Termin.complete == False).order_by(Termin.datum, Termin.uhrzeit_beginn)).scalars().all()
+        elif aktueller_nutzer.rolle == "PP":
+            termin_liste =  db.session.execute(db.select(Termin).where(Termin.pp_id == aktueller_nutzer.id,Termin.complete == False).order_by(Termin.datum, Termin.uhrzeit_beginn)).scalars().all()
+
+        return render_template("termine.html", termine = termin_liste, form = form, nutzer= aktueller_nutzer)
     else:
         if form.validate():
-            termin = Termin(helfer_id = helfer1.id,
-                            auftrag_id = auftrag1.id,
-                            pp_id = pp1.id, 
+
+            gewaehlter_auftrag_id = int(form.teilnehmer.data)
+            auftrag = db.session.get(Auftrag, gewaehlter_auftrag_id)
+
+            ueberschneidung = db.session.execute(db.select(Termin).where(
+                Termin.datum == form.datum.data,
+                Termin.complete == False,
+                (Termin.helfer_id == auftrag.helfer_id)| (Termin.pp_id == auftrag.pp_id),
+                Termin.uhrzeit_beginn < form.uhrzeit_ende.data,
+                Termin.uhrzeit_ende > form.uhrzeit_beginn.data
+
+            )).scalars().first()
+
+            if ueberschneidung:
+                    flash("Fehler: Zu dieser Uhrzeit gibt es eine Terminüberschneidung!", "danger")
+                    return redirect (url_for("termine", nutzer_id = aktueller_nutzer.id))
+
+            termin = Termin(helfer_id = auftrag.helfer.id,
+                            auftrag_id = auftrag.id,
+                            pp_id = auftrag.pp_id,
                             notizen = form.notizen.data, 
                             datum=form.datum.data, 
                             uhrzeit_beginn = form.uhrzeit_beginn.data, 
@@ -97,7 +126,7 @@ def termine():
             flash("Termin wurde eingetragen.", "success")
         else:
             flash("Ups, hat nicht geklappt", "warning")
-        return redirect (url_for("termine"))
+        return redirect (url_for("termine", nutzer_id = aktueller_nutzer.id))
 
 
 
