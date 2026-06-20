@@ -28,7 +28,7 @@ def auftraege():
 @app.route("/termine/", methods = ["GET", "POST"])
 def termine():
     form = forms.TerminErstellenForm()
-    
+
     aktueller_nutzer = db.session.execute(db.select(Nutzer).where(Nutzer.rolle == "Helfer")).scalars().first()
 
     if aktueller_nutzer.rolle == "Helfer":
@@ -44,6 +44,7 @@ def termine():
     elif aktueller_nutzer.rolle == "PP":
          termin_liste =  db.session.execute(db.select(Termin).where(Termin.pp_id == aktueller_nutzer.id,Termin.complete == False).order_by(Termin.datum, Termin.uhrzeit_beginn)).scalars().all()
 
+    form.teilnehmer.choices.insert(0,(0, "---Bitte wählen---"))
 
     if request.method == "GET":
         return render_template("termine.html", termine = termin_liste, form = form, nutzer= aktueller_nutzer)
@@ -74,6 +75,7 @@ def termine():
             db.session.add(termin)
             db.session.commit()
             flash("Termin wurde eingetragen.", "success")
+            return redirect(url_for("termine"))
         else:
             flash("Der Termin konnte leider nicht eingetragen werden", "warning")
         return render_template("termine.html", termine=termin_liste, form=form, nutzer=aktueller_nutzer)
