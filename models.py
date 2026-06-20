@@ -1,4 +1,5 @@
 from db import db
+from datetime import datetime 
 
 class Nutzer(db.Model):
     __tablename__ = "nutzer"
@@ -12,7 +13,7 @@ class Nutzer(db.Model):
     plz = db.Column(db.String(10), nullable = False)
     ort = db.Column(db.String(50), nullable = False)
     email = db.Column(db.String(), nullable = False, unique = True)
-    email_verified = db.Colmun(db.Boolean, default = False, nulllable = False)
+    email_verified = db.Column(db.Boolean, default = False, nullable = False)
     passwort = db.Column(db.String(), nullable = False)
     telefon = db.Column(db.String(30), nullable =False, unique = True)
     rolle = db.Column(db.String(), nullable = False, index = True)
@@ -32,10 +33,11 @@ class Auftrag(db.Model):
     
 class Nachricht (db.Model):
     __tablename__ = "nachricht"
+    
 
     id = db.Column(db.Integer, primary_key = True)
     inhalt = db.Column(db.String(500), nullable=False)
-    zeitstempel = db.Column(db.DateTime, default=db.func.now())
+    zeitstempel = db.Column(db.DateTime, default=datetime.utcnow)
     sender_id=db.Column("sender_id", db.ForeignKey("nutzer.id"), nullable = False)
     empfaenger_id= db.Column('empfaenger_id', db.ForeignKey("nutzer.id"), nullable = False)
  
