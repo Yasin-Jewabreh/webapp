@@ -1,36 +1,57 @@
-import db
+from db import db
 from flask import Flask, render_template, redirect, url_for, request
-import os 
+import models
 
 app = Flask(__name__)
 
-os.makedirs(app.instance_path, exist_ok=True)
+app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///helpyourneighbour.db"
+app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
-app.config.from_mapping(
-    DATABASE = os.path.join(app.instance_path, "Pflegehilfe.db")
-    )
+db.init_app(app)
 
-app.cli.add_command(db.init_db)
-app.teardown_appcontext(db.close_db_con)
+with app.app_context():
+    db.create_all()
 
 @app.route("/")
 def startseite():
     return "Die Startseite funktioniert"
 
 @app.route("/auftraege")
-def auftraege():
-    return "Auftragsübersicht funktioniert"
+@login_required
+def auftraege_start():
+    if current_user.rolle == "PP":
+        return redirect (url_for("auftrag_erstellen"))
 
-@app.route("/db-test")
-def db_test():
-    db_con = db.get_db_con()
-    result =db_con.execute("Select 1").fetchone() #ohne fetchone würde es nur drauf zeigen: <sqlite3.Cursor object at 0x...>
+    if current_user.rolle == "Helfer":
+        return redirect (url_for("helfer_auftraege"))
 
-    return f"Datenbank funktioniert: {result[0]}"
+    return "Unbekante Benutzerrolle", 403
 
-@app.route("/kalender")
+@app.route("/auftrag/erstellen", methods =["GET", "POST"])
+@login_required
+def auftrag_erstellen():
+    if request.method == "POST":
+        neuer_auftrag = auftrag(
+            wohnsituation = request.form["wohnsituation"],
+            beschreibung = request.form["beschreibung"],
+            status = "offen",
+            nutzer_id = current_user.id
+        )
+
+        db.session.add(neuer_auftrag)
+        db.session.commit()
+
+        return redirect(url_for("auftraege_start"))
+    
+    return render_template(
+        "auftrag_erstellen.html",
+        nutzer = current_user
+    )
+
+
+@app.route("/termine")
 def kalender():
-    return render_template("calendar.html")
+    return render_template("termine.html")
 
 if __name__ == "__main__":
     app.run(debug=True)
