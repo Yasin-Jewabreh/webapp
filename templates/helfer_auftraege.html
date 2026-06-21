@@ -1,83 +1,41 @@
 {% extends "base.html" %}
 
-{% block title %}
-  Auftragsübersicht 
-{% endblock %}
+{% block TITLE %}Offene Aufträge{% endblock %}
 
 {% block CONTENT %}
 <div class="container mt-5">
-    <div class=text-center mb-4>
-        <h2 style="color: #0d8a8a;">Verfügbare Hilfgesuche</h2>
-        <p class ="text-muted">Wische oder klick dich durch die Profile, um zu helfen.</p>
-        
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Offene Aufträge für Helfer</h2>
+        <span class="badge bg-secondary">{{ auftraege|length }} Aufträge verfügbar</span>
     </div>
 
-    <div id="profilKarussell" class="carousel slide" data-bs-ride="false" data-bs-touch="true">
-        <div class="carousel-inner">
+    {% if auftraege %}
+        <div class="d-flex flex-column gap-3">
             
             {% for auftrag in auftraege %}
-            <div class="carousel-item {% if loop.first %}active{% endif %}">
-                <div class="card swipe-card mx-auto">
-                    
-                    <div class="profile-header">
-                        <h3 class="mb-0 text-center">{{ auftrag.nutzer.vorname}} {{auftrag.nutzer.nachname }} </h3>
-                        <p class="mb-0 opacity-75 px-5 text-center">
-                            {{ heute.year - auftrag.nutzer.geburtsdatum.year }} Jahre • {{ auftrag.nutzer.plz }}
-                        </p>
-                    </div>
-
-                    <div class="card-body p-4 text-center">
-                        <div class="mb-3">
-                            <span class="badge bg-light text-dark p-2 border">
-                                🏠 Wohnsituation: <strong>{{ auftrag.wohnsituation }}</strong>
-                            </span>
+                <div class="card shadow-sm border-0 rounded-3 p-3 bg-white">
+                    <div class="row align-items-center">
+                        <div class="col-md-3">
+                            <h5>{{ auftrag.nutzer.vorname }} {{ auftrag.nutzer.nachname }}</h5>
                         </div>
-
-                        <h5 class="card-title text-muted mt-4 px-5">Beschreibung der Aufgabe:</h5>
-                        <p class="card-text fs-5" style="color: #2c3e50;">
-                            "{{ auftrag.beschreibung }}"
-                        </p>
-
-                        <div class="d-grid gap-2 mt-5">
-                            <button class="btn btn-success btn-lg shadow-sm">
-                                Annehmen
-                            </button>
+                        <div class="col-md-5">
+                            <p>{{ auftrag.beschreibung }}</p>
+                        </div>
+                        <div class="col-md-2">
+                            <span>{{ auftrag.nutzer.ort }}</span>
+                        </div>
+                        <div class="col-md-2 text-md-end">
+                            <a href="#" class="btn btn-success w-100">Annehmen</a>
                         </div>
                     </div>
-
                 </div>
-            </div>
-            {% else %}
-            <div class="text-center mt-5">
-                <p class="fs-4 text-muted">Aktuell gibt es keine offenen Aufträge. 🎉</p>
-            </div>
             {% endfor %}
 
         </div>
-
-        <button class="carousel-control-prev" type="button" data-bs-target="#profilKarussell" data-bs-slide="prev" style="filter: invert(1);">
-            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-            <span class="visually-hidden">Zurück</span>
-        </button>
-        <button class="carousel-control-next" type="button" data-bs-target="#profilKarussell" data-bs-slide="next" style="filter: invert(1);">
-            <span class="carousel-control-next-icon" aria-hidden="true"></span>
-            <span class="visually-hidden">Nächstes</span>
-        </button>
-    </div>
+    {% else %}
+        <div class="alert alert-info text-center" role="alert">
+            Aktuell gibt es keine offenen Aufträge. Schau später wieder vorbei!
+        </div>
+    {% endif %}
 </div>
 {% endblock %}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-</html>
