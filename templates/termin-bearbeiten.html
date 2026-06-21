@@ -2,13 +2,18 @@
 {% from 'bootstrap5/form.html' import render_form %}
 {% block TITLE %} Terminübersicht {% endblock %}
 
-{% block CONTENT%}
-    <h1> Termin bearbeiten </h1>
-   
-    <div class = "row">
-        <div class = "col-md-6">
-            {{ render_form(form)}}
+{% block CONTENT%}    
+    <div class = "container container-sm mt-5">    
+        <div class = "row justify-content-center">
+            <div class="col-12">
+                <div class = "card shadow-sm">
+                    <div class ="card-body p-4">
+                        <h2 class ="mb-3"> Termin bearbeiten </h2>
+                        <hr>
+                        {{ render_form(form)}}
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
-
 {% endblock %}
