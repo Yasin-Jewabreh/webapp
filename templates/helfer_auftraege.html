@@ -1,32 +1,71 @@
 {% extends "base.html" %}
 
 {% block title %}
-    Offene Aufträge
+  Auftragsübersicht 
 {% endblock %}
 
-{% block content %}
-
-    <h1>Offene Aufträge</h1>
-    <p>Finde einen Auftrag, bei dem du helfen willst.</p>
-
-    <section class= "auftragsliste">
-    
-    {%for auftrag in auftraege %}
-
-        <article class = "auftrag-karte">
-         <h2>{{auftrag.name}}</h2>
-
-        <p>
+{% block CONTENT %}
+<div class="container mt-5">
+    <div class=text-center mb-4>
+        <h2 style="color: #0d8a8a;">Verfügbare Hilfgesuche</h2>
+        <p class ="text-muted">Wische oder klick dich durch die Profile, um zu helfen.</p>
         
-        <strong>Adresse:</strong>
-        {{auftrag.adresse}}
-        
-        </p>
+    </div>
 
+    <div id="profilKarussell" class="carousel slide" data-bs-ride="false" data-bs-touch="true">
+        <div class="carousel-inner">
+            
+            {% for auftrag in auftraege %}
+            <div class="carousel-item {% if loop.first %}active{% endif %}">
+                <div class="card swipe-card mx-auto">
+                    
+                    <div class="profile-header">
+                        <h3 class="mb-0 text-center">{{ auftrag.nutzer.vorname}} {{auftrag.nutzer.nachname }} </h3>
+                        <p class="mb-0 opacity-75 px-5 text-center">
+                            {{ heute.year - auftrag.nutzer.geburtsdatum.year }} Jahre • {{ auftrag.nutzer.plz }}
+                        </p>
+                    </div>
 
+                    <div class="card-body p-4 text-center">
+                        <div class="mb-3">
+                            <span class="badge bg-light text-dark p-2 border">
+                                🏠 Wohnsituation: <strong>{{ auftrag.wohnsituation }}</strong>
+                            </span>
+                        </div>
 
-        </article>    
-    </section>
+                        <h5 class="card-title text-muted mt-4 px-5">Beschreibung der Aufgabe:</h5>
+                        <p class="card-text fs-5" style="color: #2c3e50;">
+                            "{{ auftrag.beschreibung }}"
+                        </p>
+
+                        <div class="d-grid gap-2 mt-5">
+                            <button class="btn btn-success btn-lg shadow-sm">
+                                Annehmen
+                            </button>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+            {% else %}
+            <div class="text-center mt-5">
+                <p class="fs-4 text-muted">Aktuell gibt es keine offenen Aufträge. 🎉</p>
+            </div>
+            {% endfor %}
+
+        </div>
+
+        <button class="carousel-control-prev" type="button" data-bs-target="#profilKarussell" data-bs-slide="prev" style="filter: invert(1);">
+            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Zurück</span>
+        </button>
+        <button class="carousel-control-next" type="button" data-bs-target="#profilKarussell" data-bs-slide="next" style="filter: invert(1);">
+            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Nächstes</span>
+        </button>
+    </div>
+</div>
+{% endblock %}
 
 
 
