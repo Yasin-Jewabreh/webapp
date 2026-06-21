@@ -61,6 +61,18 @@ def helfer_auftraege():
         heute=heute
     )
 
+@app.route("/helfer/auftrag/<int:auftrag_id>")
+def auftrag_annehmen(auftrag_id):
+    
+    auftrag = Auftrag.query.get_or_404(auftrag_id)
+    
+  
+    auftrag.angenommen = "angenommen"
+    db.session.commit()
+    
+    return render_template("auftrag_angenommen.html", auftrag=auftrag)
+
+
 if __name__ == "__main__":
     with app.app_context():
         
