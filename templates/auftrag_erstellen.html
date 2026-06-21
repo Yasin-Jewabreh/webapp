@@ -1,15 +1,7 @@
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 {% extends "base.html" %}
 
-{% block TITLE %}
-    Pflegeprofil erstellen
-{% endblock %}
-
-{%block head%}
-<link 
-    rel = "stylesheet"
-    href = "{{ url_for('static', filename = 'css/pflegeprofil.css') }}">
-
-{%endblock%}
+{% block TITLE %}Auftrag erstellen{% endblock %}
 
 {% block CONTENT %}
 <main class="profile-page">
@@ -18,220 +10,73 @@
 
             <div class="profile-header">
                 <span class="profile-label">Pflegeprofil</span>
-
                 <h1>Erstelle dein persönliches Profil</h1>
-
-                <p>
-                    Beschreibe dich kurz, damit Studierende einen ersten
-                    Eindruck von dir bekommen. Weitere Einzelheiten zur
-                    Unterstützung könnt ihr später im Chat besprechen.
-                </p>
             </div>
 
-            <form
-                method="POST"
-                action="{{ url_for('pflegeprofil_erstellen') }}"
-                class="profile-form"
-            >
-            <div class="form-row">
-            <div class = "form-group"> 
-                    <label for="name">
-                        Vorname
-                    </label>
+            <form method="POST" action="{{ url_for('auftrag_erstellen') }}" class="profile-form">
+            {{ form.hidden_tag() }} 
+            <div class="row">
+                <div class="col-md-6">
+                     <div class="form-group mb-2">
+                        <label>Vorname</label>
+                        <input type="text" class="form-control" value="{{ nutzer.vorname if nutzer else '' }}" disabled>
+                            </div>
+                         </div>
+                     <div class="col-md-6">
+                        <div class="form-group mb-2">
+                        <label>Nachname</label>
+                        <input type="text" class="form-control" value="{{ nutzer.nachname if nutzer else '' }}" disabled>
+                            </div>
+                                </div>
+                                    </div>
 
-                    <input
-                        type="text"
-                        id="vorname"
-                        class="form-control"
-                        value="{{nutzer.vorname}}"
-                        readonly
-                    >
-                </div>
-
-                <div class="form-group">
-                    <label forr = "nachname">
-                            name
-                        </label>
-
-                       <input
-                            type="text"
-                            id="name"
-                            class="form-control"
-                            value="{{nutzer.name}}"
-                            readonly 
-                        >
-                        </div>
-                    </div>
-
-                <div class="form-row">
-                    <div class="form-row">
-                        <label for="geburtsdatum">
-                            Geburtsdatum
-                        </label>
-
-                        <input
-                            type="text"
-                            id="geburtsdatum"
-                            class="form-control"
-                            value="{{nutzer.geburtsdatum}}"
-                            readonly
-                            >
-                    </div>
-
-                    <div class="form-group">
-                        <label for="geschlecht">
-                            Geschlecht
-                        </label>
-
-                        <select
-                            id="geschlecht"
-                            class="form-control"
-                            value="{{nutzer.geschlecht}}"
-                            readonly
-                        >
-
-                        </div>
-                 </div>
-
-                <div class="form-group">
-                    <label for="Adresse">
-                            Adresse                    
-                    </label>
-                    
-                    <input 
-                        type="text"
-                        id="adresse"
-                        class="form-control"
-                        value="{{nutzer.adresse}}"
-                        readonly
-                        >
-                    </div>
-
-
-                <div class="form-row">
-                    <label for="plz">
-                            Postleitzahl
-                    </label>
+                <div class="row">
+    <div class="col-md-6">
+        <div class="form-group mb-4">
+            <label>Adresse</label>
+            <input type="text" class="form-control" value="{{ nutzer.adresse if nutzer else '' }}, {{ nutzer.plz if nutzer else '' }} {{ nutzer.ort if nutzer else '' }}" disabled>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="form-group mb-4">
+            <label>Mobil</label>
+            <input type="text" class="form-control" value="{{ nutzer.telefon if nutzer else '' }}" disabled>
+        </div>
+    </div>
+</div>
+                <h2>Angaben zum Auftrag</h2>
                 
-                <input 
-                    type="text"
-                    id="postleitzahl"
-                    class="form-control"
-                    value="{{nutzer.postleitzahl}}"
-                    readonly 
-                >
+                <div class="col-md-6">
+                <div class="form-group">
+                    {{ form.wohnsituation.label(class="form-label") }}
+                    {{ form.wohnsituation(class="form-select") }}
+                    {% if form.wohnsituation.errors %}
+                        <div class="text-danger">{{ form.wohnsituation.errors[0] }}</div>
+                    {% endif %}
                 </div>
             </div>
 
-
+                <div class="col-md-6">
                 <div class="form-group">
-                    <label for="ort">
-                            Ort
-                    </label>
-                
-                <input 
-                    type="text"
-                    id="ort"
-                    class="form-control"
-                    value="{{nutzer.ort}}"
-                    readonly 
-                >
+                    {{ form.beschreibung.label(class="form-label") }}
+                    {{ form.beschreibung(class="form-control description-field", rows="7", placeholder="Erzähle etwas über dich...") }}
+                    {% if form.beschreibung.errors %}
+                        <div class="text-danger">{{ form.beschreibung.errors[0] }}</div>
+                    {% endif %}
                 </div>
             </div>
 
-            <h2>Angaben zum Auftrag</h2>
                 <div class="form-group">
-                    <label for="wohnsituation">
-                        Wohnsituation
-                    </label>
-
-                    <select
-                        id="wohnsituation"
-                        name="wohnsituation"
-                        class="form-select"
-                        required
-                    >
-                        <option value="" selected disabled>
-                            Bitte auswählen
-                        </option>
-
-                        <option value="allein">
-                            Ich lebe allein
-                        </option>
-
-                        <option value="partner">
-                            Ich lebe mit meinem Partner oder meiner Partnerin
-                        </option>
-
-                        <option value="familie">
-                            Ich lebe mit meiner Familie
-                        </option>
-
-                        <option value="wohngemeinschaft">
-                            Ich lebe in einer Wohngemeinschaft
-                        </option>
-
-                        <option value="pflegeeinrichtung">
-                            Ich lebe in einer Pflegeeinrichtung
-                        </option>
-
-                        <option value="andere">
-                            Andere Wohnsituation
-                        </option>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label for="beschreibung">
-                        Über mich
-                    </label>
-
-                    <textarea
-                        id="beschreibung"
-                        name="beschreibung"
-                        class="form-control description-field"
-                        rows="7"
-                        maxlength="500"
-                        placeholder="Erzähle etwas über dich, deinen Alltag und in welchen Bereichen du grundsätzlich Unterstützung gebrauchen könntest."
-                        required
-                    ></textarea>
-
-                    <p class="form-hint">
-                        Bitte teile hier keine sensiblen medizinischen Daten.
-                        Konkrete Details könnt ihr später im Chat klären.
-                    </p>
-                </div>
-
-                <div class="privacy-box">
-                    <input
-                        type="checkbox"
-                        id="bestaetigung"
-                        name="bestaetigung"
-                        value="akzeptiert"
-                        required
-                    >
-
-                    <label for="bestaetigung">
-                        Ich bestätige, dass die angegebenen Informationen in
-                        meinem Profil für registrierte Studierende sichtbar
-                        sein dürfen.
-                    </label>
+                    {{ form.bestaetigung() }}
+                    {{ form.bestaetigung.label(class="form-control border-info") }}
+                    {% if form.bestaetigung.errors %}
+                        <div class="text-danger d-block">{{ form.bestaetigung.errors[0] }}</div>
+                    {% endif %}
                 </div>
 
                 <div class="form-actions">
-                    <a
-                        href="{{ url_for('startseite') }}"
-                        class="btn btn-outline-secondary"
-                    >
-                        Abbrechen
-                    </a>
-
-                    <button
-                        type="submit"
-                        class="btn btn-primary publish-button"
-                    >
-                        Auftrag veröffentlichen
-                    </button>
+                    <a href="{{ url_for('startseite') }}" class="btn btn-outline-secondary">Abbrechen</a>
+                    {{ form.submit(class="btn btn-primary publish-button") }}
                 </div>
             </form>
 
