@@ -1,6 +1,9 @@
 from db import db
+from flask_login import UserMixin
 
-class Nutzer(db.Model):
+
+
+class Nutzer(db.Model, UserMixin):
     __tablename__ = "nutzer"
 
     id = db.Column(db.Integer, primary_key = True, index = True)
