@@ -7,7 +7,15 @@ from forms import AuftragFormular
 
 app = Flask(__name__)
 
+app.secret_key = "your_secret_key"
 
+login_manager = LoginManager()
+login_manager.init_app(app)
+login_manager.login_view = "login"
+
+@login_manager.user_loader
+def load_user(user_id):
+    return Nutzer.query.get(int(user_id))
 
 os.makedirs(app.instance_path, exist_ok=True)
 
@@ -15,13 +23,59 @@ app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///pflegehilfe.db"
 
 app.config["SECRET_KEY"]= "ein_geheimes_passwort"
 
+with app.app_context():
+    db.create_all()
+
+
 db.init_app(app)
 bootstrap = Bootstrap5(app)
-
 @app.route("/")
 def startseite():
-    return "Die Startseite funktioniert"
+    return render_template("startseite.html")
 
+@app.route("/register", methods=["GET", "POST"])
+def register():
+    if request.method == "POST":
+        neuer_nutzer = Nutzer(
+            vorname = request.form["vorname"],
+            nachname = request.form["nachname"],
+            geschlecht = request.form["geschlecht"],
+            geburtsdatum = datetime.strptime(request.form["geburtsdatum"], "%Y-%m-%d").date(),
+            adresse = request.form["adresse"],
+            plz = request.form["plz"],
+            ort = request.form["ort"],
+            email = request.form["email"],
+            telefonnummer = request.form["telefonnummer"],
+            passwort = request.form["passwort"],
+            rolle = request.form["rolle"]
+        )
+
+        db.session.add(neuer_nutzer)
+        db.session.commit()
+
+        return redirect(url_for("login"))
+
+    return render_template("register.html")
+
+@app.route("/login", methods=["GET", "POST"])
+def login():
+    if request.method == "POST":
+        email = request.form["email"]
+        passwort = request.form["passwort"]
+
+        nutzer = Nutzer.query.filter_by(email=email).first()
+
+        if nutzer and nutzer.passwort == passwort:
+            login_user(nutzer)
+            return redirect(url_for("auftraege_start"))
+
+    return render_template("login.html")
+
+@app.route("/logout")
+@login_required
+def logout():
+    logout_user()
+    return redirect(url_for("startseite"))
 
 @app.route("/auftrag/erstellen", methods=["GET", "POST"])
 def auftrag_erstellen():
