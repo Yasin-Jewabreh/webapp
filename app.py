@@ -48,7 +48,18 @@ def auftrag_erstellen():
 
     return render_template("auftrag_erstellen.html", nutzer=aktueller_nutzer, form =form)
 
+@app.route("/helfer/auftraege")
+def helfer_auftraege():
+    
+    offene_auftraege = Auftrag.query.filter_by(angenommen="offen").all()
 
+    heute = date.today()
+
+    return render_template(
+        "helfer_auftraege.html",
+        auftraege=offene_auftraege,
+        heute=heute
+    )
 
 if __name__ == "__main__":
     with app.app_context():
@@ -56,7 +67,7 @@ if __name__ == "__main__":
         db.create_all()
         
         
-        if Nutzer.query.get(4) is None:
+        if Nutzer.query.get(3) is None:
             
             helfer1 = Nutzer(vorname="Yasin", nachname="Jason", geschlecht="M", 
                              geburtsdatum=datetime.strptime("27.12.2008", "%d.%m.%Y").date(),
@@ -82,11 +93,11 @@ if __name__ == "__main__":
             db.session.commit()
                 
            
-            auftrag1 = Auftrag(wohnsituation="Alleinstehend", beschreibung="Spende bittööö",
-                               angenommen="offen", nutzer_id=pp1.id)
+           # auftrag1 = Auftrag(wohnsituation="Alleinstehend", beschreibung="Spende bittööö",
+            #                   angenommen="offen", nutzer_id=pp1.id)
                 
-            db.session.add(auftrag1)
-            db.session.commit()
+            #db.session.add(auftrag1)
+            #db.session.commit()
                 
         
             print("Testdaten erfolgreich hinzugefügt!")
