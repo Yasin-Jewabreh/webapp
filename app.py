@@ -43,15 +43,16 @@ def termine():
     if aktueller_nutzer.rolle == "Helfer":
         bestaetigte_termine =  db.session.execute(db.select(Termin).where(Termin.helfer_id == aktueller_nutzer.id,Termin.complete == False,Termin.bestaetigt == True).order_by(Termin.datum, Termin.uhrzeit_beginn)).scalars().all()
         offene_termine =  db.session.execute(db.select(Termin).where(Termin.helfer_id == aktueller_nutzer.id,Termin.complete == False,Termin.bestaetigt == False, Termin.ersteller_id != aktueller_nutzer.id).order_by(Termin.datum, Termin.uhrzeit_beginn)).scalars().all()
-
+        warten_auf_antwort_termine = db.session.execute(db.select(Termin).where(Termin.helfer_id == aktueller_nutzer.id,Termin.complete == False,Termin.bestaetigt == False, Termin.ersteller_id == aktueller_nutzer.id).order_by(Termin.datum, Termin.uhrzeit_beginn)).scalars().all()
     elif aktueller_nutzer.rolle == "PP":
         bestaetigte_termine =  db.session.execute(db.select(Termin).where(Termin.pp_id == aktueller_nutzer.id,Termin.complete == False,Termin.bestaetigt == True).order_by(Termin.datum, Termin.uhrzeit_beginn)).scalars().all()
         offene_termine =  db.session.execute(db.select(Termin).where(Termin.pp_id == aktueller_nutzer.id,Termin.complete == False,Termin.bestaetigt == False, Termin.ersteller_id != aktueller_nutzer.id).order_by(Termin.datum, Termin.uhrzeit_beginn)).scalars().all()
-
+        warten_auf_antwort_termine = db.session.execute(db.select(Termin).where(Termin.pp_id == aktueller_nutzer.id,Termin.complete == False,Termin.bestaetigt == False, Termin.ersteller_id == aktueller_nutzer.id).order_by(Termin.datum, Termin.uhrzeit_beginn)).scalars().all()
+   
     form.teilnehmer.choices.insert(0,(0, "---Bitte wählen---"))
 
     if request.method == "GET":
-        return render_template("termine.html", bestaetigte = bestaetigte_termine, offene = offene_termine, form = form, nutzer= aktueller_nutzer)
+        return render_template("termine.html", bestaetigte = bestaetigte_termine, offene = offene_termine, wartende = warten_auf_antwort_termine, form = form, nutzer= aktueller_nutzer)
     else:
         if "erledigen_id" in request.form:
             termin_id = int(request.form.get("erledigen_id"))
@@ -94,7 +95,7 @@ def termine():
 
             if ueberschneidung:
                     flash("Fehler: Zu dieser Uhrzeit gibt es eine Terminüberschneidung!", "danger")
-                    return render_template("termine.html", bestaetigte = bestaetigte_termine, offene = offene_termine, form = form, nutzer= aktueller_nutzer)
+                    return render_template("termine.html", bestaetigte = bestaetigte_termine, offene = offene_termine, wartende = warten_auf_antwort_termine, form = form, nutzer= aktueller_nutzer)
             termin = Termin(helfer_id = auftrag.helfer.id,
                             auftrag_id = auftrag.id,
                             pp_id = auftrag.pp_id,
@@ -110,7 +111,7 @@ def termine():
             return redirect(url_for("termine"))
         else:
             flash("Der Termin konnte leider nicht eingetragen werden", "warning")
-        return render_template("termine.html", bestaetigte = bestaetigte_termine, offene = offene_termine, form = form, nutzer= aktueller_nutzer)
+        return render_template("termine.html", bestaetigte = bestaetigte_termine, offene = offene_termine, wartende = warten_auf_antwort_termine, form = form, nutzer= aktueller_nutzer)
 
 
 @app.route('/termine/<int:id>', methods=['GET', 'POST'])
@@ -127,11 +128,6 @@ def termin(id):
     elif aktueller_nutzer.rolle == "PP":
         verfuegbare_auftraege = db.session.execute(db.select(Auftrag).where(Auftrag.pp_id == aktueller_nutzer.id)).scalars().all()
         form.teilnehmer.choices = [(a.id, f"{a.helfer.vorname} {a.helfer.nachname}") for a in verfuegbare_auftraege]
-
-    if aktueller_nutzer.rolle == "Helfer":
-        termin_liste =  db.session.execute(db.select(Termin).where(Termin.helfer_id == aktueller_nutzer.id,Termin.complete == False).order_by(Termin.datum, Termin.uhrzeit_beginn)).scalars().all()
-    elif aktueller_nutzer.rolle == "PP":
-         termin_liste =  db.session.execute(db.select(Termin).where(Termin.pp_id == aktueller_nutzer.id,Termin.complete == False).order_by(Termin.datum, Termin.uhrzeit_beginn)).scalars().all()
 
     if request.method == 'GET':
         if termin:
