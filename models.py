@@ -25,18 +25,16 @@ class Auftrag(db.Model):
     id = db.Column(db.Integer, primary_key = True, index = True)
     wohnsituation = db.Column(db.String(100), nullable = False)
     beschreibung = db.Column(db.String(500), nullable = False)
-    angenommen = db.Column(db.Boolean, default = False, nullable = False)
-    helfer_id = db.Column("helfer_id", db.ForeignKey("nutzer.id"), nullable = True)
-    pp_id = db.Column("pp_id", db.ForeignKey("nutzer.id"), nullable = False)
-
-    pp = db.relationship("Nutzer", foreign_keys=[pp_id], backref="erstellte_auftraege")
-    helfer = db.relationship("Nutzer", foreign_keys=[helfer_id], backref="angenommene_auftraege")
+    angenommen = db.Column(db.String(50), default = "offen", nullable = False)
+    nutzer_id = db.Column("nutzer_id", db.ForeignKey("nutzer.id"), nullable = False)
+    
+    nutzer = db.relationship("Nutzer", backref="auftraege", lazy=True)
 
 def berlin_time():
     tz_berlin = pytz.timezone('Europe/Berlin')
     return datetime.now(tz_berlin)
-    
-class Nachricht (db.Model):
+
+class Nachricht(db.Model):
     __tablename__ = "nachricht"
     
 
