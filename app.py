@@ -4,12 +4,18 @@ import models
 from models import Nutzer, Auftrag
 from flask_login import LoginManager, login_user, login_required, current_user
 
+from datetime import datetime
+
 app = Flask(__name__)
 app.secret_key = "your_secret_key"
 
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = "login"
+
+@login_manager.user_loader
+def load_user(user_id):
+    return Nutzer.query.get(int(user_id))
 
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///helpyourneighbour.db"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
@@ -30,7 +36,10 @@ def register():
             vorname = request.form["vorname"],
             nachname = request.form["nachname"],
             geschlecht = request.form["geschlecht"],
-            geburtsdatum = request.form["geburtsdatum"],
+            geburtsdatum = datetime.strptime(
+    request.form["geburtsdatum"],
+    "%Y-%m-%d"
+).date(),
             adresse = request.form["adresse"],
             plz = request.form["plz"],
             ort = request.form["ort"],
