@@ -2,7 +2,7 @@ from db import db
 from flask import Flask, render_template, redirect, url_for, request
 import models
 from models import Nutzer, Auftrag
-from flask_login import LoginManager, login_user, login_required, current_user
+from flask_login import LoginManager, login_user, login_required, current_user, logout_user
 
 from datetime import datetime
 
@@ -36,10 +36,7 @@ def register():
             vorname = request.form["vorname"],
             nachname = request.form["nachname"],
             geschlecht = request.form["geschlecht"],
-            geburtsdatum = datetime.strptime(
-    request.form["geburtsdatum"],
-    "%Y-%m-%d"
-).date(),
+            geburtsdatum = datetime.strptime(request.form["geburtsdatum"], "%Y-%m-%d").date(),
             adresse = request.form["adresse"],
             plz = request.form["plz"],
             ort = request.form["ort"],
@@ -69,6 +66,12 @@ def login():
             return redirect(url_for("auftraege_start"))
 
     return render_template("login.html")
+
+@app.route("/logout")
+@login_required
+def logout():
+    logout_user()
+    return redirect(url_for("startseite"))
 
 @app.route("/auftraege")
 @login_required
