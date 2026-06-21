@@ -27,7 +27,7 @@ with app.app_context():
 
 @app.route("/")
 def startseite():
-    return "Die Startseite funktioniert"
+    return render_template("startseite.html")
 
 @app.route("/register", methods=["GET", "POST"])
 def register():
