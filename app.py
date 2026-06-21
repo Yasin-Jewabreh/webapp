@@ -26,6 +26,28 @@ def startseite():
 def auftraege():
     return "Auftragsübersicht funktioniert"
 
+@app.route("/termine/historie/", methods = ["GET", "POST"])
+def historie():
+    aktueller_nutzer = db.session.execute(db.select(Nutzer).where(Nutzer.rolle == "Helfer")).scalars().first()
+
+    if aktueller_nutzer.rolle == "Helfer":
+        erledigte_termine =  db.session.execute(db.select(Termin).where(Termin.helfer_id == aktueller_nutzer.id,Termin.complete == True).order_by(Termin.datum, Termin.uhrzeit_beginn)).scalars().all()
+    elif aktueller_nutzer.rolle == "PP":
+        erledigte_termine =  db.session.execute(db.select(Termin).where(Termin.pp_id == aktueller_nutzer.id,Termin.complete == True).order_by(Termin.datum, Termin.uhrzeit_beginn)).scalars().all()
+    if request.method == "GET":
+        return render_template("historie.html", erledigte = erledigte_termine , nutzer= aktueller_nutzer)
+    else:
+        if "oeffnen_id" in request.form:
+            termin_id = int(request.form.get("oeffnen_id"))
+            termin= db.session.get(Termin, termin_id)
+            if termin:
+                termin.complete = False
+                db.session.commit()
+                flash("Termin wieder geöffnet!", "success")
+            return redirect(url_for("historie"))
+    
+
+
 @app.route("/termine/", methods = ["GET", "POST"])
 def termine():
     form = forms.TerminErstellenForm()
