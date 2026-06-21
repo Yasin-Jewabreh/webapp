@@ -40,12 +40,8 @@ Register
 
 <label>Passwort bestätigen</label>
 <input type="password" name="passwort2">
-
-<label>Rolle</label>
-<select name="rolle">
-    <option value="pflegebeduerftiger">Pflegebedürftiger</option>
-<option value="helfer">Helfer</option>
-</select>   
+   
+<input type="hidden" name="rolle" value="{{ rolle }}">
 
     <button type="submit">Registrieren</button>
 </form>

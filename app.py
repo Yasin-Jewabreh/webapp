@@ -29,8 +29,14 @@ with app.app_context():
 def startseite():
     return render_template("startseite.html")
 
+@app.route("/rolle-auswaehlen")
+def rolle_auswaehlen():
+    return render_template("rolle_auswaehlen.html")
+
 @app.route("/register", methods=["GET", "POST"])
 def register():
+    rolle = request.args.get("rolle")
+
     if request.method == "POST":
         neuer_nutzer = Nutzer(
             vorname = request.form["vorname"],
@@ -43,7 +49,7 @@ def register():
             email = request.form["email"],
             telefonnummer = request.form["telefonnummer"],
             passwort = request.form["passwort"],
-            rolle = request.form["rolle"]
+            rolle = rolle
         )
 
         db.session.add(neuer_nutzer)
@@ -51,7 +57,7 @@ def register():
 
         return redirect(url_for("login"))
 
-    return render_template("register.html")
+    return render_template("register.html", rolle=rolle)
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
@@ -76,10 +82,10 @@ def logout():
 @app.route("/auftraege")
 @login_required
 def auftraege_start():
-    if current_user.rolle == "PP":
+    if current_user.rolle == "hilfe_suchend":
         return redirect (url_for("auftrag_erstellen"))
 
-    if current_user.rolle == "Helfer":
+    if current_user.rolle == "hilfe_anbietend":
         return redirect (url_for("helfer_auftraege"))
 
     return "Unbekante Benutzerrolle", 403
