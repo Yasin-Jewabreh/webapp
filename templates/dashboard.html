@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block TITLE %}Dashboard{% endblock %}
+
+{% block CONTENT %}
+
+<div class="container mt-5">
+
+    <h1>Willkommen, {{ current_user.vorname }}!</h1>
+
+    <p>Sie sind angemeldet als:</p>
+
+    <p><strong>{{ current_user.rolle }}</strong></p>
+
+    <hr>
+
+    <h3>Schnellzugriff</h3>
+
+    <ul>
+        <li><a href="{{ url_for('profil') }}">Persönliche Daten</a></li>
+        <li><a href="{{ url_for('logout') }}">Logout</a></li>
+    </ul>
+
+</div>
+
+{% endblock %}
