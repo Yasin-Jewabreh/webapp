@@ -160,6 +160,8 @@ def termin(id):
                 termin.auftrag_id= gewaehlter_auftrag_id
                 termin.pp_id = auftrag.pp.id
                 termin.helfer_id = auftrag.helfer.id
+                termin.bestaetigt = False
+                termin.ersteller_id = aktueller_nutzer.id
                 db.session.add(termin)
                 db.session.commit()
                 flash("Deine Änderungen wurden erfolgreich gespeichert", "success")
