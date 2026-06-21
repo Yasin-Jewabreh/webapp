@@ -30,7 +30,7 @@ def auftraege():
 def termine():
     form = forms.TerminErstellenForm()
 
-    aktueller_nutzer = db.session.execute(db.select(Nutzer).where(Nutzer.rolle == "PP")).scalars().first()
+    aktueller_nutzer = db.session.execute(db.select(Nutzer).where(Nutzer.rolle == "Helfer")).scalars().first()
 
     if aktueller_nutzer.rolle == "Helfer":
         verfuegbare_auftraege = db.session.execute(db.select(Auftrag).where(Auftrag.helfer_id == aktueller_nutzer.id)).scalars().all()
@@ -119,11 +119,11 @@ def termin(id):
     termin = db.session.get(Termin, id) 
     form = forms.TerminBearbeiternForm(obj=termin)
     
-    aktueller_nutzer = db.session.execute(db.select(Nutzer).where(Nutzer.rolle == "PP")).scalars().first()
+    aktueller_nutzer = db.session.execute(db.select(Nutzer).where(Nutzer.rolle == "Helfer")).scalars().first()
 
     if aktueller_nutzer.rolle == "Helfer":
         verfuegbare_auftraege = db.session.execute(db.select(Auftrag).where(Auftrag.helfer_id == aktueller_nutzer.id)).scalars().all()
-        form.teilnehmer.choices = [(a.id, f"{a.pp.vorname} {a.pp.nachname}") for a in verfuegbare_auftraege]
+        form.teilnehmer.choices = [(a.id, f"{a.pp.vorname} {a.pp.nachname} - {a.pp.adresse}") for a in verfuegbare_auftraege]
 
     elif aktueller_nutzer.rolle == "PP":
         verfuegbare_auftraege = db.session.execute(db.select(Auftrag).where(Auftrag.pp_id == aktueller_nutzer.id)).scalars().all()
