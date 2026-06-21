@@ -4,10 +4,17 @@ from flask import Flask, render_template, redirect, url_for, request
 from flask_bootstrap import Bootstrap5
 from models import db, Nutzer, Auftrag, Termin  # Termin mitimportiert
 from forms import AuftragFormular
+from flask_login import LoginManager, login_user, logout_user, login_required, current_user
+
+
 
 app = Flask(__name__)
 
 app.secret_key = "your_secret_key"
+os.makedirs(app.instance_path, exist_ok=True)
+app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///pflegehilfe.db"
+app.config["SECRET_KEY"]= "ein_geheimes_passwort"
+
 
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -17,18 +24,10 @@ login_manager.login_view = "login"
 def load_user(user_id):
     return Nutzer.query.get(int(user_id))
 
-os.makedirs(app.instance_path, exist_ok=True)
-
-app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///pflegehilfe.db"
-
-app.config["SECRET_KEY"]= "ein_geheimes_passwort"
-
-with app.app_context():
-    db.create_all()
-
-
 db.init_app(app)
 bootstrap = Bootstrap5(app)
+
+
 @app.route("/")
 def startseite():
     return render_template("startseite.html")
@@ -45,7 +44,7 @@ def register():
             plz = request.form["plz"],
             ort = request.form["ort"],
             email = request.form["email"],
-            telefonnummer = request.form["telefonnummer"],
+            telefon = request.form["telefonnummer"],
             passwort = request.form["passwort"],
             rolle = request.form["rolle"]
         )
@@ -67,7 +66,7 @@ def login():
 
         if nutzer and nutzer.passwort == passwort:
             login_user(nutzer)
-            return redirect(url_for("auftraege_start"))
+            return redirect(url_for("auftrag_erstellen"))
 
     return render_template("login.html")
 
