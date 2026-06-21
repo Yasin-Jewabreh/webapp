@@ -78,6 +78,11 @@ def login():
 def dashboard():
     return render_template("dashboard.html")
 
+@app.route("/profil")
+@login_required
+def profil():
+    return render_template("profil.html")
+
 @app.route("/logout")
 @login_required
 def logout():

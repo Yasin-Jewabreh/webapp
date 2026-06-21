@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block TITLE %}Profil{% endblock %}
+
+{% block CONTENT %}
+
+<h1>Persönliche Daten</h1>
+
+<hr>
+
+<p>
+    <strong>Vorname:</strong>
+    {{ current_user.vorname }}
+</p>
+
+<p>
+    <strong>Nachname:</strong>
+    {{ current_user.nachname }}
+</p>
+
+<p>
+    <strong>E-Mail:</strong>
+    {{ current_user.email }}
+</p>
+
+<p>
+    <strong>Telefon:</strong>
+    {{ current_user.telefonnummer }}
+</p>
+
+<p>
+    <strong>Rolle:</strong>
+    {{ current_user.rolle }}
+</p>
+
+<br>
+
+<a href="{{ url_for('dashboard') }}">
+    Zurück zum Dashboard
+</a>
+
+{% endblock %}
