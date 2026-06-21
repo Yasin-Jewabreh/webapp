@@ -1,7 +1,6 @@
 from db import db
-from flask_login import UserMixin
 
-class Nutzer(UserMixin ,db.Model):
+class Nutzer(db.Model):
     __tablename__ = "nutzer"
 
     id = db.Column(db.Integer, primary_key = True, index = True)
@@ -26,6 +25,10 @@ class Auftrag(db.Model):
     status = db.Column(db.String(50), default = "offen", nullable = False)
     nutzer_id = db.Column("nutzer_id", db.ForeignKey("nutzer.id"), nullable = False)
     
+    angenommen = db.Column(db.String(50), default = "offen", nullable = False)
+    nutzer_id = db.Column("nutzer_id", db.ForeignKey("nutzer.id"), nullable = False)
+    
+    nutzer = db.relationship("Nutzer", backref="auftraege", lazy=True)
     
 class Nachricht (db.Model):
     __tablename__ = "nachricht"
