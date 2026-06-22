@@ -100,7 +100,7 @@ def profil():
 def logout():
     logout_user()  
     session.clear() 
-    return redirect(url_for("login")) 
+    return redirect(url_for("startseite")) 
 
 @app.route("/auftrag/erstellen", methods=["GET", "POST"])
 @login_required
