@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-{{ bootstrap.load_css() }}
-<title>{% block TITLE %}{% endblock %} - HelpYourNeighbour</title>
+<title>{% block TITLE %}{% endblock %} - HelpyourNeighbour</title>
+{{bootstrap.load_css()}}
 </head>
 <body>
       <nav class="navbar navbar-expand-xl border-bottom mb-3">
@@ -14,8 +14,41 @@
 </nav>
 
 <main class="container">
+<div class="container mt-3">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }} alert-dismissible fade show col-md-6 mx-auto flash-message py-2" role="alert">
+                  {{ message }}
+                  <button type="button" class="btn-close py-2.5" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+</div>
      {% block CONTENT %}{% endblock %}
       </main>
-{{ bootstrap.load_js() }}
+    {{bootstrap.load_js()}}
+    <script>
+    document.addEventListener("DOMContentLoaded", function() {
+        
+        const alertElements = document.querySelectorAll('.flash-message');
+        
+        alertElements.forEach(function(alertEl) {
+            
+            setTimeout(function() {
+                
+                if (typeof bootstrap !== 'undefined' && bootstrap.Alert) {
+                    const bsAlert = new bootstrap.Alert(alertEl);
+                    bsAlert.close();
+                } else {
+                    
+                    alertEl.classList.remove('show');
+                    setTimeout(() => alertEl.remove(), 500);
+                }
+            }, 3000);
+        });
+    });
+</script>
 </body>
 </html>

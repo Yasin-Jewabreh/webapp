@@ -1,6 +1,6 @@
 import os 
 from datetime import date, datetime
-from flask import Flask, render_template, redirect, url_for, request
+from flask import Flask, render_template, redirect, url_for, request, flash
 from flask_bootstrap import Bootstrap5
 from models import Nutzer, Auftrag, Termin, Nachricht
 from forms import AuftragFormular
@@ -8,6 +8,7 @@ from flask_login import LoginManager, login_user, logout_user, login_required, c
 from flask import session 
 from db import db
 from forms import AuftragFormular
+
 
 app = Flask(__name__)
 app.secret_key = "helpyourneighbour"
@@ -28,7 +29,8 @@ def load_user(user_id):
 
 db.init_app(app)
 bootstrap = Bootstrap5(app)
-
+with app.app_context():
+    db.create_all()
 
 @app.route("/")
 def startseite():
@@ -105,7 +107,8 @@ def auftrag_erstellen():
         )
         db.session.add(neuer_auftrag)
         db.session.commit()
-        return redirect(url_for("auftraege_start"))
+        flash("Dein Auftrag wurde erfolgreich erstellt!", "success")
+        return redirect(url_for("startseite"))
     return render_template("auftrag_erstellen.html", nutzer=current_user, form=form)
 
 @app.route("/termine")
@@ -157,4 +160,8 @@ def chat(empfaenger_id):
     return render_template("chat.html", nachrichten=nachrichten)
 
 if __name__ == "__main__":
-    app.run(debug=True)
+   with app.app_context():
+        db.drop_all()    
+        db.create_all()  
+    
+        app.run(debug=True)
