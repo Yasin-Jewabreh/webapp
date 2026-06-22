@@ -5,6 +5,10 @@ Register
 {% endblock %}
 
 {% block CONTENT %}
+<a href="{{ url_for('rolle_auswaehlen') }}" class="btn btn-outline-secondary mb-3">
+    ← Zurück
+</a>
+
 <h2>Registrieren</h2>
 
 <form method="POST" action="/register">
