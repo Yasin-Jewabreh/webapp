@@ -76,6 +76,12 @@ def login():
 
         nutzer = Nutzer.query.filter_by(email=email).first()
 
+        if nutzer is None:
+            return render_template("login.html", error="Ungültige E-Mail-Adresse oder Passwort")
+
+        if nutzer.passwort != passwort:
+            return render_template("login.html", error="Ungültige E-Mail-Adresse oder Passwort")
+
         if nutzer and nutzer.passwort == passwort:
             login_user(nutzer)
             return redirect(url_for("dashboard"))

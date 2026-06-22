@@ -6,6 +6,18 @@ Login
 
 {% block CONTENT %}
 <h2>Login</h2>
+{% if fehler %}
+<div class="alert alert-danger">
+    {{ fehler }}
+
+    {% if "Benutzer nicht vorhanden" in fehler %}
+        <br>
+        <a href="{{ url_for('register') }}">
+            Jetzt registrieren
+        </a>
+    {% endif %}
+</div>
+{% endif %}
 
 <form method="POST">
     <label>E-Mail</label>
