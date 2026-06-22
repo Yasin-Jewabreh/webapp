@@ -2,18 +2,20 @@ import os
 from datetime import date, datetime
 from flask import Flask, render_template, redirect, url_for, request
 from flask_bootstrap import Bootstrap5
-from models import db, Nutzer, Auftrag, Termin  
+from models import Nutzer, Auftrag, Termin, Nachricht
 from forms import AuftragFormular
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 from flask import session 
+from db import db
 
 
 app = Flask(__name__)
 
-app.secret_key = "your_secret_key"
-os.makedirs(app.instance_path, exist_ok=True)
-app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///pflegehilfe.db"
-app.config["SECRET_KEY"]= "ein_geheimes_passwort"
+app.secret_key = "helpyourneighbour"
+
+app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///helpyourneighbour.db"
+app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+app.config["BOOTSTRAP_BOOTSWATCH_THEME"] = "pulse"
 
 
 login_manager = LoginManager()
@@ -32,8 +34,14 @@ bootstrap = Bootstrap5(app)
 def startseite():
     return render_template("startseite.html")
 
+@app.route("/rolle-auswaehlen")
+def rolle_auswaehlen():
+    return render_template("rolle_auswaehlen.html")
+
+
 @app.route("/register", methods=["GET", "POST"])
 def register():
+
     if request.method == "POST":
         neuer_nutzer = Nutzer(
             vorname = request.form["vorname"],
@@ -54,7 +62,7 @@ def register():
 
         return redirect(url_for("login"))
 
-    return render_template("register.html")
+    return render_template("register.html", rolle=rolle)
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
