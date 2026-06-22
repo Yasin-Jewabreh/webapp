@@ -3,8 +3,7 @@ from wtforms import SelectField, TextAreaField, SubmitField, BooleanField
 from wtforms.validators import DataRequired, Length
 
 class AuftragFormular(FlaskForm):
-    wohnsituation = SelectField(
-        "Wohnsituation",
+    wohnsituation = SelectField("Wohnsituation",
         choices=[
             ("", "Bitte auswählen"),
             ("Ich lebe allein", "Ich lebe allein"),
