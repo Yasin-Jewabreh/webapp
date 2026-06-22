@@ -3,22 +3,19 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>{% block TITLE %}{% endblock %} - HelpyourNeighbour</title>
-
-
 {{ bootstrap.load_css() }}
-{%block head%}{%endblock%}
+<title>{% block TITLE %}{% endblock %} - HelpYourNeighbour</title>
 </head>
 <body>
       <nav class="navbar navbar-expand-xl border-bottom mb-3">
         <div class="container">
-        <a class="navbar-brand" href="#">HelpyourNeighbour</a>
+        <a class="navbar-brand" href="#">HelpYourNeighbour</a>
     </div> 
 </nav>
 
 <main class="container">
      {% block CONTENT %}{% endblock %}
       </main>
-
+{{ bootstrap.load_js() }}
 </body>
 </html>
