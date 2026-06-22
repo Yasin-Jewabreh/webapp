@@ -5,15 +5,20 @@ Login
 {% endblock %}
 
 {% block CONTENT %}
+
+<a href="{{ url_for('startseite') }}" class="btn btn-outline-secondary mb-3">
+    ← Zurück
+</a>
 <h2>Login</h2>
+
 {% if fehler %}
 <div class="alert alert-danger">
     {{ fehler }}
 
     {% if "Benutzer nicht vorhanden" in fehler %}
-        <br>
-        <a href="{{ url_for('register') }}">
-            Jetzt registrieren
+        <br><br>
+        <a href="{{ url_for('rolle_auswaehlen') }}" class="btn btn-primary">
+            Zur Registrierung
         </a>
     {% endif %}
 </div>
