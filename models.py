@@ -2,7 +2,9 @@ from db import db
 from datetime import datetime 
 import pytz
 
-class Nutzer(db.Model):
+
+
+class Nutzer(db.Model, UserMixin):
     __tablename__ = "nutzer"
 
     id = db.Column(db.Integer, primary_key = True, index = True)
