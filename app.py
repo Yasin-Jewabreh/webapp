@@ -7,15 +7,15 @@ from forms import AuftragFormular
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 from flask import session 
 from db import db
-
+from forms import AuftragFormular
 
 app = Flask(__name__)
-
 app.secret_key = "helpyourneighbour"
 
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///helpyourneighbour.db"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 app.config["BOOTSTRAP_BOOTSWATCH_THEME"] = "pulse"
+
 
 
 login_manager = LoginManager()
@@ -62,7 +62,7 @@ def register():
 
         return redirect(url_for("login"))
 
-    return render_template("register.html", rolle=rolle)
+    return render_template("register.html")
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
@@ -96,24 +96,21 @@ def logout():
 def auftrag_erstellen():
 
     form = AuftragFormular()
-
     
     if form.validate_on_submit():
         neuer_auftrag = Auftrag(
-            wohnsituation=form.wohnsituation.data,  
+            wohnsituation=form.wohnsituation.data,
             beschreibung=form.beschreibung.data,
-            nutzer_id=current_user.id 
+            nutzer_id=current_user.id
         )
-
         db.session.add(neuer_auftrag)
         db.session.commit()
+        return redirect(url_for("auftraege_start"))
+    return render_template("auftrag_erstellen.html", nutzer=current_user, form=form)
 
-
-        return redirect(url_for("startseite")) 
-    
-
-
-    return render_template("auftrag_erstellen.html", nutzer=current_user, form =form)
+@app.route("/termine")
+def kalender():
+    return render_template("termine.html")
 
 @app.route("/helfer/auftraege")
 @login_required
@@ -124,12 +121,7 @@ def helfer_auftraege():
 
     offene_auftraege = Auftrag.query.filter_by(angenommen="offen").all()
     heute = date.today()
-
-    return render_template(
-        "helfer_auftraege.html",
-        auftraege=offene_auftraege,
-        heute=heute
-    )
+    return render_template("helfer_auftraege.html", auftraege=offene_auftraege, heute=heute)
 
 
 @app.route("/helfer/auftrag/<int:auftrag_id>")
@@ -146,13 +138,23 @@ def auftrag_annehmen(auftrag_id):
     
     auftrag.angenommen = "angenommen"
     db.session.commit()
-    
     return render_template("auftrag_angenommen.html", auftrag=auftrag)
 
-if __name__ == "__main__":
-    with app.app_context():
-        
-        db.create_all()
-                
+@app.route("/chat/<int:empfaenger_id>", methods=["GET", "POST"])
+def chat(empfaenger_id):
+    if request.method == "POST":
+        neue_nachricht = Nachricht(
+            inhalt=request.form["inhalt"],
+            sender_id=1,
+            empfaenger_id=empfaenger_id
+        )
+        db.session.add(neue_nachricht)
+        db.session.commit()
+    nachrichten = Nachricht.query.filter(
+        (Nachricht.sender_id == 1) |
+        (Nachricht.empfaenger_id == 1)
+    ).all()
+    return render_template("chat.html", nachrichten=nachrichten)
 
+if __name__ == "__main__":
     app.run(debug=True)
