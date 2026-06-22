@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% block TITLE %}Offene Aufträge{% endblock %}
+
+{% block CONTENT %}
+<div class="container mt-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Offene Aufträge für Helfer</h2>
+        <span class="badge bg-secondary">{{ auftraege|length }} Aufträge verfügbar</span>
+    </div>
+
+    {% if auftraege %}
+        <div class="d-flex flex-column gap-3">
+            
+            {% for auftrag in auftraege %}
+                <div class="card shadow-sm border-0 rounded-3 p-3 bg-white">
+                    <div class="row align-items-center">
+                        <div class="col-md-3">
+                            <h5>{{ auftrag.nutzer.vorname }} {{ auftrag.nutzer.nachname }}</h5>
+                        </div>
+                        <div class="col-md-5">
+                            <p>{{ auftrag.beschreibung }}</p>
+                        </div>
+                        <div class="col-md-2">
+                            <span>{{ auftrag.nutzer.ort }}</span>
+                        </div>
+                        <div class="col-md-2 text-md-end text-start mt-3 mt-md-0">
+                <a href="/helfer/auftrag/{{ auftrag.id }}" class="btn btn-success w-100 py-2 fw-medium">
+                     Annehmen
+                 </a>
+            </div>
+                    </div>
+                </div>
+            {% endfor %}
+
+        </div>
+    {% else %}
+        <div class="alert alert-info text-center" role="alert">
+            Aktuell gibt es keine offenen Aufträge. Schau später wieder vorbei!
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
