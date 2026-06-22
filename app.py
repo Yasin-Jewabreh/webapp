@@ -3,11 +3,12 @@ from flask import Flask, render_template, redirect, url_for, request
 import models
 from models import Nutzer, Auftrag
 from flask_login import LoginManager, login_user, login_required, current_user, logout_user
-
+from flask_bootstrap import Bootstrap
 from datetime import datetime
 
 app = Flask(__name__)
 app.secret_key = "your_secret_key"
+bootstrap = Bootstrap(app)
 
 login_manager = LoginManager()
 login_manager.init_app(app)
