@@ -46,7 +46,7 @@ Mir ist weiterhin bewusst, dass ich, sofern ich zur Erstellung dieser Arbeit KI-
 
 | \# | My contribution | Why I am proud of it | Which challenge I overcame |
 | :-- | :-- | :-- | :-- |
-| 1 | [Describe your individual contribution] |  |  |
+| 1 | Entwicklung des Auftragbereichs für Helfer| Der Helfer Auftragsübersicht ist ein wichtiger Teil für die Benutzerfreundlichekit und auch die allgemeine Übersicht für den Helfer um zu erkennen welche die noch Offenen Aufträge, eine Auftrag annehmen und angenommenen Aufträge verwalten.| Ich musste mich erst allgemein mit der Struktur bekannt machen. Zum Beispiel dem Routing (Flask-Route), Datenbankmodell Sqlite mit der ausführung von SQLAlchemy, die Spaltung der Rollen über die nutzer.id die wir mit einer db.relationship erstellt haben und auch HTML&BootStrap5 für das allgemeine Design um es den Nutzern Veranschaulichen|
 | 2 |  |  |  |
 | 3 |  |  |  |
 
