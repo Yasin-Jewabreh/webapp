@@ -26,7 +26,7 @@ def startseite():
 def auftraege():
     return "Auftragsübersicht funktioniert"
 
-@app.route("/termine/historie/", methods = ["GET", "POST"])
+@app.route("/termine/historie/", methods = ["GET"])
 def historie():
     aktueller_nutzer = db.session.execute(db.select(Nutzer).where(Nutzer.rolle == "Helfer")).scalars().first()
 
@@ -36,16 +36,6 @@ def historie():
         erledigte_termine =  db.session.execute(db.select(Termin).where(Termin.pp_id == aktueller_nutzer.id,Termin.complete == True).order_by(Termin.datum, Termin.uhrzeit_beginn)).scalars().all()
     if request.method == "GET":
         return render_template("historie.html", erledigte = erledigte_termine , nutzer= aktueller_nutzer)
-    else:
-        if "oeffnen_id" in request.form:
-            termin_id = int(request.form.get("oeffnen_id"))
-            termin= db.session.get(Termin, termin_id)
-            if termin:
-                termin.complete = False
-                db.session.commit()
-                flash("Termin wieder geöffnet!", "success")
-            return redirect(url_for("historie"))
-    
 
 
 @app.route("/termine/", methods = ["GET", "POST"])
@@ -53,28 +43,53 @@ def termine():
     form = forms.TerminErstellenForm()
 
     aktueller_nutzer = db.session.execute(db.select(Nutzer).where(Nutzer.rolle == "Helfer")).scalars().first()
+    if not aktueller_nutzer:
+        return ("Es gibt keinen Nutzer")
+  
+    bestaetigte_termine = []
+    offene_termine = []
+    warten_auf_antwort_termine = []
 
     if aktueller_nutzer.rolle == "Helfer":
-        verfuegbare_auftraege = db.session.execute(db.select(Auftrag).where(Auftrag.helfer_id == aktueller_nutzer.id)).scalars().all()
+        verfuegbare_auftraege = aktueller_nutzer.angenommene_auftraege
+        if not verfuegbare_auftraege:
+            return("Du hast noch keinen Auftrag angenommen. Bitte Vereinbare zunächst einen Termin!")
         form.teilnehmer.choices = [(a.id, f"{a.pp.vorname} {a.pp.nachname} - {a.pp.adresse}") for a in verfuegbare_auftraege]
-
-    elif aktueller_nutzer.rolle == "PP":
-        verfuegbare_auftraege = db.session.execute(db.select(Auftrag).where(Auftrag.pp_id == aktueller_nutzer.id)).scalars().all()
-        form.teilnehmer.choices = [(a.id, f"{a.helfer.vorname} {a.helfer.nachname}") for a in verfuegbare_auftraege]
-
-    if aktueller_nutzer.rolle == "Helfer":
+        form.teilnehmer.choices.insert(0,(0, "---Bitte wählen---"))
         bestaetigte_termine =  db.session.execute(db.select(Termin).where(Termin.helfer_id == aktueller_nutzer.id,Termin.complete == False,Termin.bestaetigt == True).order_by(Termin.datum, Termin.uhrzeit_beginn)).scalars().all()
         offene_termine =  db.session.execute(db.select(Termin).where(Termin.helfer_id == aktueller_nutzer.id,Termin.complete == False,Termin.bestaetigt == False, Termin.ersteller_id != aktueller_nutzer.id).order_by(Termin.datum, Termin.uhrzeit_beginn)).scalars().all()
         warten_auf_antwort_termine = db.session.execute(db.select(Termin).where(Termin.helfer_id == aktueller_nutzer.id,Termin.complete == False,Termin.bestaetigt == False, Termin.ersteller_id == aktueller_nutzer.id).order_by(Termin.datum, Termin.uhrzeit_beginn)).scalars().all()
     elif aktueller_nutzer.rolle == "PP":
+        verfuegbare_auftraege = aktueller_nutzer.erstellte_auftraege
+        form.teilnehmer.choices = [(a.id, f"{a.helfer.vorname} {a.helfer.nachname}") for a in verfuegbare_auftraege]
+        form.teilnehmer.choices.insert(0,(0, "---Bitte wählen---"))
         bestaetigte_termine =  db.session.execute(db.select(Termin).where(Termin.pp_id == aktueller_nutzer.id,Termin.complete == False,Termin.bestaetigt == True).order_by(Termin.datum, Termin.uhrzeit_beginn)).scalars().all()
         offene_termine =  db.session.execute(db.select(Termin).where(Termin.pp_id == aktueller_nutzer.id,Termin.complete == False,Termin.bestaetigt == False, Termin.ersteller_id != aktueller_nutzer.id).order_by(Termin.datum, Termin.uhrzeit_beginn)).scalars().all()
         warten_auf_antwort_termine = db.session.execute(db.select(Termin).where(Termin.pp_id == aktueller_nutzer.id,Termin.complete == False,Termin.bestaetigt == False, Termin.ersteller_id == aktueller_nutzer.id).order_by(Termin.datum, Termin.uhrzeit_beginn)).scalars().all()
-   
-    form.teilnehmer.choices.insert(0,(0, "---Bitte wählen---"))
-
+    
     if request.method == "GET":
-        return render_template("termine.html", bestaetigte = bestaetigte_termine, offene = offene_termine, wartende = warten_auf_antwort_termine, form = form, nutzer= aktueller_nutzer)
+        if request.args.get('json') is not None:
+            json_ausgabe = {}
+            for schluessel, liste in [("bestaetigte", bestaetigte_termine), 
+                                      
+                                      ("offene", offene_termine),
+
+                                      ("wartende", warten_auf_antwort_termine)]:
+                json_ausgabe[schluessel]= [{
+                    "id": t.id,
+                    "helfer_id": t.helfer_id,
+                    "pp_id": t.pp_id,
+                    "auftrag_id": t.auftrag_id,
+                    "notizen": t.notizen,
+                    "datum": str(t.datum),
+                    "uhrzeit_beginn": str(t.uhrzeit_beginn),
+                    "uhrzeit_ende": str(t.uhrzeit_ende),
+                    "complete": t.complete,
+                    "bestaetigt": t.bestaetigt
+                }for t in liste]
+            return json_ausgabe
+        else:
+            return render_template("termine.html", bestaetigte = bestaetigte_termine, offene = offene_termine, wartende = warten_auf_antwort_termine, form = form, nutzer= aktueller_nutzer)
     else:
         if "erledigen_id" in request.form:
             termin_id = int(request.form.get("erledigen_id"))
@@ -134,6 +149,7 @@ def termine():
         else:
             flash("Der Termin konnte leider nicht eingetragen werden", "warning")
         return render_template("termine.html", bestaetigte = bestaetigte_termine, offene = offene_termine, wartende = warten_auf_antwort_termine, form = form, nutzer= aktueller_nutzer)
+
 
 
 @app.route('/termine/<int:id>', methods=['GET', 'POST'])
