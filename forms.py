@@ -21,7 +21,7 @@ class RegistrierungFormular(FlaskForm):
     geburtsdatum = DateField("Geburtsdatum",validators=[InputRequired(), check_geburtsdatum], format='%Y-%m-%d')
     adresse = StringField("Adresse:", validators=[InputRequired()])
     plz = StringField("Postleitzahl:", validators=[InputRequired()])
-    ort = SelectField("Ort:", validators=[InputRequired()], choices = [("","--Bitte wählen--"), ("B", "Berlin")])
+    ort = SelectField("Ort:", validators=[InputRequired()], choices = [("","--Bitte wählen--"), ("Berlin", "Berlin")])
     email = EmailField("Email:", validators=[InputRequired()])
     passwort = PasswordField("Passwort:", validators=[InputRequired(), Length(min=8, message = "Das Passwort muss mindestens 8 Zeichen lang sein!")])
     passwort_wiederholen = PasswordField("Passwort wiederholen:", validators=[InputRequired(), EqualTo("passwort", message = "Die Passwörter müssen übereinstimmen!")])
