@@ -46,14 +46,14 @@ Mir ist weiterhin bewusst, dass ich, sofern ich zur Erstellung dieser Arbeit KI-
 
 | \# | My contribution | Why I am proud of it | Which challenge I overcame |
 | :-- | :-- | :-- | :-- |
-| 1 | [Describe your individual contribution] |  |  |
-| 2 |  |  |  |
-| 3 |  |  |  |
+| 1 | Entwicklung des Auftragbereichs für Helfer| Der Helfer Auftragsübersicht ist ein wichtiger Teil für die Benutzerfreundlichekit und auch die allgemeine Übersicht für den Helfer um zu erkennen welche die noch Offenen Aufträge, eine Auftrag annehmen und angenommenen Aufträge verwalten.| Ich musste mich erst allgemein mit der Struktur bekannt machen. Zum Beispiel dem Routing (Flask-Route), Datenbankmodell Sqlite mit der ausführung von SQLAlchemy, die Spaltung der Rollen über die nutzer.id die wir mit einer db.relationship erstellt haben und auch HTML&BootStrap5 für das allgemeine Design um es den Nutzern Veranschaulichen|
+| 2 | Entwicklung der Auftrag erstellung | Diese musste mit dem login impementiert werden so das man weiß das es der Nutzer ist der nach einer Hilfe sucht. Das wurde bei der Registrierung vom Nutzer ausgewählt und in der Datenbank auch danach abgespeichert. Außerdem durch die Implementierung des Logins habe ich es durch das @login_required hingekriegt die eingespeicherten Login Daten bei der Erstellung zu übernehmen so das der Nutzer es nicht mehr selber noch einmal einzugeben | Vorallem war die einteilung der Rollen eine schwierige Challange die wir mit Salih gemeinsam ausprobiert haben. Außerdem auch natürlich die ganze überprüfung das es denn auch wirklich der Hilfe suchende und hilfe anbietende|
+| 3 | Die Ausarbeitung für die Product-Discovery | Ich hab an den Aufgaben product-discovery unsere essenziellen Probleme der Zielgruppen zu erkennen so wie auch die echte Meinung von Auszubildenden und Studenten der HWR sowie auch anderen Instituten. Dadurch konnten wir unsere Ziele fürs Projekt nochmal besser definieren und dokumentieren | Ich musste mir einige Quellen durchlesen damit wir die genaueun Probleme dieser beiden Zielgruppen haben damit danach die Kriterien der webapp bestimmt werden konnte |
 
 ## Design Decisions that I led
 
-1. [DD #00](../design-decisions/dd-00.md)
-2. [DD #01](../design-decisions/dd-01.md)
+1. [DD #01](docs/design-decisions/dd-01.md)
+2. [DD #06](docs/design-decisions/dd-06.md)
 
 ---
 
@@ -61,11 +61,12 @@ Mir ist weiterhin bewusst, dass ich, sofern ich zur Erstellung dieser Arbeit KI-
 
 | Contribution | Proof, e.g., git commits | Sources used |
 | :-- | :-- | :-- |
-| [Design Challenge research] | [Research traces](../product-discovery/01-design-challenge.md#raw-materia) | See left |
-| [Refactor to use Flask Blueprints] | [Commit 1](https://github.com/hwrberlin/fswd/commit/d816e4), [Commit 2](https://github.com/hwrberlin/fswd/commit/75a6c1) | [Flask Documentation](https://flask.palletsprojects.com/en/stable/blueprints/#the-concept-of-blueprints) |
-|  |  |  |
-|  |  |  |
-|  |  |  |
+| Auftrag erstellen | [Commit 4be7955 | 
+](../product-discovery/01-design-challenge.md#raw-materia) | See left |
+| [Refactor to use Flask Blueprints] | [Commit 09f7c0b](https://github.com/Yasin-Jewabreh/webapp/commit/09f7c0bc59a9315834bfc4bb3cd1901d20f5a577), [Commit 4be7955] | (https://github.com/hwrberlin/fswd/commit/75a6c1) | 
+[Commit fe627b7
+](https://github.com/Yasin-Jewabreh/webapp/commit/fe627b7ee028b674391f261b6c6a8c6d8c02b437s) |
+
 
 ---
 
@@ -75,6 +76,6 @@ Mir ist weiterhin bewusst, dass ich, sofern ich zur Erstellung dieser Arbeit KI-
 
 | #   | AI Tool | Purpose of Use | Affected Sections (Code + Docs) | Remarks, Procedure, Prompts |
 | :-- | :--     | :--            | :--                             | :--                         |
-| 01  |         |                |                                 |                             |
-| 02  |         |                |                                 |                             |
-| ... |         |                |                                 |                             |
+| 01  |    ChatGPT     |     Rechechen und Ideenfindung           |          Product Discovery                        |                             |
+| 02  |      Gemini   |        Debugging of the Code        |                               |                             |
+| 03 |     ChatGPT    |       Git-Befehle und Unterstützung bei Git-Konflikten (Pull and Push Request)  |                                 |                             |
