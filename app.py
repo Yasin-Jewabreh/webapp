@@ -3,10 +3,9 @@ from datetime import date, datetime
 from flask import Flask, render_template, redirect, url_for, request, session, flash
 from flask_bootstrap import Bootstrap5
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
-
 from db import db
-from models import Nutzer, Auftrag, Termin, Nachricht
-from forms import RollenWahlForm, RegisterForm, LoginForm, AuftragFormular, ProfilFormular 
+from models import Nutzer, Auftrag, Termin, Nachricht, berlin_time
+from forms import RollenWahlForm, RegistrierungFormular, LoginFormular, AuftragFormular, ProfilFormular
 
 app = Flask(__name__)
 app.secret_key = "helpyourneighbour"
@@ -15,7 +14,6 @@ app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///helpyourneighbour.db"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 app.config["BOOTSTRAP_BOOTSWATCH_THEME"] = "pulse"
 os.makedirs(app.instance_path, exist_ok=True)
-
 
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -36,35 +34,25 @@ with app.app_context():
 def startseite():
     return render_template("startseite.html")
 
-
 @app.route('/rolle_auswaehlen', methods=['GET', 'POST'])
 def rolle_waehlen():
     form = RollenWahlForm()
-    
     if form.validate_on_submit():
-
         if form.helfer_btn.data:
             gewaehlte_rolle = "Helfer"
         elif form.suchender_btn.data:
             gewaehlte_rolle = "PP"
         else:
             gewaehlte_rolle = "PP"
-
-       
         session["rollenwahl"] = gewaehlte_rolle
         return redirect(url_for('register'))
-
     return render_template('rolle_auswaehlen.html', form=form)
-
 
 @app.route("/register", methods=["GET", "POST"])
 def register():
-    form = RegisterForm()
-
+    form = RegistrierungFormular()
     if form.validate_on_submit():
-        
         gewaehlte_rolle = session.get("rollenwahl", "PP")
-        
         neuer_nutzer = Nutzer(
             vorname=form.vorname.data,
             nachname=form.nachname.data,
@@ -74,64 +62,45 @@ def register():
             plz=form.plz.data,
             ort=form.ort.data,
             email=form.email.data,
-            telefon=form.telefonnummer.data,
+            telefon=form.telefon.data,
             passwort=form.passwort.data,
             rolle=gewaehlte_rolle
         )
-
         db.session.add(neuer_nutzer)
         db.session.commit()
-
         return redirect(url_for("login"))
-
     return render_template("register.html", form=form)
-
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
-    form = LoginForm()
-    fehler = None 
-
+    form = LoginFormular()
+    fehler = None
     if form.validate_on_submit():
         email = form.email.data
         passwort = form.passwort.data
-        
-        
         nutzer = db.session.execute(db.select(Nutzer).where(Nutzer.email == email)).scalars().first()
-        
         if not nutzer:
             fehler = "Benutzer nicht vorhanden. Bitte prüfe deine Eingabe oder registriere dich neu!"
             flash(fehler)
         else:
             if nutzer.passwort == passwort:
-                
                 login_user(nutzer)
-                
-                
-                if nutzer.rolle == "Helfer":
-                    return redirect(url_for("dashboard"))
-                else:
-                    return redirect(url_for("dashboard"))
+                return redirect(url_for("dashboard"))
             else:
                 fehler = "Passwort oder Emailadresse falsch!"
                 flash(fehler)
-
     return render_template("login.html", form=form, fehler=fehler)
-
 
 @app.route("/dashboard")
 @login_required
 def dashboard():
     return render_template("dashboard.html")
 
-
 @app.route("/profil", methods=["GET", "POST"])
 @login_required
 def profil():
     form = ProfilFormular()
-
     if form.validate_on_submit():
-        
         current_user.vorname = form.vorname.data
         current_user.nachname = form.nachname.data
         current_user.email = form.email.data
@@ -139,100 +108,139 @@ def profil():
         current_user.adresse = form.adresse.data
         current_user.plz = form.plz.data
         current_user.ort = form.ort.data
-        
         db.session.commit()
         flash("Profil erfolgreich aktualisiert!", "success")
         return redirect(url_for("dashboard"))
-
-    
     elif request.method == "GET":
         form.vorname.data = current_user.vorname
         form.nachname.data = current_user.nachname
         form.email.data = current_user.email
-        form.telefon.data = current_user.telefon 
+        form.telefon.data = current_user.telefon
         form.adresse.data = current_user.adresse
         form.plz.data = current_user.plz
         form.ort.data = current_user.ort
-
     return render_template("profil.html", form=form)
-
 
 @app.route("/logout")
 @login_required
 def logout():
-    logout_user()  
-    session.clear() 
-    return redirect(url_for("startseite")) 
+    logout_user()
+    session.clear()
+    return redirect(url_for("startseite"))
 
+@app.route("/auftraege")
+@login_required
+def auftraege_start():
+    if current_user.rolle == "Helfer":
+        return redirect(url_for("helfer_auftraege"))
+    else:
+        return redirect(url_for("auftrag_erstellen"))
 
 @app.route("/auftrag/erstellen", methods=["GET", "POST"])
 @login_required
 def auftrag_erstellen():
     form = AuftragFormular()
-    
     if form.validate_on_submit():
         neuer_auftrag = Auftrag(
             wohnsituation=form.wohnsituation.data,
             beschreibung=form.beschreibung.data,
-            nutzer_id=current_user.id 
+            nutzer_id=current_user.id
         )
         db.session.add(neuer_auftrag)
         db.session.commit()
         return redirect(url_for("dashboard"))
-        
     return render_template("auftrag_erstellen.html", nutzer=current_user, form=form)
-
 
 @app.route("/termine")
 def kalender():
     return render_template("termine.html")
-
 
 @app.route("/helfer/auftraege")
 @login_required
 def helfer_auftraege():
     if current_user.rolle != "Helfer":
         return "Zugriff verweigert. Nur Helfer können diese Seite sehen.", 403
-
     offene_auftraege = Auftrag.query.filter_by(angenommen="offen").all()
     heute = date.today()
     return render_template("helfer_auftraege.html", auftraege=offene_auftraege, heute=heute)
 
+@app.route("/meine_auftraege")
+@login_required
+def meine_auftraege():
+    meine = Auftrag.query.filter_by(angenommen="angenommen").all()
+    return render_template("helfer_auftraege.html", auftraege=meine, heute=date.today())
 
 @app.route("/helfer/auftrag/<int:auftrag_id>")
 @login_required
 def auftrag_annehmen(auftrag_id):
     if current_user.rolle != "Helfer":
         return "Zugriff verweigert. Nur Helfer können diese Seite sehen.", 403
-  
     auftrag = db.session.get(Auftrag, auftrag_id)
     if not auftrag:
         return "Auftrag nicht gefunden", 404
-    
     auftrag.angenommen = "angenommen"
     db.session.commit()
     return render_template("auftrag_angenommen.html", auftrag=auftrag)
 
+@app.route("/chat_uebersicht")
+@login_required
+def chat_uebersicht():
+    return redirect(url_for("chat"))
 
+@app.route("/chat")
 @app.route("/chat/<int:empfaenger_id>", methods=["GET", "POST"])
-@login_required  # Wichtig, damit current_user existiert!
-def chat(empfaenger_id):
-    if request.method == "POST":
-        neue_nachricht = Nachricht(
-            inhalt=request.form["inhalt"],
-            sender_id=current_user.id,  # Dynamisch!
-            empfaenger_id=empfaenger_id
-        )
-        db.session.add(neue_nachricht)
-        db.session.commit()
+@login_required
+def chat(empfaenger_id=None):
+    gesendete_nachrichten = Nachricht.query.filter_by(sender_id=current_user.id).all()
+    empfangene_nachrichten = Nachricht.query.filter_by(empfaenger_id=current_user.id).all()
     
-    # Filtert Nachrichten zwischen dem aktuellen User und dem Empfänger
+    partner_ids = set()
+    for n in gesendete_nachrichten:
+        partner_ids.add(n.empfaenger_id)
+    for n in empfangene_nachrichten:
+        partner_ids.add(n.sender_id)
+    
+    partner_ids.discard(current_user.id)
+    chat_partner = Nutzer.query.filter(Nutzer.id.in_(partner_ids)).all() if partner_ids else []
+
+    aktiver_partner = None
+    nachrichten = []
+    
+    if empfaenger_id:
+        aktiver_partner = db.session.get(Nutzer, empfaenger_id)
+        if aktiver_partner and aktiver_partner not in chat_partner:
+            chat_partner.append(aktiver_partner)
+        if request.method == "POST" and request.form.get("inhalt"):
+            neue_nachricht = Nachricht(
+                inhalt=request.form["inhalt"],
+                sender_id=current_user.id,
+                empfaenger_id=empfaenger_id,
+                zeitstempel=berlin_time()
+            )
+            db.session.add(neue_nachricht)
+            db.session.commit()
+            return redirect(url_for("chat", empfaenger_id=empfaenger_id))
+        nachrichten = Nachricht.query.filter(
+            ((Nachricht.sender_id == current_user.id) & (Nachricht.empfaenger_id == empfaenger_id)) |
+            ((Nachricht.sender_id == empfaenger_id) & (Nachricht.empfaenger_id == current_user.id))
+        ).order_by(Nachricht.zeitstempel.asc()).all()
+
+    return render_template("chat.html", chat_partner=chat_partner, aktiver_partner=aktiver_partner, nachrichten=nachrichten)
+
+@app.route("/chat/loeschen/<int:partner_id>", methods=["POST"])
+@login_required
+def chat_loeschen(partner_id):
     nachrichten = Nachricht.query.filter(
-        ((Nachricht.sender_id == current_user.id) & (Nachricht.empfaenger_id == empfaenger_id)) |
-        ((Nachricht.sender_id == empfaenger_id) & (Nachricht.empfaenger_id == current_user.id))
+        ((Nachricht.sender_id == current_user.id) & (Nachricht.empfaenger_id == partner_id)) |
+        ((Nachricht.sender_id == partner_id) & (Nachricht.empfaenger_id == current_user.id))
     ).all()
-    
-    return render_template("chat.html", nachrichten=nachrichten)
+    for n in nachrichten:
+        if n.sender_id == current_user.id:
+            n.geloescht_fuer_sender = True
+        else:
+            n.geloescht_fuer_empfaenger = True
+    db.session.commit()
+    return redirect(url_for("chat", empfaenger_id=partner_id))
 
 if __name__ == "__main__":
     app.run(debug=True)
