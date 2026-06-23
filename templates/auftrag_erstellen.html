@@ -1,72 +1,77 @@
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 {% extends "base.html" %}
 
 {% block TITLE %}Auftrag erstellen{% endblock %}
 
 {% block CONTENT %}
-<main class="profile-page">
+<main class="profile-page mt-4">
     <div class="container">
-        <div class="profile-card">
+        <a href="{{ url_for('dashboard') }}" class="btn btn-outline-secondary mb-3">
+            ← Zurück zum Dashboard
+        </a>
 
+        <div class="profile-card">
             <div class="profile-header">
                 <span class="profile-label">Pflegeprofil</span>
                 <h1>Erstelle dein Auftrag</h1>
             </div>
 
             <form method="POST" action="{{ url_for('auftrag_erstellen') }}" class="profile-form">
-            {{ form.hidden_tag() }} 
-            <div class="row">
-                <div class="col-md-6">
-                     <div class="form-group mb-2">
-                        <label>Vorname</label>
-                        <input type="text" class="form-control" value="{{ nutzer.vorname if nutzer else '' }}" disabled>
-                            </div>
-                         </div>
-                     <div class="col-md-6">
+                {{ form.hidden_tag() }} 
+                <div class="row">
+                    <div class="col-md-6">
                         <div class="form-group mb-2">
-                        <label>Nachname</label>
-                        <input type="text" class="form-control" value="{{ nutzer.nachname if nutzer else '' }}" disabled>
-                            </div>
-                                </div>
-                                    </div>
+                            <label>Vorname</label>
+                            <input type="text" class="form-control" value="{{ nutzer.vorname if nutzer else '' }}" disabled>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group mb-2">
+                            <label>Nachname</label>
+                            <input type="text" class="form-control" value="{{ nutzer.nachname if nutzer else '' }}" disabled>
+                        </div>
+                    </div>
+                </div>
 
                 <div class="row">
-    <div class="col-md-6">
-        <div class="form-group mb-4">
-            <label>Adresse</label>
-            <input type="text" class="form-control" value="{{ nutzer.adresse if nutzer else '' }}, {{ nutzer.plz if nutzer else '' }} {{ nutzer.ort if nutzer else '' }}" disabled>
-        </div>
-    </div>
-    <div class="col-md-6">
-        <div class="form-group mb-4">
-            <label>Mobil</label>
-            <input type="text" class="form-control" value="{{ nutzer.telefon if nutzer else '' }}" disabled>
-        </div>
-    </div>
-</div>
+                    <div class="col-md-6">
+                        <div class="form-group mb-4">
+                            <label>Adresse</label>
+                            <input type="text" class="form-control" value="{{ nutzer.adresse if nutzer else '' }}, {{ nutzer.plz if nutzer else '' }} {{ nutzer.ort if nutzer else '' }}" disabled>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group mb-4">
+                            <label>Mobil</label>
+                            <input type="text" class="form-control" value="{{ nutzer.telefon if nutzer else '' }}" disabled>
+                        </div>
+                    </div>
+                </div>
+
                 <h2>Angaben zum Auftrag</h2>
                 
-                <div class="col-md-6">
-                <div class="form-group">
-                    {{ form.wohnsituation.label(class="form-label") }}
-                    {{ form.wohnsituation(class="form-select") }}
-                    {% if form.wohnsituation.errors %}
-                        <div class="text-danger">{{ form.wohnsituation.errors[0] }}</div>
-                    {% endif %}
-                </div>
-            </div>
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            {{ form.wohnsituation.label(class="form-label") }}
+                            {{ form.wohnsituation(class="form-select") }}
+                            {% if form.wohnsituation.errors %}
+                                <div class="text-danger">{{ form.wohnsituation.errors[0] }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
 
-                <div class="col-md-6">
-                <div class="form-group">
-                    {{ form.beschreibung.label(class="form-label") }}
-                    {{ form.beschreibung(class="form-control description-field", rows="7", placeholder="Erzähle etwas über dich...") }}
-                    {% if form.beschreibung.errors %}
-                        <div class="text-danger">{{ form.beschreibung.errors[0] }}</div>
-                    {% endif %}
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            {{ form.beschreibung.label(class="form-label") }}
+                            {{ form.beschreibung(class="form-control description-field", rows="7", placeholder="Erzähle etwas über dich...") }}
+                            {% if form.beschreibung.errors %}
+                                <div class="text-danger">{{ form.beschreibung.errors[0] }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
                 </div>
-            </div>
 
-                <div class="form-group">
+                <div class="form-group mb-4">
                     {{ form.bestaetigung() }}
                     {{ form.bestaetigung.label(class="form-control border-info") }}
                     {% if form.bestaetigung.errors %}
@@ -79,7 +84,6 @@
                     {{ form.submit(class="btn btn-primary publish-button") }}
                 </div>
             </form>
-
         </div>
     </div>
 </main>
