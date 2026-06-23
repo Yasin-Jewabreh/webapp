@@ -6,39 +6,28 @@ from wtforms.validators import (DataRequired, Email, EqualTo, Length, InputRequi
 class RollenWahlForm(FlaskForm):
     helfer_btn = SubmitField('Hilfe anbieten')
     suchender_btn = SubmitField('Hilfe suchen')
+def check_geburtsdatum(self, field):
+    if field.data: 
+        if ((date.today() - field.data).days / 365.25) < 18:
+            raise ValidationError("Du musst mindestens 18 Jahre alt sein.")
+class RegistrierungFormular(FlaskForm):
+    vorname = StringField("Vorname:", validators=[InputRequired()])
+    nachname = StringField("Nachname:", validators=[InputRequired()])
+    geschlecht = SelectField("Geschlecht:", validators=[DataRequired()],choices = [("","--Bitte wählen--"), ("M", "Männlich"), ("W","Weiblich"), ("D", "Divers")])
+    geburtsdatum = DateField("Geburtsdatum",validators=[InputRequired(), check_geburtsdatum], format='%Y-%m-%d')
+    adresse = StringField("Adresse:", validators=[InputRequired()])
+    plz = StringField("Postleitzahl:", validators=[InputRequired()])
+    ort = SelectField("Ort:", validators=[InputRequired()], choices = [("","--Bitte wählen--"), ("B", "Berlin")])
+    email = EmailField("Email:", validators=[InputRequired()])
+    passwort = PasswordField("Passwort:", validators=[InputRequired(), Length(min=8, message = "Das Passwort muss mindestens 8 Zeichen lang sein!")])
+    passwort_wiederholen = PasswordField("Passwort wiederholen:", validators=[InputRequired(), EqualTo("passwort", message = "Die Passwörter müssen übereinstimmen!")])
+    telefon = StringField("Telefon:", validators=[InputRequired()])
+    registrieren = SubmitField("Registrieren")
 
-class RegisterForm(FlaskForm):
-
-    vorname = StringField('Vorname', validators=[DataRequired(message="Bitte Vornamen eingeben.")])
-    nachname = StringField('Nachname', validators=[DataRequired(message="Bitte Nachnamen eingeben.")])
-    geschlecht = SelectField("Geschlecht",choices=[('männlich', 'Männlich'), ('weiblich', 'Weiblich'), ('divers', 'Divers')],validators=[DataRequired(message="Bitte Geschlecht eingeben.")])
-    geburtsdatum = DateField('Geburtsdatum', format='%Y-%m-%d', validators=[DataRequired(message="Bitte Geburtsdatum auswählen.")])
-    adresse = StringField('Adresse', validators=[DataRequired(message="Bitte Adresse eingeben.")])
-    plz = StringField('PLZ', validators=[DataRequired(message="Bitte PLZ eingeben."), Length(min=5, max=5, message="PLZ muss 5-stellig sein.")])
-    ort = StringField("Ort", validators=[DataRequired(message="Bitte Ort eingeben.")])
-    email = StringField('E-Mail', validators=[DataRequired(message="Bitte E-Mail eingeben."), Email(message="Ungültige E-Mail-Adresse.")])
-    telefonnummer = StringField('Telefonnummer', validators=[DataRequired(message="Bitte Telefonnummer eingeben.")])
-    
-    passwort = PasswordField('Passwort', validators=[
-        DataRequired(message="Bitte Passwort eingeben."),
-        Length(min=6, message="Das Passwort muss mindestens 6 Zeichen lang sein.")
-    ])
-    passwort2 = PasswordField('Passwort bestätigen', validators=[
-        DataRequired(message="Bitte Passwort bestätigen."),
-        EqualTo('passwort', message='Passwörter müssen übereinstimmen.')
-    ])
-    
-    rolle = HiddenField('Rolle')
-    submit = SubmitField('Registrieren')
-class LoginForm(FlaskForm):
-    email = StringField('E-Mail', validators=[
-        DataRequired(message="Bitte geben Sie Ihre E-Mail-Adresse ein."),
-        Email(message="Ungültige E-Mail-Adresse.")
-    ])
-    passwort = PasswordField('Passwort', validators=[
-        DataRequired(message="Bitte geben Sie Ihr Passwort ein.")
-    ])
-    submit = SubmitField('Login')    
+class LoginFormular(FlaskForm):
+    email = EmailField("Email:", validators=[InputRequired()])
+    passwort = PasswordField("Passwort:", validators=[InputRequired()])
+    login = SubmitField("Login")
 class AuftragFormular(FlaskForm):
     wohnsituation = SelectField(
         "Wohnsituation",
@@ -75,6 +64,25 @@ def check_geburtsdatum(form, field):
             raise ValidationError(
                 "Du musst mindestens 18 Jahre alt sein."
             )
+class RegistrierungFormular(FlaskForm):    
+    vorname = StringField("Vorname", validators=[InputRequired()])
+    nachname = StringField("Nachname", validators=[InputRequired()])
+    geschlecht = SelectField(
+        "Geschlecht",
+        choices=[("", "--Bitte wählen--"), ("M", "Männlich"), ("W", "Weiblich"), ("D", "Divers")],
+        validators=[DataRequired()]
+    )
+    geburtsdatum = DateField("Geburtsdatum", validators=[InputRequired(), check_geburtsdatum])
+    adresse = StringField("Adresse", validators=[InputRequired()])
+    plz = StringField("PLZ", validators=[InputRequired()])
+    ort = SelectField("Ort",
+        choices=[("", "--Bitte wählen--"), ("Berlin", "Berlin")],
+        validators=[InputRequired()])
+    email = EmailField("E-Mail", validators=[InputRequired()])
+    telefon = StringField("Telefon", validators=[InputRequired()])
+    passwort = PasswordField("Passwort", validators=[InputRequired(), Length(min=8)])
+    passwort_wiederholen = PasswordField("Passwort wiederholen", validators=[InputRequired(), EqualTo("passwort")])
+    registrieren = SubmitField("Registrieren")
 
 class ProfilFormular(FlaskForm):
     vorname = StringField('Vorname', validators=[DataRequired(message="Bitte Vornamen eingeben.")])
