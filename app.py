@@ -1,6 +1,6 @@
 from datetime import date, datetime
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
-from forms import TerminBearbeiternForm, TerminErstellenForm, RollenWahlForm, RegisterForm, LoginForm, AuftragFormular, ProfilFormular
+from forms import TerminBearbeiternForm, TerminErstellenForm, RollenWahlForm, RegistrierungFormular, LoginFormular, AuftragFormular, ProfilFormular
 from flask import Flask, render_template, redirect, url_for, request, session, flash
 from flask_bootstrap import Bootstrap5
 from db import db
@@ -57,7 +57,7 @@ def rolle_waehlen():
 
 @app.route("/register", methods=["GET", "POST"])
 def register():
-    form = RegisterForm()
+    form = RegistrierungFormular()
 
     if form.validate_on_submit():
         
@@ -72,7 +72,7 @@ def register():
             plz=form.plz.data,
             ort=form.ort.data,
             email=form.email.data,
-            telefon=form.telefonnummer.data,
+            telefon=form.telefon.data,
             passwort=form.passwort.data,
             rolle=gewaehlte_rolle
         )
@@ -87,7 +87,7 @@ def register():
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
-    form = LoginForm()
+    form = LoginFormular()
     fehler = None 
 
     if form.validate_on_submit():
@@ -172,7 +172,7 @@ def auftrag_erstellen():
         neuer_auftrag = Auftrag(
             wohnsituation=form.wohnsituation.data,
             beschreibung=form.beschreibung.data,
-            nutzer_id=current_user.id 
+            pp_id=current_user.id 
         )
         db.session.add(neuer_auftrag)
         db.session.commit()
