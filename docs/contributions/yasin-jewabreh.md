@@ -47,8 +47,8 @@ Mir ist weiterhin bewusst, dass ich, sofern ich zur Erstellung dieser Arbeit KI-
 
 | \# | My contribution | Why I am proud of it | Which challenge I overcame |
 | :-- | :-- | :-- | :-- |
-| 1 | [Describe your individual contribution] |  |  |
-| 2 |  |  |  |
+| 1 | Ich habe mich um die Terminübersicht gekümmert. Dazu gehören viele Funktionen: Termine erstellen, bearbeiten, löschen, annehmen, ablehnen und auf erledigt setzen. Ich lasse die vereinbarten Termine, die Termine, die bestätigt werden müssen, die Termine, bei denen man auf eine Antwort wartet, und die Terminhistorie anzeigen.  | Ich bin ziemlich stolz, weil ich Schritt für Schritt die einzelnen Funktionen hinzugefügt habe. Und auch wenn ich Probleme hatte, habe ich das Log durchsucht. Mittlerweile verstehe ich wie man ein Problem findet, ich muss auch sagen, dass ich mich mittlerweile sehr gut mit Git und Vscode auskenne. Ich habe meine Ziele erreich | Die Probleme die ich überwunden habe, sind, dass ich mit den Problemmessages im Terminal nicht klar kam. Ich konnte die Fehler anfangs nicht finden und habe viel Zeit verloren. Außerdem habe ich den Umgang mit Branches erst spät verstanden. |
+| 2 | Meine Größte Contribution war jede Funktion in Bezug auf die Termine. Allerdings habe ich auch Design Decisions geleitet, wie den Umgang mit SQLAlchemy  |  |  |
 | 3 |  |  |  |
 
 ## Design Decisions that I led
@@ -76,6 +76,6 @@ Mir ist weiterhin bewusst, dass ich, sofern ich zur Erstellung dieser Arbeit KI-
 
 | #   | AI Tool | Purpose of Use | Affected Sections (Code + Docs) | Remarks, Procedure, Prompts |
 | :-- | :--     | :--            | :--                             | :--                         |
-| 01  |         |                |                                 |                             |
-| 02  |         |                |                                 |                             |
-| ... |         |                |                                 |                             |
+| 01  |    GEMINI     |   Bootstrap class Design             |       termine.html                          |  Ich bin so vorgegangen, dass ich mir Zwischenziele gesetzt habe und erstmal versucht habe, es selbst hinzubekommen mit dem Layout. Wenn ich nicht weiterwusste, habe ich GEMINI gefragt und er hat mir z.B. gesagt, wie ich einen Tabelleninhalt anklickbar mache,nachdm es bei mir nicht geklappt hatte mit meinem Code.                          |
+| 02  |      GEMINI   |        Anzeigen von Flash Messages        |       base.html                          |         Das ist die enzige Sache die ich einfach von der KI reinkopiert habe, sonst habe ich alles selbst geschrieben.                    |
+| 03 |     GEMINI    |        Fehlermessages erklären        |         app.py                        |        Ich hatte Fehlercodes, als ich eine Liste mit .scalars() (wie im Tutorial) angelegt habe. Gemini  hat mir dann gesagt, dass ich ein .all() einfügen kann damit es klappt. Danach hat es geklappt .                  |
