@@ -156,6 +156,7 @@ def historie():
 
 
 @app.route("/termine/", methods = ["GET", "POST"])
+@login_required
 def termine():
     form = TerminErstellenForm()
   
@@ -266,6 +267,7 @@ def termine():
 
 
 @app.route('/termine/<int:id>', methods=['GET', 'POST'])
+@login_required
 def termin(id):
     termin = db.session.get(Termin, id) 
     form = TerminBearbeiternForm(obj=termin)
