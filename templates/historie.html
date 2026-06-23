@@ -3,8 +3,12 @@
 {% block TITLE %} Terminübersicht {% endblock %}
 
 {%block CONTENT%}
-                <div class ="mb-5">     
-                    <div class = "card shadow-sm p-3"> 
+                <div class ="mb-5">   
+                <a href="{{ url_for('termine') }}" class="btn btn-outline-secondary mb-3">
+                     &larr; Zurück
+                         </a>    
+                    <div class = "card shadow-sm p-3">
+                    
                         <h3 class = "mb-3">Abgeschlossene Termine</h3>
                         <div class = "rounded-3 overflow-hidden border shadow-sm">
                             <table class = "table table hover mb-0">
