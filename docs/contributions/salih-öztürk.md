@@ -63,13 +63,13 @@ Mir ist weiterhin bewusst, dass ich, sofern ich zur Erstellung dieser Arbeit KI-
 | Contribution | Proof, e.g., git commits | Sources used |
 | :-- | :-- | :-- |
 | Implementierung der Benutzerregistrierung | Git-Commits zur Registrierung und Datenbankanbindung | Flask-Dokumentation, SQLAlchemy-Dokumentation, ChatGPT |
-| Implementierung der Login-Funktion | Git-Commits zur Authentifizierung mit Flask-Login | Flask-Login-Dokumentation, ChatGPT |
-| Entwicklung des Dashboards | Git-Commits zur Dashboard-Seite | Flask-Dokumentation, Teamdiskussionen, ChatGPT |
-| Entwicklung der Profilseite | Git-Commits zur Profilseite | Flask-Dokumentation, Teamdiskussionen, ChatGPT |
-| Entwicklung der Startseite | Git-Commits zur Landingpage | Teamdiskussionen, ChatGPT |
-| Erstellung der Design Decisions DD-02 und DD-03 | Dateien im Ordner „design-decisions“ | Teamdiskussionen |
-| Zusammenarbeit über GitHub (Branches, Commits und Merges) | Git-Historie und Pull Requests | GitHub-Dokumentation |
-
+| Implementierung der Benutzerregistrierung | Create login and registration templates, Add login and register routes, Add login and register routes with GET and POST support | Flask-Dokumentation, SQLAlchemy-Dokumentation, ChatGPT |
+| Implementierung der Login-Funktion | Configure Flask-Login user loader, Add UserMixin to Nutzer model, Add logout route using Flask-Login, Improve login validation feedback | Flask-Login-Dokumentation, ChatGPT |
+| Entwicklung des Dashboards | add dashboard, Add back button navigation, redirect accepted order confirmation back to dashboard | Flask-Dokumentation, Teamdiskussionen, ChatGPT |
+| Entwicklung der Profilseite | Add profile page, modernize profile view with Bootstrap card layout and WTForms macro | Flask-Dokumentation, Teamdiskussionen, ChatGPT |
+| Entwicklung der Startseite | Add landing page template, Connect start page template to route, Fix start page template | Teamdiskussionen, ChatGPT |
+| Erstellung der Design Decisions DD-02 und DD-03 | Design Decision required Information of the user, Create DD-03 and update DD-02 record, Revise DD-03 and defer user verification | Teamdiskussionen |
+| Zusammenarbeit über GitHub (Branches, Commits und Merges) | Merge main into feature/login, Merge remote-tracking branch origin/main into feature/dashboard, Merge pull request #5 from feature/login | GitHub-Dokumentation |
 ---
 
 ## AI Directory
