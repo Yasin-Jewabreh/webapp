@@ -1,7 +1,7 @@
 from db import db
 from datetime import datetime 
 import pytz
-
+from flask_login import UserMixin
 
 
 class Nutzer(db.Model, UserMixin):
@@ -33,7 +33,11 @@ class Auftrag(db.Model):
 
     pp = db.relationship("Nutzer", foreign_keys=[pp_id], backref="erstellte_auftraege")
     helfer = db.relationship("Nutzer", foreign_keys=[helfer_id], backref="angenommene_auftraege")
-    
+
+def berlin_time():
+    tz_berlin =pytz.timezone("Europe/Berlin")
+    return datetime.now(tz_berlin)
+
 class Nachricht (db.Model):
     __tablename__ = "nachricht"
     
