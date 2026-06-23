@@ -41,7 +41,7 @@ Register
 <label>Passwort bestätigen</label>
 <input type="password" name="passwort2">
 
-<input type="hidden" name="rolle" value="{{ rolle }}">
+<input type="hidden" name="rolle" value="{{ request.args.get('rolle', '') }}">
 
     <button type="submit">Registrieren</button>
 </form>

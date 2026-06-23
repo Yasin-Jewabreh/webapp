@@ -77,7 +77,7 @@ def login():
         if nutzer and nutzer.passwort == passwort:
             login_user(nutzer)
 
-            if nutzer.rolle == "helfer":
+            if nutzer.rolle == "hilfe_anbietend":
                 return redirect(url_for("helfer_auftraege"))
             else:
                 return redirect(url_for("auftrag_erstellen"))
@@ -119,7 +119,7 @@ def kalender():
 @login_required
 def helfer_auftraege():
     
-    if current_user.rolle != "helfer":
+    if current_user.rolle != "hilfe_anbietend":
         return "Zugriff verweigert. Nur Helfer können diese Seite sehen.", 403
 
     offene_auftraege = Auftrag.query.filter_by(angenommen="offen").all()
@@ -132,7 +132,7 @@ def helfer_auftraege():
 def auftrag_annehmen(auftrag_id):
     
     
-    if current_user.rolle != "helfer":
+    if current_user.rolle != "hilfe_anbietend":
         return "Zugriff verweigert. Nur Helfer können diese Seite sehen.", 403
   
     auftrag = db.session.get(Auftrag, auftrag_id)
@@ -164,4 +164,4 @@ if __name__ == "__main__":
         #db.drop_all()    
         db.create_all()  
     
-        app.run(debug=True)
+app.run(debug=True)
