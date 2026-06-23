@@ -77,5 +77,7 @@ Mir ist weiterhin bewusst, dass ich, sofern ich zur Erstellung dieser Arbeit KI-
 | #   | AI Tool | Purpose of Use | Affected Sections (Code + Docs) | Remarks, Procedure, Prompts |
 | :-- | :--     | :--            | :--                             | :--                         |
 | 01  |    ChatGPT     |     Rechechen und Ideenfindung           |          Product Discovery                        |                             |
-| 02  |      Gemini   |        Debugging of the Code        |                               |                             |
-| 03 |     ChatGPT    |       Git-Befehle und Unterstützung bei Git-Konflikten (Pull and Push Request)  |                                 |                             |
+| 02  |      Gemini   |        Debugging of the Code, Formatting Code if there was any conflicts       |             Auftrag: HTML und BootStraps Dateien             |                             |
+| 03 |     ChatGPT    |       Git-Befehle und Unterstützung bei Git-Konflikten (Pull and Push) Request)  |                                 |                             |
+| Gemini | @Login_required bei stellen wo ich nicht mehr weiterkonnte nach möglichkeiten gefragt  |  @app.route()
+                                                                                                    @login reqzuired| :--                             | :--                         |
