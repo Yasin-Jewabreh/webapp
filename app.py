@@ -140,8 +140,25 @@ def auftrag_annehmen(auftrag_id):
         return "Auftrag nicht gefunden", 404
     
     auftrag.angenommen = "angenommen"
+    
+    nutzer_id = current_user.id
+    
     db.session.commit()
     return render_template("auftrag_angenommen.html", auftrag=auftrag)
+
+@app.route("/helfer/meine-auftraege")
+@login_required
+def meine_auftraege():
+
+    if current_user.rolle != "hilfe_anbietend":
+        return "Zugriff verweigert. Nur Helfer können diese Seite sehen.", 403
+    
+    meine_auftraege = Auftrag.query.filter_by(nutzer_id=current_user.id, angenommen="angenommen").all()
+
+
+    return render_template("meine_auftraege.html", auftraege=meine_auftraege)
+
+
 
 @app.route("/chat/<int:empfaenger_id>", methods=["GET", "POST"])
 def chat(empfaenger_id):
@@ -164,4 +181,4 @@ if __name__ == "__main__":
         #db.drop_all()    
         db.create_all()  
     
-app.run(debug=True)
+app.run(debug=True, port=8080)
