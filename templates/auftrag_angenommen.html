@@ -24,10 +24,13 @@
         <hr class="my-4">
         
         <div class="d-grid gap-2">
-            <a href="{{ url_for('meine_auftraege') }}" class="btn btn-primary py-2 fw-medium">
-                Zurück zur Übersicht
-            </a>
-        </div>
+    <a href="{{ url_for('chat', empfaenger_id=auftrag.nutzer_id) }}" class="btn btn-success py-2 fw-medium">
+        💬 Chat mit {{ auftrag.nutzer.vorname }} starten
+    </a>
+    <a href="{{ url_for('dashboard') }}" class="btn btn-outline-secondary py-2 fw-medium">
+        Zurück zum Dashboard
+    </a>
+    </div>
     </div>
 </div>
 {% endblock %}
