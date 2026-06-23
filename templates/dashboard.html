@@ -3,24 +3,62 @@
 {% block TITLE %}Dashboard{% endblock %}
 
 {% block CONTENT %}
+<div class="container container-sm mt-5">
+    <div class="row justify-content-center">
+        <div class="col-12 col-md-8">
+            <div class="card shadow-sm">
+                <div class="card-body p-4">
+                    
+                    <div class="text-center mb-4">
+                        <h1 class="h2 mb-2">Willkommen, {{ current_user.vorname }}!</h1>
+                        <p class="text-muted">Schön, dass du da bist.</p>
+                    </div>
+                    
+                    <hr>
 
-<div class="container mt-5">
+                    <div class="alert alert-info text-center my-4 py-3">
+                        <span class="text-uppercase small fw-bold d-block text-muted mb-1">Deine Rolle auf der Plattform</span>
+                        <h4 class="alert-heading mb-0 fw-bold">
+                            {% if current_user.rolle == 'Helfer' %}
+                                🤝 Helfer
+                            {% else %}
+                                🏡 Hilfesuchend (PP)
+                            {% endif %}
+                        </h4>
+                    </div>
 
-    <h1>Willkommen, {{ current_user.vorname }}!</h1>
+                    <hr>
 
-    <p>Sie sind angemeldet als:</p>
+                    <h3 class="h5 mb-3 text-secondary">Schnellzugriff</h3>
+                    
+                    <div class="d-grid gap-3">
+                        {% if current_user.rolle == 'Helfer' %}
+                            <a href="{{ url_for('helfer_auftraege') }}" class="btn btn-success btn-lg rounded-3 text-start px-4">
+                                📋 Offene Aufträge ansehen
+                            </a>
+                        {% else %}
+                            <a href="{{ url_for('auftrag_erstellen') }}" class="btn btn-primary btn-lg rounded-3 text-start px-4">
+                                ➕ Neuen Auftrag erstellen
+                            </a>
+                        {% endif %}
+                        <a href="{{ url_for('chat', empfaenger_id=1) }}" class="btn btn-info btn-lg rounded-3 text-white text-start px-4">
+                                💬 Nachrichten / Chat öffnen
+                        </a>
+                        
+                        </a>
+                       
+                        <a href="{{ url_for('profil') }}" class="btn btn-outline-primary rounded-3 text-start px-4 py-2">
+                            👤 Persönliche Daten bearbeiten
+                        </a>
+                        
+                        <a href="{{ url_for('logout') }}" class="btn btn-outline-danger rounded-3 text-start px-4 py-2">
+                            🚪 Abmelden / Logout
+                        </a>
+                    </div>
 
-    <p><strong>{{ current_user.rolle }}</strong></p>
-
-    <hr>
-
-    <h3>Schnellzugriff</h3>
-
-    <ul>
-        <li><a href="{{ url_for('profil') }}">Persönliche Daten</a></li>
-        <li><a href="{{ url_for('logout') }}">Logout</a></li>
-    </ul>
-
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
-
 {% endblock %}

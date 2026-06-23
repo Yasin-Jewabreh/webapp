@@ -215,21 +215,24 @@ def auftrag_annehmen(auftrag_id):
 
 
 @app.route("/chat/<int:empfaenger_id>", methods=["GET", "POST"])
+@login_required  # Wichtig, damit current_user existiert!
 def chat(empfaenger_id):
     if request.method == "POST":
         neue_nachricht = Nachricht(
             inhalt=request.form["inhalt"],
-            sender_id=1,
+            sender_id=current_user.id,  # Dynamisch!
             empfaenger_id=empfaenger_id
         )
         db.session.add(neue_nachricht)
         db.session.commit()
+    
+    # Filtert Nachrichten zwischen dem aktuellen User und dem Empfänger
     nachrichten = Nachricht.query.filter(
-        (Nachricht.sender_id == 1) |
-        (Nachricht.empfaenger_id == 1)
+        ((Nachricht.sender_id == current_user.id) & (Nachricht.empfaenger_id == empfaenger_id)) |
+        ((Nachricht.sender_id == empfaenger_id) & (Nachricht.empfaenger_id == current_user.id))
     ).all()
+    
     return render_template("chat.html", nachrichten=nachrichten)
-
 
 if __name__ == "__main__":
     app.run(debug=True)
