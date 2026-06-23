@@ -3,23 +3,22 @@ from datetime import datetime
 import pytz
 from flask_login import UserMixin
 
-
 class Nutzer(db.Model, UserMixin):
     __tablename__ = "nutzer"
 
-    id = db.Column(db.Integer, primary_key = True, index = True)
-    vorname = db.Column(db.String(50), nullable = False)
-    nachname = db.Column(db.String(50), nullable = False)
-    geschlecht = db.Column(db.String(50), nullable = False)
-    geburtsdatum = db.Column(db.Date(), nullable = False)
-    adresse = db.Column(db.String(100), nullable = False)
-    plz = db.Column(db.String(10), nullable = False)
-    ort = db.Column(db.String(50), nullable = False)
-    email = db.Column(db.String(), nullable = False, unique = True)
-    email_verified = db.Column(db.Boolean, default = False, nullable = False)
-    passwort = db.Column(db.String(), nullable = False)
-    telefon = db.Column(db.String(30), nullable =False, unique = True)
-    rolle = db.Column(db.String(), nullable = False, index = True)
+    id = db.Column(db.Integer, primary_key=True, index=True)
+    vorname = db.Column(db.String(50), nullable=False)
+    nachname = db.Column(db.String(50), nullable=False)
+    geschlecht = db.Column(db.String(50), nullable=False)
+    geburtsdatum = db.Column(db.Date(), nullable=False)
+    adresse = db.Column(db.String(100), nullable=False)
+    plz = db.Column(db.String(10), nullable=False)
+    ort = db.Column(db.String(50), nullable=False)
+    email = db.Column(db.String(), nullable=False, unique=True)
+    email_verified = db.Column(db.Boolean, default=False, nullable=False)
+    passwort = db.Column(db.String(), nullable=False)
+    telefon = db.Column(db.String(30), nullable=False, unique=True)
+    rolle = db.Column(db.String(), nullable=False, index=True)
 
 class Auftrag(db.Model):
     __tablename__ = "auftrag"
@@ -41,14 +40,17 @@ def berlin_time():
 class Nachricht (db.Model):
     __tablename__ = "nachricht"
     
-
-    id = db.Column(db.Integer, primary_key = True)
+    id = db.Column(db.Integer, primary_key=True)
     inhalt = db.Column(db.String(500), nullable=False)
     zeitstempel = db.Column(db.DateTime, default=berlin_time)
-    sender_id=db.Column("sender_id", db.ForeignKey("nutzer.id"), nullable = False)
-    empfaenger_id= db.Column('empfaenger_id', db.ForeignKey("nutzer.id"), nullable = False)
+    sender_id = db.Column("sender_id", db.ForeignKey("nutzer.id"), nullable=False)
+    empfaenger_id = db.Column('empfaenger_id', db.ForeignKey("nutzer.id"), nullable=False)
+    
+    # Die neuen Spalten für das Soft-Delete Feature (Chat leeren)
+    geloescht_fuer_sender = db.Column(db.Boolean, default=False, nullable=False)
+    geloescht_fuer_empfaenger = db.Column(db.Boolean, default=False, nullable=False)
  
-class Termin (db.Model):
+class Termin(db.Model):
     __tablename__ = "termin"
 
     id = db.Column(db.Integer, primary_key = True, index = True)
@@ -65,7 +67,3 @@ class Termin (db.Model):
     helfer = db.relationship("Nutzer", foreign_keys=[helfer_id], backref="helfer_termine")
     pp = db.relationship("Nutzer", foreign_keys=[pp_id], backref="pp_termine")
     auftrag = db.relationship("Auftrag", backref="termine")
-    
-
-
-
