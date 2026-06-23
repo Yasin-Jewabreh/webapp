@@ -3,26 +3,31 @@
 {% block TITLE %}Auftrag angenommen{% endblock %}
 
 {% block CONTENT %}
-<div class ="container mt-5 text-center">
-    <div class="card shadow boprderf-0 p-5 bg white mx-auto" style="max-width: 600px;">
-        <div class="text-success mb-4">
+<div class="container mt-5">
+    <div class="mx-auto" style="max-width: 600px; text-align: left;">
+        <a href="{{ url_for('dashboard') }}" class="btn btn-outline-secondary mb-3">
+            ← Zurück zum Dashboard
+        </a>
+    </div>
+
+    <div class="card shadow border-0 p-5 bg-white mx-auto" style="max-width: 600px;">
+        <div class="text-success mb-4 text-center">
             <i class="bi bi-check-circle-fill" style="font-size: 4rem;"></i>
         </div>
         
-        <h2 class="fw-bold text-dark mb-3">Auftrag erfolgreich angenommen!</h2>
-        <p class="text-secondary mb-4">
-            Du hast den Auftrag von <strong>{{ auftrag.nutzer.vorname }} {{ auftrag.nutzer.nachname }}</strong> übernommen. 
+        <h2 class="fw-bold text-dark mb-3 text-center">Auftrag erfolgreich angenommen!</h2>
+        <p class="text-secondary mb-4 text-center">
+            Du hast den Auftrag von <strong>{{ auftrag.nutzer.vorname }} {{ auftrag.nutzer.nachname }}</strong> übernommen. <br>
             Vielen Dank für deine Hilfe!
         </p>
         
         <hr class="my-4">
         
         <div class="d-grid gap-2">
-    <a href="{{ url_for('dashboard') }}" class="btn btn-primary py-2 fw-medium">
-        Zurück zur Übersicht
-    </a>
-</div>
+            <a href="{{ url_for('meine_auftraege') }}" class="btn btn-primary py-2 fw-medium">
+                Zurück zur Übersicht
+            </a>
+        </div>
     </div>
 </div>
-    
 {% endblock %}
