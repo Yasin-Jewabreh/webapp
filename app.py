@@ -1,30 +1,18 @@
-import os 
 from datetime import date, datetime
-from flask import Flask, render_template, redirect, url_for, request
+from flask import Flask, render_template, redirect, url_for, request, session
 from flask_bootstrap import Bootstrap5
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 from models import db, Nutzer, Auftrag, Termin, Nachricht
-from forms import AuftragFormular
+from forms import AuftragFormular, TerminBearbeiternForm, TerminErstellenForm
 
 app = Flask(__name__)
-app.secret_key = "helpyourneighbour"
-
-from db import db
-from models import Termin, Nutzer, Auftrag, Nachricht
 
 app.config["SECRET_KEY"] = "secret_key_just_for_dev_environment"
 app.config["BOOTSTRAP_BOOTSWATCH_THEME"] = "pulse"
 
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///helpyourneighbour.db"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-app.config["BOOTSTRAP_BOOTSWATCH_THEME"] = "pulse"
 
-app = Flask(__name__)
-
-app.secret_key = "your_secret_key"
-os.makedirs(app.instance_path, exist_ok=True)
-app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///pflegehilfe.db"
-app.config["SECRET_KEY"]= "ein_geheimes_passwort"
 
 
 login_manager = LoginManager()
@@ -38,6 +26,68 @@ def load_user(user_id):
 db.init_app(app)
 bootstrap = Bootstrap5(app)
 
+with app.app_context():
+        db.create_all()
+
+        db.session.execute(db.delete(Nutzer))
+        db.session.execute(db.delete(Auftrag))
+        db.session.execute(db.delete(Termin))
+        db.session.execute(db.delete(Nachricht))
+        if not Nutzer.query.first():
+            print("Erstelle Testdaten...")
+            
+            # 1. Den Helfer erstellen
+            helfer1 = Nutzer(
+                vorname="Max", 
+                nachname="Mustermann", 
+                geschlecht="männlich",
+                geburtsdatum=date(1990, 1, 1),
+                adresse="Hauptstraße 1",
+                plz="12345",
+                ort="Berlin",
+                email="max@example.com",
+                passwort="geheim",
+                telefon = "1234", 
+                rolle="Helfer"
+            )
+            
+            # 2. Die zwei PP erstellen
+            pp1 = Nutzer(
+                vorname="Anna", nachname="Müller", geschlecht="weiblich",
+                geburtsdatum=date(1985, 5, 20), adresse="Nebenweg 2",
+                plz="12345", ort="Berlin", email="anna@example.com",
+                passwort="geheim", telefon ="1",rolle="PP"
+            )
+            
+            pp2 = Nutzer(
+                vorname="Tom", nachname="Schmidt", geschlecht="männlich",
+                geburtsdatum=date(1995, 10, 10), adresse="Waldweg 3",
+                plz="12345", ort="Berlin", email="tom@example.com",
+                passwort="geheim",telefon ="2", rolle="PP"
+            )
+            
+            db.session.add(helfer1)
+            db.session.add(pp1)
+            db.session.add(pp2)
+            db.session.commit()
+            
+            # 3. Zwei Aufträge erstellen und verknüpfen
+            auftrag1 = Auftrag(
+                wohnsituation="Wohnung im 2. OG, kein Aufzug",
+                beschreibung="Wocheneinkauf im Supermarkt erledigen",
+                angenommen=True, helfer_id=helfer1.id, pp_id=pp1.id
+            )
+            
+            auftrag2 = Auftrag(
+                wohnsituation="Haus mit kleinem Vorgarten",
+                beschreibung="Unterstützung bei der Gartenarbeit",
+                angenommen=True, helfer_id=helfer1.id, pp_id=pp2.id
+            )
+            
+            db.session.add(auftrag1)
+            db.session.add(auftrag2)
+            db.session.commit()
+            print("Testdaten erfolgreich erstellt.")
 
 @app.route("/")
 def startseite():
@@ -125,7 +175,7 @@ def historie():
 
 @app.route("/termine/", methods = ["GET", "POST"])
 def termine():
-    form = forms.TerminErstellenForm()
+    form = TerminErstellenForm()
 
     aktueller_nutzer = db.session.execute(db.select(Nutzer).where(Nutzer.rolle == "Helfer")).scalars().first()
     if not aktueller_nutzer:
@@ -240,7 +290,7 @@ def termine():
 @app.route('/termine/<int:id>', methods=['GET', 'POST'])
 def termin(id):
     termin = db.session.get(Termin, id) 
-    form = forms.TerminBearbeiternForm(obj=termin)
+    form = TerminBearbeiternForm(obj=termin)
     
     aktueller_nutzer = db.session.execute(db.select(Nutzer).where(Nutzer.rolle == "Helfer")).scalars().first()
 
