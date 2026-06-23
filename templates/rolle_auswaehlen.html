@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block TITLE %}Rolle auswählen{% endblock %}
+
+{% block CONTENT %}
+<div class="container container-sm mt-5"> 
+    <a href="{{ url_for('startseite') }}" class="btn btn-outline-secondary mb-3">
+        ← Zurück
+    </a>
+
+    <div class="row justify-content-center">
+        <div class="col-12 col-md-8"> <div class="card shadow-sm">
+                <div class="card-body p-4 text-center">
+                    
+                    <h1 class="h2 mb-2">Willkommen bei HelpYourNeighbour</h1>
+                    <p class="lead text-muted mb-4">Wie möchten Sie die Plattform nutzen?</p>
+                    <hr>
+                    
+                    <form method="POST">
+                        {{ form.hidden_tag() }} <table class="table table-borderless table-responsive justify-content-center d-flex mb-0">
+                            <tbody>
+                                <tr>
+                                    <td class="px-3">
+                                        {{ form.helfer_btn(class="btn btn-success btn-lg rounded-3 px-4") }}
+                                    </td>
+                                    <td class="px-3">
+                                        {{ form.suchender_btn(class="btn btn-primary btn-lg rounded-3 px-4") }}
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </form>   
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

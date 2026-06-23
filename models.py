@@ -65,7 +65,6 @@ class Termin (db.Model):
     helfer = db.relationship("Nutzer", foreign_keys=[helfer_id], backref="helfer_termine")
     pp = db.relationship("Nutzer", foreign_keys=[pp_id], backref="pp_termine")
     auftrag = db.relationship("Auftrag", backref="termine")
-
     
 
 

@@ -1,9 +1,10 @@
 from datetime import date, datetime
-from flask import Flask, render_template, redirect, url_for, request, session
-from flask_bootstrap import Bootstrap5
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
-from models import db, Nutzer, Auftrag, Termin, Nachricht
-from forms import AuftragFormular, TerminBearbeiternForm, TerminErstellenForm
+from forms import TerminBearbeiternForm, TerminErstellenForm, RollenWahlForm, RegisterForm, LoginForm, AuftragFormular, ProfilFormular
+from flask import Flask, render_template, redirect, url_for, request, session, flash
+from flask_bootstrap import Bootstrap5
+from db import db
+from models import Nutzer, Auftrag, Termin, Nachricht
 
 app = Flask(__name__)
 
@@ -12,7 +13,6 @@ app.config["BOOTSTRAP_BOOTSWATCH_THEME"] = "pulse"
 
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///helpyourneighbour.db"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-
 
 
 login_manager = LoginManager()
@@ -27,87 +27,54 @@ db.init_app(app)
 bootstrap = Bootstrap5(app)
 
 with app.app_context():
-        db.create_all()
-
-        db.session.execute(db.delete(Nutzer))
-        db.session.execute(db.delete(Auftrag))
-        db.session.execute(db.delete(Termin))
-        db.session.execute(db.delete(Nachricht))
-        if not Nutzer.query.first():
-            print("Erstelle Testdaten...")
-            
-            # 1. Den Helfer erstellen
-            helfer1 = Nutzer(
-                vorname="Max", 
-                nachname="Mustermann", 
-                geschlecht="männlich",
-                geburtsdatum=date(1990, 1, 1),
-                adresse="Hauptstraße 1",
-                plz="12345",
-                ort="Berlin",
-                email="max@example.com",
-                passwort="geheim",
-                telefon = "1234", 
-                rolle="Helfer"
-            )
-            
-            # 2. Die zwei PP erstellen
-            pp1 = Nutzer(
-                vorname="Anna", nachname="Müller", geschlecht="weiblich",
-                geburtsdatum=date(1985, 5, 20), adresse="Nebenweg 2",
-                plz="12345", ort="Berlin", email="anna@example.com",
-                passwort="geheim", telefon ="1",rolle="PP"
-            )
-            
-            pp2 = Nutzer(
-                vorname="Tom", nachname="Schmidt", geschlecht="männlich",
-                geburtsdatum=date(1995, 10, 10), adresse="Waldweg 3",
-                plz="12345", ort="Berlin", email="tom@example.com",
-                passwort="geheim",telefon ="2", rolle="PP"
-            )
-            
-            db.session.add(helfer1)
-            db.session.add(pp1)
-            db.session.add(pp2)
-            db.session.commit()
-            
-            # 3. Zwei Aufträge erstellen und verknüpfen
-            auftrag1 = Auftrag(
-                wohnsituation="Wohnung im 2. OG, kein Aufzug",
-                beschreibung="Wocheneinkauf im Supermarkt erledigen",
-                angenommen=True, helfer_id=helfer1.id, pp_id=pp1.id
-            )
-            
-            auftrag2 = Auftrag(
-                wohnsituation="Haus mit kleinem Vorgarten",
-                beschreibung="Unterstützung bei der Gartenarbeit",
-                angenommen=True, helfer_id=helfer1.id, pp_id=pp2.id
-            )
-            
-            db.session.add(auftrag1)
-            db.session.add(auftrag2)
-            db.session.commit()
-            print("Testdaten erfolgreich erstellt.")
+    db.create_all()
 
 @app.route("/")
+@app.route("/startseite")
 def startseite():
     return render_template("startseite.html")
 
+
+@app.route('/rolle_auswaehlen', methods=['GET', 'POST'])
+def rolle_waehlen():
+    form = RollenWahlForm()
+    
+    if form.validate_on_submit():
+
+        if form.helfer_btn.data:
+            gewaehlte_rolle = "Helfer"
+        elif form.suchender_btn.data:
+            gewaehlte_rolle = "PP"
+        else:
+            gewaehlte_rolle = "PP"
+
+       
+        session["rollenwahl"] = gewaehlte_rolle
+        return redirect(url_for('register'))
+
+    return render_template('rolle_auswaehlen.html', form=form)
+
+
 @app.route("/register", methods=["GET", "POST"])
 def register():
-    if request.method == "POST":
+    form = RegisterForm()
+
+    if form.validate_on_submit():
+        
+        gewaehlte_rolle = session.get("rollenwahl", "PP")
+        
         neuer_nutzer = Nutzer(
-            vorname = request.form["vorname"],
-            nachname = request.form["nachname"],
-            geschlecht = request.form["geschlecht"],
-            geburtsdatum = datetime.strptime(request.form["geburtsdatum"], "%Y-%m-%d").date(),
-            adresse = request.form["adresse"],
-            plz = request.form["plz"],
-            ort = request.form["ort"],
-            email = request.form["email"],
-            telefon = request.form["telefonnummer"],
-            passwort = request.form["passwort"],
-            rolle = request.form["rolle"]
+            vorname=form.vorname.data,
+            nachname=form.nachname.data,
+            geschlecht=form.geschlecht.data,
+            geburtsdatum=form.geburtsdatum.data,
+            adresse=form.adresse.data,
+            plz=form.plz.data,
+            ort=form.ort.data,
+            email=form.email.data,
+            telefon=form.telefonnummer.data,
+            passwort=form.passwort.data,
+            rolle=gewaehlte_rolle
         )
 
         db.session.add(neuer_nutzer)
@@ -115,26 +82,77 @@ def register():
 
         return redirect(url_for("login"))
 
-    return render_template("register.html")
+    return render_template("register.html", form=form)
+
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
-    if request.method == "POST":
-        email = request.form["email"]
-        passwort = request.form["passwort"]
+    form = LoginForm()
+    fehler = None 
 
-        nutzer = Nutzer.query.filter_by(email=email).first()
-
-        if nutzer and nutzer.passwort == passwort:
-            login_user(nutzer)
-
-            if nutzer.rolle == "helfer":
-                return redirect(url_for("helfer_auftraege"))
+    if form.validate_on_submit():
+        email = form.email.data
+        passwort = form.passwort.data
+        
+        
+        nutzer = db.session.execute(db.select(Nutzer).where(Nutzer.email == email)).scalars().first()
+        
+        if not nutzer:
+            fehler = "Benutzer nicht vorhanden. Bitte prüfe deine Eingabe oder registriere dich neu!"
+            flash(fehler)
+        else:
+            if nutzer.passwort == passwort:
+                
+                login_user(nutzer)
+                
+                
+                if nutzer.rolle == "Helfer":
+                    return redirect(url_for("dashboard"))
+                else:
+                    return redirect(url_for("dashboard"))
             else:
-                return redirect(url_for("auftrag_erstellen"))
+                fehler = "Passwort oder Emailadresse falsch!"
+                flash(fehler)
 
-    return render_template("login.html")
+    return render_template("login.html", form=form, fehler=fehler)
 
+
+@app.route("/dashboard")
+@login_required
+def dashboard():
+    return render_template("dashboard.html")
+
+
+@app.route("/profil", methods=["GET", "POST"])
+@login_required
+def profil():
+    form = ProfilFormular()
+
+    if form.validate_on_submit():
+        
+        current_user.vorname = form.vorname.data
+        current_user.nachname = form.nachname.data
+        current_user.email = form.email.data
+        current_user.telefon = form.telefon.data
+        current_user.adresse = form.adresse.data
+        current_user.plz = form.plz.data
+        current_user.ort = form.ort.data
+        
+        db.session.commit()
+        flash("Profil erfolgreich aktualisiert!", "success")
+        return redirect(url_for("dashboard"))
+
+    
+    elif request.method == "GET":
+        form.vorname.data = current_user.vorname
+        form.nachname.data = current_user.nachname
+        form.email.data = current_user.email
+        form.telefon.data = current_user.telefon 
+        form.adresse.data = current_user.adresse
+        form.plz.data = current_user.plz
+        form.ort.data = current_user.ort
+
+    return render_template("profil.html", form=form)
 
 
 @app.route("/logout")
@@ -142,23 +160,24 @@ def login():
 def logout():
     logout_user()  
     session.clear() 
-    return redirect(url_for("login")) 
+    return redirect(url_for("startseite")) 
+
 
 @app.route("/auftrag/erstellen", methods=["GET", "POST"])
 @login_required
 def auftrag_erstellen():
-
     form = AuftragFormular()
     
     if form.validate_on_submit():
         neuer_auftrag = Auftrag(
             wohnsituation=form.wohnsituation.data,
             beschreibung=form.beschreibung.data,
-            nutzer_id=current_user.id
+            nutzer_id=current_user.id 
         )
         db.session.add(neuer_auftrag)
         db.session.commit()
-        return redirect(url_for("auftraege_start"))
+        return redirect(url_for("dashboard"))
+        
     return render_template("auftrag_erstellen.html", nutzer=current_user, form=form)
 
 @app.route("/termine/historie/", methods = ["GET"])
@@ -350,11 +369,11 @@ def termin(id):
             return redirect(url_for('termin', id=id))
         
 
+
 @app.route("/helfer/auftraege")
 @login_required
 def helfer_auftraege():
-    
-    if current_user.rolle != "helfer":
+    if current_user.rolle != "Helfer":
         return "Zugriff verweigert. Nur Helfer können diese Seite sehen.", 403
 
     offene_auftraege = Auftrag.query.filter_by(angenommen="offen").all()
@@ -365,9 +384,7 @@ def helfer_auftraege():
 @app.route("/helfer/auftrag/<int:auftrag_id>")
 @login_required
 def auftrag_annehmen(auftrag_id):
-    
-    
-    if current_user.rolle != "helfer":
+    if current_user.rolle != "Helfer":
         return "Zugriff verweigert. Nur Helfer können diese Seite sehen.", 403
   
     auftrag = db.session.get(Auftrag, auftrag_id)
@@ -378,20 +395,25 @@ def auftrag_annehmen(auftrag_id):
     db.session.commit()
     return render_template("auftrag_angenommen.html", auftrag=auftrag)
 
+
 @app.route("/chat/<int:empfaenger_id>", methods=["GET", "POST"])
+@login_required  # Wichtig, damit current_user existiert!
 def chat(empfaenger_id):
     if request.method == "POST":
         neue_nachricht = Nachricht(
             inhalt=request.form["inhalt"],
-            sender_id=1,
+            sender_id=current_user.id,  # Dynamisch!
             empfaenger_id=empfaenger_id
         )
         db.session.add(neue_nachricht)
         db.session.commit()
+    
+    # Filtert Nachrichten zwischen dem aktuellen User und dem Empfänger
     nachrichten = Nachricht.query.filter(
-        (Nachricht.sender_id == 1) |
-        (Nachricht.empfaenger_id == 1)
+        ((Nachricht.sender_id == current_user.id) & (Nachricht.empfaenger_id == empfaenger_id)) |
+        ((Nachricht.sender_id == empfaenger_id) & (Nachricht.empfaenger_id == current_user.id))
     ).all()
+    
     return render_template("chat.html", nachrichten=nachrichten)
 
 if __name__ == "__main__":
