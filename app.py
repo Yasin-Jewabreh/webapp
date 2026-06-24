@@ -333,14 +333,19 @@ def termin(id):
 def helfer_auftraege():
     if current_user.rolle != "Helfer":
         return "Zugriff verweigert. Nur Helfer können diese Seite sehen.", 403
-    offene_auftraege = Auftrag.query.filter_by(angenommen= False).all()
+    
+    statement = db.select(Auftrag).filter_by(angenommen=False)
+    
+    offene_auftraege = db.session.scalars(statement).all()
     heute = date.today()
     return render_template("helfer_auftraege.html", auftraege=offene_auftraege, heute=heute)
 
 @app.route("/meine_auftraege")
 @login_required
 def meine_auftraege():
-    meine = Auftrag.query.filter_by(angenommen= True).all()
+    statement = db.select(Auftrag).filter_by(angenommen=True)
+    
+    meine = db.session.scalars(statement).all()
     return render_template("meine_auftraege.html", auftraege=meine, heute=date.today())
 
 @app.route("/helfer/auftrag/<int:auftrag_id>")

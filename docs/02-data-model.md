@@ -19,7 +19,7 @@ Das Datenmodell der Anwendung besteht aus den vier zentralen Entitäten **Nutzer
 
 ## Entity Relationship Diagram
 
-![Datenmodell](assets/images/erm-datenmodell.png)
+<img width="451" height="486" alt="image" src="https://github.com/user-attachments/assets/c224a16f-6101-46cb-b7e1-8d503b30d611" />
 
 ## Beschreibung der Entitäten
 
@@ -69,7 +69,7 @@ Wichtige Attribute:
 
 ## Beziehungen
 
-- Ein Nutzer kann mehrere Aufträge erstellen.
-- Ein Nutzer kann mehrere Nachrichten senden und empfangen.
-- Ein Auftrag kann einen oder mehrere Termine besitzen.
+- Ein Nutzer kann keinen oder mehrere Aufträge erstellen bzw. annehmen.
+- Ein Nutzer kann keine mehrere Nachrichten senden und empfangen.
+- Ein Auftrag kann keinen oder mehrere Termine besitzen.
 - Ein Termin gehört genau zu einem Auftrag.
