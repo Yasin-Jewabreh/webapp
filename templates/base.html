@@ -1,3 +1,5 @@
+{% from 'bootstrap5/utils.html' import render_messages %}
+
 <!DOCTYPE html>
 <html lang="de">
 <head>
@@ -13,42 +15,10 @@
     </div> 
 </nav>
 <main class="container">
-<div class="container mt-3">
-    {# Die Anzeige der Flash messages wurde von KI kopiert, gleiches gilt für den Eventlistener, damit die Flash Messages verschwinden von alleine #}
-    {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-            {% for category, message in messages %}
-                <div class="alert alert-{{ category }} alert-dismissible fade show col-md-6 mx-auto flash-message py-2" role="alert">
-                  {{ message }}
-                  <button type="button" class="btn-close py-2.5" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>
-            {% endfor %}
-        {% endif %}
-    {% endwith %}
-</div>
+    {{ render_messages(dismissible=True, dismiss_animate=True) }}
+
      {% block CONTENT %}{% endblock %}
-      </main>
+</main>
     {{bootstrap.load_js()}}
-    <script>
-    document.addEventListener("DOMContentLoaded", function() {
-        // 1. Suche alle Flash-Meldungen auf der Seite
-        const alertElements = document.querySelectorAll('.flash-message');
-        
-        alertElements.forEach(function(alertEl) {
-            // 2. Warte 5000 Millisekunden (5 Sekunden)
-            setTimeout(function() {
-                // 3. Nutze das eingebaute Bootstrap-Objekt, um die Meldung elegant zu schließen
-                if (typeof bootstrap !== 'undefined' && bootstrap.Alert) {
-                    const bsAlert = new bootstrap.Alert(alertEl);
-                    bsAlert.close();
-                } else {
-                    // Fallback: Falls Bootstrap noch nicht geladen war, einfach so ausblenden
-                    alertEl.classList.remove('show');
-                    setTimeout(() => alertEl.remove(), 500);
-                }
-            }, 3000);
-        });
-    });
-</script>
 </body>
 </html>
