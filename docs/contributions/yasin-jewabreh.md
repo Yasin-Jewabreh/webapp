@@ -48,25 +48,26 @@ Mir ist weiterhin bewusst, dass ich, sofern ich zur Erstellung dieser Arbeit KI-
 | \# | My contribution | Why I am proud of it | Which challenge I overcame |
 | :-- | :-- | :-- | :-- |
 | 1 | Ich habe mich um die Terminübersicht gekümmert. Dazu gehören viele Funktionen: Termine erstellen, bearbeiten, löschen, annehmen, ablehnen und auf erledigt setzen. Ich lasse die vereinbarten Termine, die Termine, die bestätigt werden müssen, die Termine, bei denen man auf eine Antwort wartet, und die Terminhistorie anzeigen.  | Ich bin ziemlich stolz, weil ich Schritt für Schritt die einzelnen Funktionen hinzugefügt habe. Und auch wenn ich Probleme hatte, habe ich das Log durchsucht. Mittlerweile verstehe ich wie man ein Problem findet, ich muss auch sagen, dass ich mich mittlerweile sehr gut mit Git und Vscode auskenne. Ich habe meine Ziele erreich | Die Probleme die ich überwunden habe, sind, dass ich mit den Problemmessages im Terminal nicht klar kam. Ich konnte die Fehler anfangs nicht finden und habe viel Zeit verloren. Außerdem habe ich den Umgang mit Branches erst spät verstanden. |
-| 2 | Meine Größte Contribution war jede Funktion in Bezug auf die Termine. Allerdings habe ich auch Design Decisions geleitet, wie den Umgang mit SQLAlchemy  |  |  |
-| 3 |  |  |  |
+| 2 |  Ich habe am Ende übernommen, die einzelnen Code Teile zusammenzuführen und die Probleme zu beheben. Dazu gehörte vor Allem Fehler, wie z.B. falsche Weiterleitungen etc., aber auch Unstimmigkeiten in der Datenbanklogik mit dem Code.  | Ich bin auch hier stolz, weil ich gemerkt habe, dass ich den gesamten Code gut verstanden habe. Ich wusste fast immer direkt wo ich den Fehler suchen muss und wusste dann auch, wie ich ihn beheben kann | Aufgrund von wahrscheinlich interner Fehlkommunikation gab es in der Klassenstruktur kleine Abweichungen, die ich dementsprechend ausgebessert habe. Das Refactoring hat hier sehr geholfen|
+| 3 | Zu der Termin erstellen Funktion gehört natürlich auch ein Formular mit WTForms. Hier habe ich das Formular und zusätzlich auch Validierungsfunktionen erstellt, um die Fehleranfälligkeit bei falschen Eingaben zu reduzieren und den Programmfluss sicher zu stellen  | Das schwierige war manchmal die genaue Syntax besonders von den Funktionen, hier hat ein Blick in die Dokumentation von WTForms aber auch sehr geholfen. |
 
 ## Design Decisions that I led
 
 1. [DD #00](../design-decisions/dd-00.md)
-2. [DD #01](../design-decisions/dd-01.md)
+2. [DD #07](../design-decisions/dd-07.md)
 
 ---
 
 ## Contributions
+Alles auf dem Branch calendar.html gehört zu meinen Contributions
 
 | Contribution | Proof, e.g., git commits | Sources used |
 | :-- | :-- | :-- |
-| [Design Challenge research] | [Research traces](../product-discovery/01-design-challenge.md#raw-materia) | See left |
-| [Refactor to use Flask Blueprints] | [Commit 1](https://github.com/hwrberlin/fswd/commit/d816e4), [Commit 2](https://github.com/hwrberlin/fswd/commit/75a6c1) | [Flask Documentation](https://flask.palletsprojects.com/en/stable/blueprints/#the-concept-of-blueprints) |
-|  |  |  |
-|  |  |  |
-|  |  |  |
+| Termin Formulare mit WTForms|  Z.B. Commit: (bc9824f8acf94abf63bde9c1bb4689610a50e56b) | Tutorial von Herrn Eck, [WTF Dokumentation](https://wtforms.readthedocs.io/en/3.2.x/) |
+| Rollenbasierte Termin-Statussegmentierung | Commit1(65ff339d3414bd5a976e587e09babb7a9d6ed72e),Commit2(0d8f30fab0832825208461454640e7c67b5e7358), Commit3(72f6508b95ef624b5f1f96183bb26bbe8ed0735b) (alles im o.g. Branch) | Tutorial von Herrn Eck für die SQLAlchemy Syntax etc. |
+| JSON API für die Termine | Commit(e55594214f404c1b33ff22460dc8c5ebfb1aa74a) | Tutorial von Herrn Eck, Gemini (siehe AIDirectory Eintrag 04)|
+| CRUD für Termine | Commit1(21a0c39bb00389706b651ef8e50ad5c44a506ed5), siehe oben für die forms | Tutorial Herr Eck, Gemini (siehe AI Directory Eintrag 03) |
+| Zusammenführen des Codes   | Z.B. Commit(49c9ae3576481af94317d68e0e0fe44e94699658), Commit(abf1c08fc4af9adb49aae6969eb2eaf5bc5992f3) | Tutorial Herr Eck |
 
 ---
 
@@ -77,5 +78,6 @@ Mir ist weiterhin bewusst, dass ich, sofern ich zur Erstellung dieser Arbeit KI-
 | #   | AI Tool | Purpose of Use | Affected Sections (Code + Docs) | Remarks, Procedure, Prompts |
 | :-- | :--     | :--            | :--                             | :--                         |
 | 01  |    GEMINI     |   Bootstrap class Design             |       termine.html                          |  Ich bin so vorgegangen, dass ich mir Zwischenziele gesetzt habe und erstmal versucht habe, es selbst hinzubekommen mit dem Layout. Wenn ich nicht weiterwusste, habe ich GEMINI gefragt und er hat mir z.B. gesagt, wie ich einen Tabelleninhalt anklickbar mache,nachdm es bei mir nicht geklappt hatte mit meinem Code.                          |
-| 02  |      GEMINI   |        Anzeigen von Flash Messages        |       base.html                          |         Das ist die enzige Sache die ich einfach von der KI reinkopiert habe, sonst habe ich alles selbst geschrieben.                    |
+| 02  |      GEMINI   |        Anzeigen von Flash Messages        |       base.html                          |         Das ist die einzige Sache, die ich einfach von der KI reinkopiert habe, sonst habe ich alles selbst geschrieben.                    |
 | 03 |     GEMINI    |        Fehlermessages erklären        |         app.py                        |        Ich hatte Fehlercodes, als ich eine Liste mit .scalars() (wie im Tutorial) angelegt habe. Gemini  hat mir dann gesagt, dass ich ein .all() einfügen kann damit es klappt. Danach hat es geklappt .                  |
+| 04 | GEMINI | Probleme mit der JSON Headless API lösen | app.py | Mit dem Code aus dem Tutorial allein, kamen nur Fehlercodes und ich habe es allein nicht geschafft, es zum laufen zu kriegen. Gemini hat mir z.B. dabei geholfen, dass ich die Date- Variablen in einen String umwandeln muss.
