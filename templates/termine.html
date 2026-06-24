@@ -23,7 +23,7 @@
                                     </thead>
                                     <tbody>
                                     {% for t in offene%}
-                                        <tr onclick="window.location.href='{{ url_for('termin', id=t.id) }}';" style="cursor: pointer;">
+                                        <tr>
                                             <td>
                                                 <strong> {{t.datum.strftime('%d.%m.%Y')}}:</strong>  
                                                 {% if nutzer.rolle == "Helfer"%}
@@ -75,7 +75,7 @@
                                     </thead>
                                     <tbody>
                                     {% for t in wartende%}
-                                        <tr onclick="window.location.href='{{ url_for('termin', id=t.id) }}';" style="cursor: pointer;">
+                                        <tr>
                                             <td>
                                                 <strong> {{t.datum.strftime('%d.%m.%Y')}}:</strong>  
                                                 {% if nutzer.rolle == "Helfer"%}
@@ -114,7 +114,7 @@
                                 </thead>
                                 <tbody>
                                 {% for t in bestaetigte%}
-                                    <tr onclick="window.location.href='{{ url_for('termin', id=t.id) }}';" style="cursor: pointer;">
+                                    <tr>
                                         <td>
                                             <strong> {{t.datum.strftime('%d.%m.%Y')}}:</strong>  
                                             {% if nutzer.rolle == "Helfer"%}
