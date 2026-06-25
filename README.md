@@ -1,5 +1,16 @@
-# webapp
-This is the webapp developed for our "Fullstack Web Development" course
+# HelpYourneighbour
+Eine webbasierte Vermittlungsplattform, die hilfsbedürftige Menschen mit engagierten Helfern (Studenten, Schülern und Azubis) verbindet.
+
+## Features
+Zwei-Rollen-System: Getrennte Dashboards und Logiken für Hilfesuchende und Helfer.
+
+Auftragsmanagement: Hilfesuchende können Hilfe anfragen; Helfer können offene Aufträge einsehen und annehmen. Die Zuordnung erfolgt rollenbasiert über das bei der Registrierung gewählte Nutzerprofil.
+
+Terminverwaltung: Helfer und Hilfesuchende können Termine anfragen, bestätigen, ablehnen, bearbeiten, löschen und als erledigt markieren — mit rollenbasierter Statusansicht und Terminhistorie.
+
+Integriertes Chat-System: Direkte, datenbankgestützte Kommunikation zwischen Helfer und Hilfesuchendem im WhatsApp-Stil (Nachrichten links/rechts je nach Absender).
+
+Sichere Authentifizierung: Login-System mit gehashten Passwörtern, Session-Management via Flask-Login und @login_required-Absicherung aller relevanten Routen.
 
 ## Anleitung zur Reproduktion des Happy Paths
 
