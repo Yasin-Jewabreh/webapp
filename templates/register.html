@@ -1,52 +1,25 @@
 {% extends "base.html" %}
+{% from 'bootstrap5/form.html' import render_form %}
 
-{% block TITLE %}
-Register
-{% endblock %}
+{% block TITLE %} Registrieren {% endblock %}
 
-{% block CONTENT %}
-<h2>Registrieren</h2>
+{% block CONTENT %}    
+    <div class="container container-sm mt-5">    
+        <a href="{{ url_for('rolle_waehlen') }}" class="btn btn-outline-secondary mb-3">
+            ← Zurück
+        </a>
 
-<form method="POST" action="/register">
-    <label>Vorname</label>
-    <input type="text" name="vorname">
-
-    <label>Nachname</label>
-    <input type="text" name="nachname">
-
-    <label>Geschlecht</label>
-    <input type="text" name="geschlecht">
-
-    <label>Geburtsdatum</label>
-    <input type="date" name="geburtsdatum">
-
-    <label>Adresse</label>
-    <input type="text" name="adresse">
-
-    <label>PLZ</label>
-    <input type="text" name="plz">
-
-    <label>Ort</label>
-    <input type="text" name="ort">
-
-    <label>E-Mail</label>
-    <input type="email" name="email">
-
-<label>Telefonnummer</label>
-<input type="text" name="telefonnummer">
-
-    <label>Passwort</label>
-    <input type="password" name="passwort">
-
-<label>Passwort bestätigen</label>
-<input type="password" name="passwort2">
-
-<label>Rolle</label>
-<select name="rolle">
-    <option value="pflegebeduerftiger">Pflegebedürftiger</option>
-<option value="helfer">Helfer</option>
-</select>   
-
-    <button type="submit">Registrieren</button>
-</form>
+        <div class="row justify-content-center">
+            <div class="col-12 col-md-8"> <div class="card shadow-sm">
+                    <div class="card-body p-4">
+                        <h2 class="mb-3">Registrieren</h2>
+                        <hr>
+                        
+                        {{ render_form(form) }}
+                        
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 {% endblock %}

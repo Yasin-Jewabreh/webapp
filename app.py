@@ -1,10 +1,10 @@
 from datetime import date, datetime
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
-from forms import TerminBearbeiternForm, TerminErstellenForm, RollenWahlForm, RegisterForm, LoginForm, AuftragFormular, ProfilFormular
-from flask import Flask, render_template, redirect, url_for, request, session, flash
+from forms import TerminBearbeiternForm, TerminErstellenForm, RollenWahlForm, RegistrierungFormular, LoginFormular, AuftragFormular, ProfilFormular
+from flask import Flask, render_template, redirect, url_for, request, session, flash, abort
 from flask_bootstrap import Bootstrap5
 from db import db
-from models import Nutzer, Auftrag, Termin, Nachricht
+from models import Nutzer, Auftrag, Termin, Nachricht, berlin_time
 
 app = Flask(__name__)
 
@@ -13,7 +13,6 @@ app.config["BOOTSTRAP_BOOTSWATCH_THEME"] = "pulse"
 
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///helpyourneighbour.db"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-
 
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -34,35 +33,25 @@ with app.app_context():
 def startseite():
     return render_template("startseite.html")
 
-
 @app.route('/rolle_auswaehlen', methods=['GET', 'POST'])
 def rolle_waehlen():
     form = RollenWahlForm()
-    
     if form.validate_on_submit():
-
         if form.helfer_btn.data:
             gewaehlte_rolle = "Helfer"
         elif form.suchender_btn.data:
             gewaehlte_rolle = "PP"
         else:
             gewaehlte_rolle = "PP"
-
-       
         session["rollenwahl"] = gewaehlte_rolle
         return redirect(url_for('register'))
-
     return render_template('rolle_auswaehlen.html', form=form)
-
 
 @app.route("/register", methods=["GET", "POST"])
 def register():
-    form = RegisterForm()
-
+    form = RegistrierungFormular()
     if form.validate_on_submit():
-        
         gewaehlte_rolle = session.get("rollenwahl", "PP")
-        
         neuer_nutzer = Nutzer(
             vorname=form.vorname.data,
             nachname=form.nachname.data,
@@ -72,64 +61,46 @@ def register():
             plz=form.plz.data,
             ort=form.ort.data,
             email=form.email.data,
-            telefon=form.telefonnummer.data,
+            telefon=form.telefon.data,
             passwort=form.passwort.data,
             rolle=gewaehlte_rolle
         )
-
         db.session.add(neuer_nutzer)
         db.session.commit()
-
         return redirect(url_for("login"))
-
     return render_template("register.html", form=form)
-
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
-    form = LoginForm()
+    form = LoginFormular()
     fehler = None 
 
     if form.validate_on_submit():
         email = form.email.data
         passwort = form.passwort.data
-        
-        
         nutzer = db.session.execute(db.select(Nutzer).where(Nutzer.email == email)).scalars().first()
-        
         if not nutzer:
             fehler = "Benutzer nicht vorhanden. Bitte prüfe deine Eingabe oder registriere dich neu!"
             flash(fehler)
         else:
             if nutzer.passwort == passwort:
-                
                 login_user(nutzer)
-                
-                
-                if nutzer.rolle == "Helfer":
-                    return redirect(url_for("dashboard"))
-                else:
-                    return redirect(url_for("dashboard"))
+                return redirect(url_for("dashboard"))
             else:
                 fehler = "Passwort oder Emailadresse falsch!"
                 flash(fehler)
-
     return render_template("login.html", form=form, fehler=fehler)
-
 
 @app.route("/dashboard")
 @login_required
 def dashboard():
     return render_template("dashboard.html")
 
-
 @app.route("/profil", methods=["GET", "POST"])
 @login_required
 def profil():
     form = ProfilFormular()
-
     if form.validate_on_submit():
-        
         current_user.vorname = form.vorname.data
         current_user.nachname = form.nachname.data
         current_user.email = form.email.data
@@ -137,89 +108,78 @@ def profil():
         current_user.adresse = form.adresse.data
         current_user.plz = form.plz.data
         current_user.ort = form.ort.data
-        
         db.session.commit()
         flash("Profil erfolgreich aktualisiert!", "success")
         return redirect(url_for("dashboard"))
-
-    
     elif request.method == "GET":
         form.vorname.data = current_user.vorname
         form.nachname.data = current_user.nachname
         form.email.data = current_user.email
-        form.telefon.data = current_user.telefon 
+        form.telefon.data = current_user.telefon
         form.adresse.data = current_user.adresse
         form.plz.data = current_user.plz
         form.ort.data = current_user.ort
-
     return render_template("profil.html", form=form)
-
 
 @app.route("/logout")
 @login_required
 def logout():
-    logout_user()  
-    session.clear() 
-    return redirect(url_for("startseite")) 
+    logout_user()
+    session.clear()
+    return redirect(url_for("startseite"))
 
 
 @app.route("/auftrag/erstellen", methods=["GET", "POST"])
 @login_required
 def auftrag_erstellen():
     form = AuftragFormular()
-    
     if form.validate_on_submit():
         neuer_auftrag = Auftrag(
             wohnsituation=form.wohnsituation.data,
             beschreibung=form.beschreibung.data,
-            nutzer_id=current_user.id 
+            pp_id=current_user.id 
         )
         db.session.add(neuer_auftrag)
         db.session.commit()
         return redirect(url_for("dashboard"))
-        
     return render_template("auftrag_erstellen.html", nutzer=current_user, form=form)
 
 @app.route("/termine/historie/", methods = ["GET"])
 def historie():
-    aktueller_nutzer = db.session.execute(db.select(Nutzer).where(Nutzer.rolle == "Helfer")).scalars().first()
 
-    if aktueller_nutzer.rolle == "Helfer":
-        erledigte_termine =  db.session.execute(db.select(Termin).where(Termin.helfer_id == aktueller_nutzer.id,Termin.complete == True).order_by(Termin.datum, Termin.uhrzeit_beginn)).scalars().all()
-    elif aktueller_nutzer.rolle == "PP":
-        erledigte_termine =  db.session.execute(db.select(Termin).where(Termin.pp_id == aktueller_nutzer.id,Termin.complete == True).order_by(Termin.datum, Termin.uhrzeit_beginn)).scalars().all()
+    if current_user.rolle == "Helfer":
+        erledigte_termine =  db.session.execute(db.select(Termin).where(Termin.helfer_id == current_user.id,Termin.complete == True).order_by(Termin.datum, Termin.uhrzeit_beginn)).scalars().all()
+    elif current_user.rolle == "PP":
+        erledigte_termine =  db.session.execute(db.select(Termin).where(Termin.pp_id == current_user.id,Termin.complete == True).order_by(Termin.datum, Termin.uhrzeit_beginn)).scalars().all()
     if request.method == "GET":
-        return render_template("historie.html", erledigte = erledigte_termine , nutzer= aktueller_nutzer)
+        return render_template("historie.html", erledigte = erledigte_termine , nutzer= current_user)
 
 
 @app.route("/termine/", methods = ["GET", "POST"])
+@login_required
 def termine():
     form = TerminErstellenForm()
-
-    aktueller_nutzer = db.session.execute(db.select(Nutzer).where(Nutzer.rolle == "Helfer")).scalars().first()
-    if not aktueller_nutzer:
-        return ("Es gibt keinen Nutzer")
   
     bestaetigte_termine = []
     offene_termine = []
     warten_auf_antwort_termine = []
 
-    if aktueller_nutzer.rolle == "Helfer":
-        verfuegbare_auftraege = aktueller_nutzer.angenommene_auftraege
+    if current_user.rolle == "Helfer":
+        verfuegbare_auftraege = current_user.angenommene_auftraege
         if not verfuegbare_auftraege:
             return("Du hast noch keinen Auftrag angenommen. Bitte Vereinbare zunächst einen Termin!")
         form.teilnehmer.choices = [(a.id, f"{a.pp.vorname} {a.pp.nachname} - {a.pp.adresse}") for a in verfuegbare_auftraege]
         form.teilnehmer.choices.insert(0,(0, "---Bitte wählen---"))
-        bestaetigte_termine =  db.session.execute(db.select(Termin).where(Termin.helfer_id == aktueller_nutzer.id,Termin.complete == False,Termin.bestaetigt == True).order_by(Termin.datum, Termin.uhrzeit_beginn)).scalars().all()
-        offene_termine =  db.session.execute(db.select(Termin).where(Termin.helfer_id == aktueller_nutzer.id,Termin.complete == False,Termin.bestaetigt == False, Termin.ersteller_id != aktueller_nutzer.id).order_by(Termin.datum, Termin.uhrzeit_beginn)).scalars().all()
-        warten_auf_antwort_termine = db.session.execute(db.select(Termin).where(Termin.helfer_id == aktueller_nutzer.id,Termin.complete == False,Termin.bestaetigt == False, Termin.ersteller_id == aktueller_nutzer.id).order_by(Termin.datum, Termin.uhrzeit_beginn)).scalars().all()
-    elif aktueller_nutzer.rolle == "PP":
-        verfuegbare_auftraege = aktueller_nutzer.erstellte_auftraege
+        bestaetigte_termine =  db.session.execute(db.select(Termin).where(Termin.helfer_id == current_user.id,Termin.complete == False,Termin.bestaetigt == True).order_by(Termin.datum, Termin.uhrzeit_beginn)).scalars().all()
+        offene_termine =  db.session.execute(db.select(Termin).where(Termin.helfer_id == current_user.id,Termin.complete == False,Termin.bestaetigt == False, Termin.ersteller_id != current_user.id).order_by(Termin.datum, Termin.uhrzeit_beginn)).scalars().all()
+        warten_auf_antwort_termine = db.session.execute(db.select(Termin).where(Termin.helfer_id == current_user.id,Termin.complete == False,Termin.bestaetigt == False, Termin.ersteller_id == current_user.id).order_by(Termin.datum, Termin.uhrzeit_beginn)).scalars().all()
+    elif current_user.rolle == "PP":
+        verfuegbare_auftraege = current_user.erstellte_auftraege
         form.teilnehmer.choices = [(a.id, f"{a.helfer.vorname} {a.helfer.nachname}") for a in verfuegbare_auftraege]
         form.teilnehmer.choices.insert(0,(0, "---Bitte wählen---"))
-        bestaetigte_termine =  db.session.execute(db.select(Termin).where(Termin.pp_id == aktueller_nutzer.id,Termin.complete == False,Termin.bestaetigt == True).order_by(Termin.datum, Termin.uhrzeit_beginn)).scalars().all()
-        offene_termine =  db.session.execute(db.select(Termin).where(Termin.pp_id == aktueller_nutzer.id,Termin.complete == False,Termin.bestaetigt == False, Termin.ersteller_id != aktueller_nutzer.id).order_by(Termin.datum, Termin.uhrzeit_beginn)).scalars().all()
-        warten_auf_antwort_termine = db.session.execute(db.select(Termin).where(Termin.pp_id == aktueller_nutzer.id,Termin.complete == False,Termin.bestaetigt == False, Termin.ersteller_id == aktueller_nutzer.id).order_by(Termin.datum, Termin.uhrzeit_beginn)).scalars().all()
+        bestaetigte_termine =  db.session.execute(db.select(Termin).where(Termin.pp_id == current_user.id,Termin.complete == False,Termin.bestaetigt == True).order_by(Termin.datum, Termin.uhrzeit_beginn)).scalars().all()
+        offene_termine =  db.session.execute(db.select(Termin).where(Termin.pp_id == current_user.id,Termin.complete == False,Termin.bestaetigt == False, Termin.ersteller_id != current_user.id).order_by(Termin.datum, Termin.uhrzeit_beginn)).scalars().all()
+        warten_auf_antwort_termine = db.session.execute(db.select(Termin).where(Termin.pp_id == current_user.id,Termin.complete == False,Termin.bestaetigt == False, Termin.ersteller_id == current_user.id).order_by(Termin.datum, Termin.uhrzeit_beginn)).scalars().all()
     
     if request.method == "GET":
         if request.args.get('json') is not None:
@@ -243,7 +203,7 @@ def termine():
                 }for t in liste]
             return json_ausgabe
         else:
-            return render_template("termine.html", bestaetigte = bestaetigte_termine, offene = offene_termine, wartende = warten_auf_antwort_termine, form = form, nutzer= aktueller_nutzer)
+            return render_template("termine.html", bestaetigte = bestaetigte_termine, offene = offene_termine, wartende = warten_auf_antwort_termine, form = form, nutzer= current_user)
     else:
         if "erledigen_id" in request.form:
             termin_id = int(request.form.get("erledigen_id"))
@@ -286,7 +246,7 @@ def termine():
 
             if ueberschneidung:
                     flash("Fehler: Zu dieser Uhrzeit gibt es eine Terminüberschneidung!", "danger")
-                    return render_template("termine.html", bestaetigte = bestaetigte_termine, offene = offene_termine, wartende = warten_auf_antwort_termine, form = form, nutzer= aktueller_nutzer)
+                    return render_template("termine.html", bestaetigte = bestaetigte_termine, offene = offene_termine, wartende = warten_auf_antwort_termine, form = form, nutzer= current_user)
             termin = Termin(helfer_id = auftrag.helfer.id,
                             auftrag_id = auftrag.id,
                             pp_id = auftrag.pp_id,
@@ -294,7 +254,7 @@ def termine():
                             datum=form.datum.data, 
                             uhrzeit_beginn = form.uhrzeit_beginn.data, 
                             uhrzeit_ende = form.uhrzeit_ende.data,
-                            ersteller_id = aktueller_nutzer.id                                                       
+                            ersteller_id = current_user.id                                                       
                             )
             db.session.add(termin)
             db.session.commit()
@@ -302,23 +262,22 @@ def termine():
             return redirect(url_for("termine"))
         else:
             flash("Der Termin konnte leider nicht eingetragen werden", "warning")
-        return render_template("termine.html", bestaetigte = bestaetigte_termine, offene = offene_termine, wartende = warten_auf_antwort_termine, form = form, nutzer= aktueller_nutzer)
+        return render_template("termine.html", bestaetigte = bestaetigte_termine, offene = offene_termine, wartende = warten_auf_antwort_termine, form = form, nutzer= current_user)
 
 
 
 @app.route('/termine/<int:id>', methods=['GET', 'POST'])
+@login_required
 def termin(id):
     termin = db.session.get(Termin, id) 
     form = TerminBearbeiternForm(obj=termin)
     
-    aktueller_nutzer = db.session.execute(db.select(Nutzer).where(Nutzer.rolle == "Helfer")).scalars().first()
-
-    if aktueller_nutzer.rolle == "Helfer":
-        verfuegbare_auftraege = db.session.execute(db.select(Auftrag).where(Auftrag.helfer_id == aktueller_nutzer.id)).scalars().all()
+    if current_user.rolle == "Helfer":
+        verfuegbare_auftraege = db.session.execute(db.select(Auftrag).where(Auftrag.helfer_id == current_user.id)).scalars().all()
         form.teilnehmer.choices = [(a.id, f"{a.pp.vorname} {a.pp.nachname} - {a.pp.adresse}") for a in verfuegbare_auftraege]
 
-    elif aktueller_nutzer.rolle == "PP":
-        verfuegbare_auftraege = db.session.execute(db.select(Auftrag).where(Auftrag.pp_id == aktueller_nutzer.id)).scalars().all()
+    elif current_user.rolle == "PP":
+        verfuegbare_auftraege = db.session.execute(db.select(Auftrag).where(Auftrag.pp_id == current_user.id)).scalars().all()
         form.teilnehmer.choices = [(a.id, f"{a.helfer.vorname} {a.helfer.nachname}") for a in verfuegbare_auftraege]
 
     if request.method == 'GET':
@@ -349,7 +308,7 @@ def termin(id):
                 termin.pp_id = auftrag.pp.id
                 termin.helfer_id = auftrag.helfer.id
                 termin.bestaetigt = False
-                termin.ersteller_id = aktueller_nutzer.id
+                termin.ersteller_id = current_user.id
                 db.session.add(termin)
                 db.session.commit()
                 flash("Deine Änderungen wurden erfolgreich gespeichert", "success")
@@ -369,52 +328,98 @@ def termin(id):
             return redirect(url_for('termin', id=id))
         
 
-
 @app.route("/helfer/auftraege")
 @login_required
 def helfer_auftraege():
     if current_user.rolle != "Helfer":
         return "Zugriff verweigert. Nur Helfer können diese Seite sehen.", 403
-
-    offene_auftraege = Auftrag.query.filter_by(angenommen="offen").all()
+    
+    statement = db.select(Auftrag).filter_by(angenommen=False)
+    
+    offene_auftraege = db.session.scalars(statement).all()
     heute = date.today()
     return render_template("helfer_auftraege.html", auftraege=offene_auftraege, heute=heute)
 
+@app.route("/meine_auftraege")
+@login_required
+def meine_auftraege():
+    statement = db.select(Auftrag).filter_by(angenommen=True)
+    
+    meine = db.session.scalars(statement).all()
+    return render_template("meine_auftraege.html", auftraege=meine, heute=date.today())
 
 @app.route("/helfer/auftrag/<int:auftrag_id>")
 @login_required
 def auftrag_annehmen(auftrag_id):
     if current_user.rolle != "Helfer":
         return "Zugriff verweigert. Nur Helfer können diese Seite sehen.", 403
-  
     auftrag = db.session.get(Auftrag, auftrag_id)
     if not auftrag:
         return "Auftrag nicht gefunden", 404
-    
-    auftrag.angenommen = "angenommen"
+    auftrag.angenommen = True
+    auftrag.helfer_id = current_user.id
     db.session.commit()
     return render_template("auftrag_angenommen.html", auftrag=auftrag)
 
+@app.route("/chat_uebersicht")
+@login_required
+def chat_uebersicht():
+    return redirect(url_for("chat"))
 
+@app.route("/chat")
 @app.route("/chat/<int:empfaenger_id>", methods=["GET", "POST"])
-@login_required  # Wichtig, damit current_user existiert!
-def chat(empfaenger_id):
-    if request.method == "POST":
-        neue_nachricht = Nachricht(
-            inhalt=request.form["inhalt"],
-            sender_id=current_user.id,  # Dynamisch!
-            empfaenger_id=empfaenger_id
-        )
-        db.session.add(neue_nachricht)
-        db.session.commit()
+@login_required
+def chat(empfaenger_id=None):
+    gesendete_nachrichten = Nachricht.query.filter_by(sender_id=current_user.id).all()
+    empfangene_nachrichten = Nachricht.query.filter_by(empfaenger_id=current_user.id).all()
     
-    # Filtert Nachrichten zwischen dem aktuellen User und dem Empfänger
+    partner_ids = set()
+    for n in gesendete_nachrichten:
+        partner_ids.add(n.empfaenger_id)
+    for n in empfangene_nachrichten:
+        partner_ids.add(n.sender_id)
+    
+    partner_ids.discard(current_user.id)
+    chat_partner = Nutzer.query.filter(Nutzer.id.in_(partner_ids)).all() if partner_ids else []
+
+    aktiver_partner = None
+    nachrichten = []
+    
+    if empfaenger_id:
+        aktiver_partner = db.session.get(Nutzer, empfaenger_id)
+        if aktiver_partner and aktiver_partner not in chat_partner:
+            chat_partner.append(aktiver_partner)
+        if request.method == "POST" and request.form.get("inhalt"):
+            neue_nachricht = Nachricht(
+                inhalt=request.form["inhalt"],
+                sender_id=current_user.id,
+                empfaenger_id=empfaenger_id,
+                zeitstempel=berlin_time()
+            )
+            db.session.add(neue_nachricht)
+            db.session.commit()
+            return redirect(url_for("chat", empfaenger_id=empfaenger_id))
+        nachrichten = Nachricht.query.filter(
+            ((Nachricht.sender_id == current_user.id) & (Nachricht.empfaenger_id == empfaenger_id)) |
+            ((Nachricht.sender_id == empfaenger_id) & (Nachricht.empfaenger_id == current_user.id))
+        ).order_by(Nachricht.zeitstempel.asc()).all()
+
+    return render_template("chat.html", chat_partner=chat_partner, aktiver_partner=aktiver_partner, nachrichten=nachrichten)
+
+@app.route("/chat/loeschen/<int:partner_id>", methods=["POST"])
+@login_required
+def chat_loeschen(partner_id):
     nachrichten = Nachricht.query.filter(
-        ((Nachricht.sender_id == current_user.id) & (Nachricht.empfaenger_id == empfaenger_id)) |
-        ((Nachricht.sender_id == empfaenger_id) & (Nachricht.empfaenger_id == current_user.id))
+        ((Nachricht.sender_id == current_user.id) & (Nachricht.empfaenger_id == partner_id)) |
+        ((Nachricht.sender_id == partner_id) & (Nachricht.empfaenger_id == current_user.id))
     ).all()
-    
-    return render_template("chat.html", nachrichten=nachrichten)
+    for n in nachrichten:
+        if n.sender_id == current_user.id:
+            n.geloescht_fuer_sender = True
+        else:
+            n.geloescht_fuer_empfaenger = True
+    db.session.commit()
+    return redirect(url_for("chat", empfaenger_id=partner_id))
 
 if __name__ == "__main__":
     app.run(debug=True)
