@@ -353,7 +353,7 @@ def meine_auftraege():
     statement = db.select(Auftrag).filter_by(angenommen=True, helfer_id =current_user.id)
     
     meine = db.session.scalars(statement).all()
-    return render_template("meine_auftraege.html", auftraege=meine, heute=date.today())
+    return render_template("meine_auftraege.html", auftraege=meine, heute=date.today()) 
 
 @app.route("/helfer/auftrag/<int:auftrag_id>")
 @login_required
