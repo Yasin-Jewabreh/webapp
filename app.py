@@ -338,26 +338,22 @@ def termin(id):
 @app.route("/helfer/auftraege")
 @login_required
 def helfer_auftraege():
+    # Sicherheitscheck 
     if current_user.rolle != "Helfer":
         return "Zugriff verweigert. Nur Helfer können diese Seite sehen.", 403
     
+    
     statement = db.select(Auftrag).filter_by(angenommen=False)
     
+    # Füge die ergebnisse aus Statement in die Variable offene Auftrage ein
     offene_auftraege = db.session.scalars(statement).all()
     heute = date.today()
     return render_template("helfer_auftraege.html", auftraege=offene_auftraege, heute=heute)
 
-@app.route("/meine_auftraege")
-@login_required
-def meine_auftraege():
-    statement = db.select(Auftrag).filter_by(angenommen=True, helfer_id =current_user.id)
-    
-    meine = db.session.scalars(statement).all()
-    return render_template("meine_auftraege.html", auftraege=meine, heute=date.today()) 
-
 @app.route("/helfer/auftrag/<int:auftrag_id>")
 @login_required
 def auftrag_annehmen(auftrag_id):
+
     if current_user.rolle != "Helfer":
         return "Zugriff verweigert. Nur Helfer können diese Seite sehen.", 403
     auftrag = db.session.get(Auftrag, auftrag_id)
@@ -367,6 +363,17 @@ def auftrag_annehmen(auftrag_id):
     auftrag.helfer_id = current_user.id
     db.session.commit()
     return render_template("auftrag_angenommen.html", auftrag=auftrag)
+
+@app.route("/meine_auftraege")
+@login_required
+def meine_auftraege():
+    # Filtert die Aufträge die angenommen wurden und die Helfer ID mit dem Nutzer ID übereinstimmt 
+    statement = db.select(Auftrag).filter_by(angenommen=True, helfer_id =current_user.id)
+    
+    meine = db.session.scalars(statement).all()
+    return render_template("meine_auftraege.html", auftraege=meine, heute=date.today()) 
+
+
 
 @app.route("/chat_uebersicht")
 @login_required

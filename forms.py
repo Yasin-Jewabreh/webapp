@@ -38,12 +38,12 @@ class AuftragFormular(FlaskForm):
         "Wohnsituation",
         choices=[
             ("","Bitte auswählen"),
-            ("Ich lebe allein", "Ich lebe allein"),
-            ("Ich lebe mit meinem Partner oder meiner Partnerin", "Ich lebe mit meinem Partner oder meiner Partnerin"),
-            ("Ich lebe mit meiner Familie", "Ich lebe mit meiner Familie"),
-            ("Ich lebe in einer Wohngemeinschaft", "Ich lebe in einer Wohngemeinschaft"),
-            ("Ich lebe in einer Pflegeeinrichtung", "Ich lebe in einer Pflegeeinrichtung"),
-            ("Andere Wohnsituation", "Andere Wohnsituation")
+            ("allein", "Ich lebe allein"),
+            ("partner/in", "Ich lebe mit meinem Partner oder meiner Partnerin"),
+            ("familie", "Ich lebe mit meiner Familie"),
+            ("wohngemeinschaft", "Ich lebe in einer Wohngemeinschaft"),
+            ("pflegeeinrichtung", "Ich lebe in einer Pflegeeinrichtung"),
+            ("andere Wohnsituation", "Andere Wohnsituation")
         ],
         validators=[DataRequired(message="Bitte wähle deine Wohnsituation aus.")]
     )
