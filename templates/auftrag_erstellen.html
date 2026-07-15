@@ -12,7 +12,7 @@
         <div class="profile-card">
             <div class="profile-header">
                 <span class="profile-label">Pflegeprofil</span>
-                <h1>Erstelle dein Auftrag</h1>
+                <h1>Erstelle deinen Auftrag</h1>
             </div>
 
             <form method="POST" action="{{ url_for('auftrag_erstellen') }}" class="profile-form">
@@ -71,11 +71,19 @@
                     </div>
                 </div>
 
-                <div class="form-group mb-4">
-                    {{ form.bestaetigung() }}
-                    {{ form.bestaetigung.label(class="form-control border-info") }}
+            <div class ="form-group mb-4">
+                <div class="border rounded p-3 py-2">
+                    <div class = "d-flex align-items-center gap-2">
+                    {{ form.bestaetigung(class="form-check-input mt-0 flex-shrink-0") }}
+                    {{ form.bestaetigung.label(class="form-check-label mb-0") }}
+                    </div>
+                </div>
+                      <div class="form-text ms-4">
+                        Bitte überprüfe deine Angaben, bevor du den Auftrag veröffentlichst.
+                        </div>
+                    
                     {% if form.bestaetigung.errors %}
-                        <div class="text-danger d-block">{{ form.bestaetigung.errors[0] }}</div>
+                        <div class="text-danger small mt-2 ms-4">{{ form.bestaetigung.errors[0] }}</div>
                     {% endif %}
                 </div>
 

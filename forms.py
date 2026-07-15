@@ -57,7 +57,7 @@ class AuftragFormular(FlaskForm):
     )
     
     bestaetigung = BooleanField(
-        "Ich bestätige, dass die angegebenen Informationen sichtbar sein dürfen.",
+        "Ich bestätige, dass die angegebenen Informationen gespeichert und sichtbar sein dürfen.",
         validators=[DataRequired(message="Du musst der Bestätigung zustimmen.")]
     )
     

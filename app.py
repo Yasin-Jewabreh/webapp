@@ -133,12 +133,15 @@ def logout():
 @login_required
 def auftrag_erstellen():
     form = AuftragFormular()
+    # Prüfen ob Formular abgeschickt wurde und ob alle Pflichtfelder gefüllt sind
     if form.validate_on_submit():
+        # Es wird ein neuer Auftrag mit den Daten angelegt
         neuer_auftrag = Auftrag(
             wohnsituation=form.wohnsituation.data,
             beschreibung=form.beschreibung.data,
             pp_id=current_user.id 
         )
+        # Hinzufügen in die DB
         db.session.add(neuer_auftrag)
         db.session.commit()
         return redirect(url_for("dashboard"))
@@ -342,7 +345,6 @@ def helfer_auftraege():
     if current_user.rolle != "Helfer":
         return "Zugriff verweigert. Nur Helfer können diese Seite sehen.", 403
     
-    
     statement = db.select(Auftrag).filter_by(angenommen=False)
     
     # Füge die ergebnisse aus Statement in die Variable offene Auftrage ein
@@ -360,6 +362,7 @@ def auftrag_annehmen(auftrag_id):
     if not auftrag:
         return "Auftrag nicht gefunden", 404
     auftrag.angenommen = True
+    # Die Id des Nutzers wird mit dem Helfer ID gleichgesetzt 
     auftrag.helfer_id = current_user.id
     db.session.commit()
     return render_template("auftrag_angenommen.html", auftrag=auftrag)
@@ -371,8 +374,7 @@ def meine_auftraege():
     statement = db.select(Auftrag).filter_by(angenommen=True, helfer_id =current_user.id)
     
     meine = db.session.scalars(statement).all()
-    return render_template("meine_auftraege.html", auftraege=meine, heute=date.today()) 
-
+    return render_template("meine_auftraege.html", auftraege=meine) 
 
 
 @app.route("/chat_uebersicht")
