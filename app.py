@@ -134,9 +134,9 @@ def logout():
 @login_required
 def auftrag_erstellen():
     form = AuftragFormular()
-    # Prüfen ob Formular abgeschickt wurde und ob alle Pflichtfelder gefüllt sind
+    # Prüfen ob ein Post ausgeführt wurde und ob alle Pflichtfelder gefüllt sind
     if form.validate_on_submit():
-        # Es wird ein neuer Auftrag mit den Daten angelegt
+        # Es wird ein neuer Auftrag mit den eingegebenen Daten angelegt
         neuer_auftrag = Auftrag(
             wohnsituation=form.wohnsituation.data,
             beschreibung=form.beschreibung.data,
@@ -353,7 +353,7 @@ def helfer_auftraege():
     heute = date.today()
     return render_template("helfer_auftraege.html", auftraege=offene_auftraege, heute=heute)
 
-@app.route("/helfer/auftrag/<int:auftrag_id>")
+@app.route("/helfer/auftrag/<int:auftrag_id>", methods= ["POST"])
 @login_required
 def auftrag_annehmen(auftrag_id):
 
