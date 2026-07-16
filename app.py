@@ -42,6 +42,7 @@ def rolle_waehlen():
             gewaehlte_rolle = "Helfer"
         elif form.suchender_btn.data:
             gewaehlte_rolle = "PP"
+            #Sicherheitshalber setzen wir die Rolle auf "PP", falls keine der beiden Rollen ausgewählt wurde
         else:
             gewaehlte_rolle = "PP"
         session["rollenwahl"] = gewaehlte_rolle
@@ -149,6 +150,7 @@ def auftrag_erstellen():
     return render_template("auftrag_erstellen.html", nutzer=current_user, form=form)
 
 @app.route("/termine/historie/", methods = ["GET"])
+@login_required
 def historie():
 
     if current_user.rolle == "Helfer":
@@ -163,7 +165,8 @@ def historie():
 @login_required
 def termine():
     form = TerminErstellenForm()
-  
+    form.teilnehmer.choices = [(0, "---Bitte wählen---")]
+
     verfuegbare_auftraege = []
     bestaetigte_termine = []
     offene_termine = []
@@ -172,20 +175,17 @@ def termine():
     if current_user.rolle == "Helfer":
         verfuegbare_auftraege = current_user.angenommene_auftraege
         if verfuegbare_auftraege:
-            form.teilnehmer.choices = [(a.id, f"{a.pp.vorname} {a.pp.nachname} - {a.pp.adresse}") for a in verfuegbare_auftraege]
-            form.teilnehmer.choices.insert(0,(0, "---Bitte wählen---"))
+            form.teilnehmer.choices += [(a.id, f"{a.pp.vorname} {a.pp.nachname} - {a.pp.adresse}") for a in verfuegbare_auftraege]
 
         else:
             flash("Um Termine zu vereinbaren, nimm bitte erstmal einen Auftrag an!", "info")
-        form.teilnehmer.choices.insert(0,(0, "---Bitte wählen---"))
         bestaetigte_termine =  db.session.execute(db.select(Termin).where(Termin.helfer_id == current_user.id,Termin.complete == False,Termin.bestaetigt == True).order_by(Termin.datum, Termin.uhrzeit_beginn)).scalars().all()
         offene_termine =  db.session.execute(db.select(Termin).where(Termin.helfer_id == current_user.id,Termin.complete == False,Termin.bestaetigt == False, Termin.ersteller_id != current_user.id).order_by(Termin.datum, Termin.uhrzeit_beginn)).scalars().all()
         warten_auf_antwort_termine = db.session.execute(db.select(Termin).where(Termin.helfer_id == current_user.id,Termin.complete == False,Termin.bestaetigt == False, Termin.ersteller_id == current_user.id).order_by(Termin.datum, Termin.uhrzeit_beginn)).scalars().all()
     elif current_user.rolle == "PP":
         verfuegbare_auftraege = current_user.erstellte_auftraege
         if verfuegbare_auftraege:
-            form.teilnehmer.choices = [(a.id, f"{a.helfer.vorname} {a.helfer.nachname}") for a in verfuegbare_auftraege]
-            form.teilnehmer.choices.insert(0,(0, "---Bitte wählen---"))
+            form.teilnehmer.choices += [(a.id, f"{a.helfer.vorname} {a.helfer.nachname}") for a in verfuegbare_auftraege]
         else:
             flash("Um Termine zu erstellen, leg bitte einen Auftrag an und warte, bis dieser angeommen wird!", "info")
         bestaetigte_termine =  db.session.execute(db.select(Termin).where(Termin.pp_id == current_user.id,Termin.complete == False,Termin.bestaetigt == True).order_by(Termin.datum, Termin.uhrzeit_beginn)).scalars().all()
