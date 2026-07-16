@@ -20,7 +20,7 @@
                             <div class = "rounded-3 overflow-hidden border shadow-sm">
                                 <table class = "table table-hover mb-0">
                                     <thead class ="table-light">
-                                        <tr> <th>Offene Termine</th> <th></th> <th></th></tr>
+                                        <tr> <th colspan="2">Offene Termine</th> </tr>
                                     </thead>
                                     <tbody>
                                     {% for t in offene%}
@@ -60,7 +60,7 @@
                             <div class = "rounded-3 overflow-hidden border shadow-sm">
                                 <table class = "table table-hover mb-0">
                                     <thead class ="table-light">
-                                        <tr> <th>Noch nicht bestätigte Termine</th> <th></th></tr>
+                                        <tr> <th colspan="2">Noch nicht bestätigte Termine</th></tr>
                                     </thead>
                                     <tbody>
                                     {% for t in wartende%}
@@ -87,7 +87,7 @@
                         <div class = "rounded-3 overflow-hidden border shadow-sm">
                             <table class = "table table-hover mb-0">
                                 <thead class ="table-light">
-                                    <tr> <th>Deine Terminübersicht</th> <th></th> <th></th></tr>
+                                    <tr> <th colspan="3">Deine Terminübersicht</th></tr>
                                 </thead>
                                 <tbody>
                                 {% for t in bestaetigte%}
