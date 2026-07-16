@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% from 'bootstrap5/form.html' import render_form %}
+{% from "macros.html" import termin_info %}
 {% block TITLE %} Terminübersicht {% endblock %}
 
 {%block CONTENT%}
@@ -11,7 +11,7 @@
                     
                         <h3 class = "mb-3">Abgeschlossene Termine</h3>
                         <div class = "rounded-3 overflow-hidden border shadow-sm">
-                            <table class = "table table hover mb-0">
+                            <table class = "table table-hover mb-0">
                                 <thead class ="table-light">
                                     <tr> <th>Deine bisherigen Termine</th> </tr>
                                 </thead>
