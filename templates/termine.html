@@ -1,9 +1,10 @@
 {% extends "base.html" %}
 {% from 'bootstrap5/form.html' import render_form %}
+{% from "macros.html" import termin_info %}
 {% block TITLE %} Terminübersicht {% endblock %}
 
 {% block CONTENT%}
-   <div class = "container-fluid mt-4">
+   <div class = "mt-4">
         <div class="row">
             <div class = "col-lg-7">
             <a href="{{ url_for('dashboard') }}" class="btn btn-outline-secondary mb-3">
@@ -25,19 +26,7 @@
                                     {% for t in offene%}
                                         <tr>
                                             <td>
-                                                <strong> {{t.datum.strftime('%d.%m.%Y')}}:</strong>  
-                                                {% if nutzer.rolle == "Helfer"%}
-                                                    Bei {{t.pp.vorname}} {{t.pp.nachname}}
-                                                {% elif nutzer.rolle == "PP"%}
-                                                    Mit {{t.helfer.vorname}} {{t.helfer.nachname}}
-                                                {%endif%}
-                                                von {{t.uhrzeit_beginn.strftime('%H:%M')}} bis {{t.uhrzeit_ende.strftime('%H:%M')}}
-                                                
-                                                {% if t.notizen%}
-                                                    <div class="text-muted small mt-1">
-                                                        <em>Notiz: {{ t.notizen}} </em>
-                                                    </div>
-                                                {%endif%}
+                                                {{ termin_info(t, nutzer) }}
                                             </td>
                                             <td>
                                                 <form method="POST">
@@ -77,19 +66,7 @@
                                     {% for t in wartende%}
                                         <tr>
                                             <td>
-                                                <strong> {{t.datum.strftime('%d.%m.%Y')}}:</strong>  
-                                                {% if nutzer.rolle == "Helfer"%}
-                                                    Bei {{t.pp.vorname}} {{t.pp.nachname}}
-                                                {% elif nutzer.rolle == "PP"%}
-                                                    Mit {{t.helfer.vorname}} {{t.helfer.nachname}}
-                                                {%endif%}
-                                                von {{t.uhrzeit_beginn.strftime('%H:%M')}} bis {{t.uhrzeit_ende.strftime('%H:%M')}}
-                                                
-                                                {% if t.notizen%}
-                                                    <div class="text-muted small mt-1">
-                                                        <em>Notiz: {{ t.notizen}} </em>
-                                                    </div>
-                                                {%endif%}
+                                                {{ termin_info(t, nutzer) }}
                                             </td>
                                             <td>
                                                 <a href = "{{ url_for('termin', id=t.id)}}" class = "btn btn-outline-primary rounded-3">Bearbeiten/Löschen</a>
@@ -116,19 +93,7 @@
                                 {% for t in bestaetigte%}
                                     <tr>
                                         <td>
-                                            <strong> {{t.datum.strftime('%d.%m.%Y')}}:</strong>  
-                                            {% if nutzer.rolle == "Helfer"%}
-                                                Bei {{t.pp.vorname}} {{t.pp.nachname}}
-                                            {% elif nutzer.rolle == "PP"%}
-                                                Mit {{t.helfer.vorname}} {{t.helfer.nachname}}
-                                            {%endif%}
-                                            von {{t.uhrzeit_beginn.strftime('%H:%M')}} bis {{t.uhrzeit_ende.strftime('%H:%M')}}
-                                            
-                                            {% if t.notizen%}
-                                                <div class="text-muted small mt-1">
-                                                    <em>Notiz: {{ t.notizen}} </em>
-                                                </div>
-                                            {%endif%}
+                                          {{ termin_info(t, nutzer) }}
                                         </td>
 
                                         <td>

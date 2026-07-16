@@ -1,0 +1,16 @@
+{% macro termin_info(t, nutzer) %}
+
+    <strong> {{t.datum.strftime('%d.%m.%Y')}}:</strong>  
+    {% if nutzer.rolle == "Helfer"%}
+        Bei {{t.pp.vorname}} {{t.pp.nachname}}
+    {% elif nutzer.rolle == "PP"%}
+        Mit {{t.helfer.vorname}} {{t.helfer.nachname}}
+    {%endif%}
+    von {{t.uhrzeit_beginn.strftime('%H:%M')}} bis {{t.uhrzeit_ende.strftime('%H:%M')}}                           
+    {% if t.notizen%}
+        <div class="text-muted small mt-1">
+            <em>Notiz: {{ t.notizen}} </em>
+        </div>
+    {%endif%}
+{% endmacro %}
+            
