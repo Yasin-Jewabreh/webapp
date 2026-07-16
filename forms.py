@@ -91,7 +91,7 @@ class TerminErstellenForm(FlaskForm):
     eintragen = SubmitField("Termin eintragen")
 
 class TerminBearbeitenForm(FlaskForm):
-    teilnehmer = SelectField("Der Termin ist mit:", coerce=int, validators=[InputRequired(), check_person])
+    teilnehmer = SelectField("Der Termin ist mit:", coerce=int,validate_choice=False, render_kw={"disabled": True})
     datum = DateField("Am",validators=[InputRequired(), check_datum], format='%Y-%m-%d')
     uhrzeit_beginn = TimeField("Von",validators=[InputRequired()],format='%H:%M')
     uhrzeit_ende = TimeField("Bis",validators=[InputRequired(), check_endzeit], format='%H:%M')
