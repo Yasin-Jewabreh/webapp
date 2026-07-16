@@ -146,6 +146,7 @@ def auftrag_erstellen():
         # Hinzufügen in die DB
         db.session.add(neuer_auftrag)
         db.session.commit()
+        flash("Auftrag erfolgreich veröffentlicht!", "success")
         return redirect(url_for("dashboard"))
     return render_template("auftrag_erstellen.html", nutzer=current_user, form=form)
 
