@@ -2,7 +2,7 @@ from datetime import date
 from flask_wtf import FlaskForm
 from wtforms import SelectField, TextAreaField, SubmitField, BooleanField, DateField, TimeField, HiddenField, TextAreaField, EmailField, PasswordField, StringField
 from wtforms.validators import DataRequired, Length, InputRequired, Optional, ValidationError, Email, EqualTo
-from datetime import date
+from datetime import date, datetime
 
 
 class RollenWahlForm(FlaskForm):
@@ -65,13 +65,18 @@ class AuftragFormular(FlaskForm):
 
 def check_datum(self, field):
     if field.data:
-        if field.data.year < date.today().year or  field.data.year > date.today().year +1 :
-            raise ValidationError(f"Das Datum muss im Jahr {date.today().year} oder {date.today().year +1} liegen!")
+        if field.data < date.today():
+            raise ValidationError(f"Der Termin darf nicht in der Vergangenheit liegen!")
 
-def check_uhrzeit(self, field):
+def check_endzeit(self, field):
     if self.uhrzeit_beginn.data and field.data:
         if field.data <= self.uhrzeit_beginn.data:
             raise ValidationError("Die End-Uhrzeit muss nach der Start-Uhrzeit liegen!")
+        
+def check_startzeit(self, field):
+    if self.datum.data and field.data:
+        if self.datum.data == date.today() and field.data < datetime.now().time():
+            raise ValidationError("Der Termin darf nicht in der Vergangenheit liegen!")
 
 def check_person(self,field):
     if self.teilnehmer.data == 0:
@@ -80,17 +85,16 @@ def check_person(self,field):
 class TerminErstellenForm(FlaskForm):
     teilnehmer = SelectField("Der Termin ist mit:", coerce=int, validators=[InputRequired(),check_person])
     datum = DateField("Am",validators=[InputRequired(), check_datum], format='%Y-%m-%d')
-    uhrzeit_beginn = TimeField("Von",validators=[InputRequired()],format='%H:%M')
-    uhrzeit_ende = TimeField("Bis",validators=[InputRequired(), check_uhrzeit], format='%H:%M')
-    notizen = TextAreaField("Trage hier deine Notizen ein",render_kw={"placeholder": "(optional)"})
+    uhrzeit_beginn = TimeField("Von",validators=[InputRequired(), check_startzeit],format='%H:%M')
+    uhrzeit_ende = TimeField("Bis",validators=[InputRequired(), check_endzeit], format='%H:%M')
+    notizen = TextAreaField("Trage hier deine Notizen ein",validators=[Length(max=800, message= "Die Notiz darf nicht länger als 800 Zeichen sein")],render_kw={"placeholder": "(optional)"})
     eintragen = SubmitField("Termin eintragen")
 
-class TerminBearbeiternForm(FlaskForm):
-    id = HiddenField()
-    teilnehmer = SelectField("Der Termin ist mit:", coerce=int, validators=[InputRequired()])
+class TerminBearbeitenForm(FlaskForm):
+    teilnehmer = SelectField("Der Termin ist mit:", coerce=int, validators=[InputRequired(), check_person])
     datum = DateField("Am",validators=[InputRequired(), check_datum], format='%Y-%m-%d')
     uhrzeit_beginn = TimeField("Von",validators=[InputRequired()],format='%H:%M')
-    uhrzeit_ende = TimeField("Bis",validators=[InputRequired(), check_uhrzeit], format='%H:%M')
+    uhrzeit_ende = TimeField("Bis",validators=[InputRequired(), check_endzeit], format='%H:%M')
     notizen = TextAreaField("Trage hier deine Notizen ein",validators=[Optional()])
     speichern = SubmitField("Änderungen Speichern")
     entfernen = SubmitField("Termin löschen", render_kw = {"class": "btn btn-outline-danger"})
