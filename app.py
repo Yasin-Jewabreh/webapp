@@ -30,12 +30,13 @@ with app.app_context():
 
 @app.route("/")
 @app.route("/startseite")
-def startseite():
+def startseite():  
     return render_template("startseite.html")
 
 
 @app.route('/rolle_auswaehlen', methods=['GET', 'POST'])
 def rolle_waehlen():
+       
     form = RollenWahlForm()
     if form.validate_on_submit():
         if form.helfer_btn.data:
@@ -51,6 +52,7 @@ def rolle_waehlen():
 
 @app.route("/register", methods=["GET", "POST"])
 def register():
+    
     form = RegistrierungFormular()
     if form.validate_on_submit():
         gewaehlte_rolle = session.get("rollenwahl", "PP")
@@ -87,6 +89,8 @@ def login():
         else:
             if nutzer.passwort == passwort:
                 login_user(nutzer)
+                if nutzer.rolle == "Admin":
+                    return redirect(url_for("nutzeruebersicht"))
                 return redirect(url_for("dashboard"))
             else:
                 fehler = "Passwort oder Emailadresse falsch!"
@@ -96,11 +100,16 @@ def login():
 @app.route("/dashboard")
 @login_required
 def dashboard():
+    if current_user.freigegeben == False:
+        return render_template("warten_auf_bestaetigung.html")
     return render_template("dashboard.html")
 
 @app.route("/profil", methods=["GET", "POST"])
 @login_required
 def profil():
+    if current_user.freigegeben == False:
+        return render_template("warten_auf_bestaetigung.html")
+    
     form = ProfilFormular()
     if form.validate_on_submit():
         current_user.vorname = form.vorname.data
@@ -134,6 +143,9 @@ def logout():
 @app.route("/auftrag/erstellen", methods=["GET", "POST"])
 @login_required
 def auftrag_erstellen():
+    if current_user.freigegeben == False:
+        return render_template("warten_auf_bestaetigung.html")
+    
     form = AuftragFormular()
     # Prüfen ob ein Post ausgeführt wurde und ob alle Pflichtfelder gefüllt sind
     if form.validate_on_submit():
@@ -153,7 +165,9 @@ def auftrag_erstellen():
 @app.route("/termine/historie/")
 @login_required
 def historie():
-
+    if current_user.freigegeben == False:
+        return render_template("warten_auf_bestaetigung.html")
+    
     if current_user.rolle == "Helfer":
         erledigte_termine =  db.session.execute(db.select(Termin).where(Termin.helfer_id == current_user.id,Termin.complete == True).order_by(Termin.datum, Termin.uhrzeit_beginn)).scalars().all()
     elif current_user.rolle == "PP":
@@ -164,6 +178,9 @@ def historie():
 @app.route("/termine/", methods = ["GET", "POST"])
 @login_required
 def termine():
+    if current_user.freigegeben == False:
+        return render_template("warten_auf_bestaetigung.html")
+    
     form = TerminErstellenForm()
     form.teilnehmer.choices = [(0, "---Bitte wählen---")]
 
@@ -280,6 +297,9 @@ def termine():
 @app.route('/termine/<int:id>', methods=['GET', 'POST'])
 @login_required
 def termin(id):
+    if current_user.freigegeben == False:
+        return render_template("warten_auf_bestaetigung.html")
+    
     termin = db.session.get(Termin, id) 
     
     if not termin or termin.complete:
@@ -345,6 +365,9 @@ def termin(id):
 @app.route("/helfer/auftraege")
 @login_required
 def helfer_auftraege():
+    if current_user.freigegeben == False:
+        return render_template("warten_auf_bestaetigung.html")
+    
     # Sicherheitscheck 
     if current_user.rolle != "Helfer":
         abort(403, description = "Nur Helfer können diese Seite sehen")
@@ -360,7 +383,9 @@ def helfer_auftraege():
 @app.route("/helfer/auftrag/<int:auftrag_id>", methods= ["POST"])
 @login_required
 def auftrag_annehmen(auftrag_id):
-
+    if current_user.freigegeben == False:
+        return render_template("warten_auf_bestaetigung.html")
+    
     if current_user.rolle != "Helfer":
         abort(403, description = "Nur Helfer können diese Seite sehen")
     auftrag = db.session.get(Auftrag, auftrag_id)
@@ -376,6 +401,9 @@ def auftrag_annehmen(auftrag_id):
 @app.route("/meine_auftraege")
 @login_required
 def meine_auftraege():
+    if current_user.freigegeben == False:
+        return render_template("warten_auf_bestaetigung.html")
+    
     # Filtert die Aufträge die angenommen wurden und die Helfer ID mit dem Nutzer ID übereinstimmt 
     statement = db.select(Auftrag).filter_by(angenommen=True, helfer_id =current_user.id)
     
@@ -392,6 +420,8 @@ def chat_uebersicht():
 @app.route("/chat/<int:empfaenger_id>", methods=["GET", "POST"])
 @login_required
 def chat(empfaenger_id=None):
+    if current_user.freigegeben == False:
+        return render_template("warten_auf_bestaetigung.html")
     gesendete_nachrichten = Nachricht.query.filter_by(sender_id=current_user.id).all()
     empfangene_nachrichten = Nachricht.query.filter_by(empfaenger_id=current_user.id).all()
     
@@ -431,6 +461,9 @@ def chat(empfaenger_id=None):
 @app.route("/chat/loeschen/<int:partner_id>", methods=["POST"])
 @login_required
 def chat_loeschen(partner_id):
+    if current_user.freigegeben == False:
+        return render_template("warten_auf_bestaetigung.html")
+    
     nachrichten = Nachricht.query.filter(
         ((Nachricht.sender_id == current_user.id) & (Nachricht.empfaenger_id == partner_id)) |
         ((Nachricht.sender_id == partner_id) & (Nachricht.empfaenger_id == current_user.id))
@@ -442,6 +475,77 @@ def chat_loeschen(partner_id):
             n.geloescht_fuer_empfaenger = True
     db.session.commit()
     return redirect(url_for("chat", empfaenger_id=partner_id))
+
+
+with app.app_context():
+        admin = db.session.execute(db.select(Nutzer).where(Nutzer.email == "admin@email.com")).scalar()
+        if admin:
+            db.session.delete(admin)
+            db.session.commit()
+            admin = Nutzer(
+                vorname="Admin",
+                nachname="Admin",
+                geschlecht="Männlich",
+                geburtsdatum=date(1995, 5, 20),
+                adresse="Hauptstraße 42",
+                plz="10115",
+                ort="Berlin",
+                email="admin@email.com",
+                freigegeben=True,
+                passwort="12345678", 
+                telefon="015112345678",
+                rolle="Admin"
+            )
+            db.session.add(admin)
+            db.session.commit()
+        else:
+            admin = Nutzer(
+                vorname="Admin",
+                nachname="Admin",
+                geschlecht="Männlich",
+                geburtsdatum=date(1995, 5, 20),
+                adresse="Hauptstraße 42",
+                plz="10115",
+                ort="Berlin",
+                email="admin@email.com",
+                freigegeben=True,
+                passwort="12345678", 
+                telefon="015112345678",
+                rolle="Admin"
+            )
+            db.session.add(admin)
+            db.session.commit()  
+
+@app.route("/nutzeruebersicht", methods=["GET", "POST"])
+@login_required
+def nutzeruebersicht():
+    if current_user.rolle != "Admin":
+        abort(404)
+
+    nicht_freigegebene_liste = []
+    nicht_freigegebene_liste = db.session.execute(db.select(Nutzer).where(Nutzer.rolle != "Admin", Nutzer.freigegeben == False)).scalars().all()
+    freigegebene_liste = []
+    freigegebene_liste = db.session.execute(db.select(Nutzer).where(Nutzer.rolle != "Admin", Nutzer.freigegeben == True)).scalars().all()
+   
+    if request.method == "GET":
+        return(render_template("nutzer_bestaetigen.html", nicht_freigegebene = nicht_freigegebene_liste, freigegebene = freigegebene_liste))
+    else:
+        if "freigeben_id" in request.form:
+            nutzer_id = int(request.form.get("freigeben_id"))
+            nutzer = db.session.get(Nutzer,nutzer_id)
+            if nutzer:
+                nutzer.freigegeben = True
+                db.session.commit()
+                flash("Nutzer erfolgreich freigegeben!", "success")
+            
+        if "deaktivieren_id" in request.form:
+            nutzer_id = int(request.form.get("deaktivieren_id"))
+            nutzer = db.session.get(Nutzer,nutzer_id)
+            if nutzer:
+                nutzer.freigegeben = False
+                db.session.commit()
+                flash("Nutzer erfolgreich deaktiviert!", "success")
+        return redirect("nutzeruebersicht")
 
 @app.errorhandler(404)
 def http_not_found(e):
