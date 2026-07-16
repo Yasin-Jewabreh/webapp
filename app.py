@@ -89,7 +89,7 @@ def login():
                 login_user(nutzer)
                 return redirect(url_for("dashboard"))
             else:
-                fehler = "Passwort oder Emailadresse falsch!"
+                fehler = "Passwort oder Email-Adresse falsch!"
                 flash(fehler)
     return render_template("login.html", form=form, fehler=fehler)
 
@@ -135,20 +135,62 @@ def logout():
 @login_required
 def auftrag_erstellen():
     form = AuftragFormular()
+    
+    # Verhinderung von falschen Nutzer zugriffen
+    if current_user.rolle != "PP":
+        return "Zugriff verweigert. Nur Pflegebedürftige können diese Seite sehen.", 403
+     
+    vorhandener_auftrag = db.session.scalar(db.select(Auftrag).filter_by(
+                            pp_id = current_user.id, abgeschlossen = False))
+    
+    if vorhandener_auftrag:
+        return redirect (url_for("auftrag_bearbeiten", auftrag_id = vorhandener_auftrag.id))
+    
     # Prüfen ob ein Post ausgeführt wurde und ob alle Pflichtfelder gefüllt sind
     if form.validate_on_submit():
         # Es wird ein neuer Auftrag mit den eingegebenen Daten angelegt
         neuer_auftrag = Auftrag(
             wohnsituation=form.wohnsituation.data,
             beschreibung=form.beschreibung.data,
-            pp_id=current_user.id 
-        )
+            pp_id=current_user.id)
+        
         # Hinzufügen in die DB
         db.session.add(neuer_auftrag)
         db.session.commit()
         flash("Auftrag erfolgreich veröffentlicht!", "success")
         return redirect(url_for("dashboard"))
     return render_template("auftrag_erstellen.html", nutzer=current_user, form=form)
+
+
+@app.route("/auftrag/bearbeiten/<int:auftrag_id>", methods = ["GET", "POST"])
+@login_required
+def auftrag_bearbeiten(auftrag_id):
+    
+
+    auftrag = db.get_or_404(Auftrag, auftrag_id)
+
+    if auftrag.pp_id != current_user.id:
+        flash("Zufriff verweigert", "danger")
+        return redirect (url_for("dashboard"))
+    
+    form = AuftragFormular()
+    # Ob ein Post gemacht wurde oder alle Felder gefüllt sind
+    if form.validate_on_submit():
+        auftrag.wohnsituation=form.wohnsituation.data
+        auftrag.beschreibung=form.beschreibung.data
+        db.session.commit()
+
+        flash("Auftrag erfolgreich aktualisiert!", "success")
+        return redirect(url_for("dashboard"))
+
+    # Falls nichts bearbeitet wurde werden die alten daten aufgegriffen
+    elif request.method == "GET":
+        form.wohnsituation.data = auftrag.wohnsituation
+        form.beschreibung.data = auftrag.beschreibung
+        form.bestaetigung.data = True
+    
+    return render_template("auftrag_bearbeiten.html", form=form, nutzer=current_user, auftrag=auftrag)
+
 
 @app.route("/termine/historie/")
 @login_required
