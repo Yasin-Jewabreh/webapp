@@ -1,6 +1,6 @@
 from datetime import date, datetime
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
-from forms import TerminBearbeiternForm, TerminErstellenForm, RollenWahlForm, RegistrierungFormular, LoginFormular, AuftragFormular, ProfilFormular
+from forms import TerminBearbeitenForm, TerminErstellenForm, RollenWahlForm, RegistrierungFormular, LoginFormular, AuftragFormular, ProfilFormular
 from flask import Flask, render_template, redirect, url_for, request, session, flash, abort
 from flask_bootstrap import Bootstrap5
 from db import db
@@ -149,7 +149,7 @@ def auftrag_erstellen():
         return redirect(url_for("dashboard"))
     return render_template("auftrag_erstellen.html", nutzer=current_user, form=form)
 
-@app.route("/termine/historie/", methods = ["GET"])
+@app.route("/termine/historie/")
 @login_required
 def historie():
 
@@ -157,8 +157,7 @@ def historie():
         erledigte_termine =  db.session.execute(db.select(Termin).where(Termin.helfer_id == current_user.id,Termin.complete == True).order_by(Termin.datum, Termin.uhrzeit_beginn)).scalars().all()
     elif current_user.rolle == "PP":
         erledigte_termine =  db.session.execute(db.select(Termin).where(Termin.pp_id == current_user.id,Termin.complete == True).order_by(Termin.datum, Termin.uhrzeit_beginn)).scalars().all()
-    if request.method == "GET":
-        return render_template("historie.html", erledigte = erledigte_termine , nutzer= current_user)
+    return render_template("historie.html", erledigte = erledigte_termine , nutzer= current_user)
 
 
 @app.route("/termine/", methods = ["GET", "POST"])
@@ -173,7 +172,7 @@ def termine():
     warten_auf_antwort_termine = []
 
     if current_user.rolle == "Helfer":
-        verfuegbare_auftraege = current_user.angenommene_auftraege
+        verfuegbare_auftraege = db.session.execute(db.select(Auftrag).where(Auftrag.helfer_id == current_user.id)).scalars().all()
         if verfuegbare_auftraege:
             form.teilnehmer.choices += [(a.id, f"{a.pp.vorname} {a.pp.nachname} - {a.pp.adresse}") for a in verfuegbare_auftraege]
 
@@ -183,7 +182,7 @@ def termine():
         offene_termine =  db.session.execute(db.select(Termin).where(Termin.helfer_id == current_user.id,Termin.complete == False,Termin.bestaetigt == False, Termin.ersteller_id != current_user.id).order_by(Termin.datum, Termin.uhrzeit_beginn)).scalars().all()
         warten_auf_antwort_termine = db.session.execute(db.select(Termin).where(Termin.helfer_id == current_user.id,Termin.complete == False,Termin.bestaetigt == False, Termin.ersteller_id == current_user.id).order_by(Termin.datum, Termin.uhrzeit_beginn)).scalars().all()
     elif current_user.rolle == "PP":
-        verfuegbare_auftraege = current_user.erstellte_auftraege
+        verfuegbare_auftraege = db.session.execute(db.select(Auftrag).where(Auftrag.pp_id == current_user.id, Auftrag.angenommen == True)).scalars().all()
         if verfuegbare_auftraege:
             form.teilnehmer.choices += [(a.id, f"{a.helfer.vorname} {a.helfer.nachname}") for a in verfuegbare_auftraege]
         else:
@@ -281,46 +280,49 @@ def termine():
 @login_required
 def termin(id):
     termin = db.session.get(Termin, id) 
-    form = TerminBearbeiternForm(obj=termin)
     
+    if not termin or termin.complete:
+         abort(404)
+
+    if (termin.helfer_id!= current_user.id and termin.pp_id != current_user.id):
+        abort (404)
+    
+    form = TerminBearbeitenForm(obj=termin)
+
     if current_user.rolle == "Helfer":
         verfuegbare_auftraege = db.session.execute(db.select(Auftrag).where(Auftrag.helfer_id == current_user.id)).scalars().all()
         form.teilnehmer.choices = [(a.id, f"{a.pp.vorname} {a.pp.nachname} - {a.pp.adresse}") for a in verfuegbare_auftraege]
 
     elif current_user.rolle == "PP":
-        verfuegbare_auftraege = db.session.execute(db.select(Auftrag).where(Auftrag.pp_id == current_user.id)).scalars().all()
+        verfuegbare_auftraege = db.session.execute(db.select(Auftrag).where(Auftrag.pp_id == current_user.id, Auftrag.angenommen == True)).scalars().all()
         form.teilnehmer.choices = [(a.id, f"{a.helfer.vorname} {a.helfer.nachname}") for a in verfuegbare_auftraege]
 
     if request.method == 'GET':
-        if termin:
-            return render_template('termin-bearbeiten.html', form=form)
-        else:
-            abort(404)
+        form.teilnehmer.data = termin.auftrag_id
+        return render_template('termin-bearbeiten.html', form=form)
     else:
-        if form.speichern.data == True:
+        if form.speichern.data:
             if form.validate():
-                form.populate_obj(termin)
-                
-                gewaehlter_auftrag_id = int(form.teilnehmer.data)
-                auftrag = db.session.get(Auftrag, gewaehlter_auftrag_id)
-
                 ueberschneidung = db.session.execute(db.select(Termin).where(
                     Termin.id != id,
                     Termin.datum == form.datum.data,
                     Termin.complete == False,
-                    (Termin.helfer_id == auftrag.helfer_id)| (Termin.pp_id == auftrag.pp_id),
+                    (Termin.helfer_id == termin.helfer_id)| (Termin.pp_id == termin.pp_id),
                     Termin.uhrzeit_beginn < form.uhrzeit_ende.data,
                     Termin.uhrzeit_ende > form.uhrzeit_beginn.data)).scalars().first()
 
                 if ueberschneidung:
                     flash("Fehler: Zu dieser Uhrzeit gibt es eine Terminüberschneidung!", "danger")
                     return redirect(url_for('termin', id=id))
-                termin.auftrag_id= gewaehlter_auftrag_id
-                termin.pp_id = auftrag.pp.id
-                termin.helfer_id = auftrag.helfer.id
-                termin.bestaetigt = False
+                
+                form.populate_obj(termin)
+                termin_ende = datetime.combine(termin.datum,termin.uhrzeit_ende)
+                
+                if termin.bestaetigt and termin_ende< datetime.now():    
+                    termin.bestaetigt= True
+                else:
+                    termin.bestaetigt = False
                 termin.ersteller_id = current_user.id
-                db.session.add(termin)
                 db.session.commit()
                 flash("Deine Änderungen wurden erfolgreich gespeichert", "success")
                 return redirect(url_for('termine'))
