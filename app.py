@@ -33,6 +33,7 @@ with app.app_context():
 def startseite():
     return render_template("startseite.html")
 
+
 @app.route('/rolle_auswaehlen', methods=['GET', 'POST'])
 def rolle_waehlen():
     form = RollenWahlForm()
@@ -344,7 +345,7 @@ def termin(id):
 def helfer_auftraege():
     # Sicherheitscheck 
     if current_user.rolle != "Helfer":
-        return "Zugriff verweigert. Nur Helfer können diese Seite sehen.", 403
+          return "Zugriff verweigert. Nur Helfer können diese Seite sehen.", 403
     
     statement = db.select(Auftrag).filter_by(angenommen=False)
     
@@ -367,6 +368,7 @@ def auftrag_annehmen(auftrag_id):
     auftrag.helfer_id = current_user.id
     db.session.commit()
     return render_template("auftrag_angenommen.html", auftrag=auftrag)
+
 
 @app.route("/meine_auftraege")
 @login_required
