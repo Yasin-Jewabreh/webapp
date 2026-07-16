@@ -41,6 +41,7 @@ def rolle_waehlen():
             gewaehlte_rolle = "Helfer"
         elif form.suchender_btn.data:
             gewaehlte_rolle = "PP"
+            #Sicherheitshalber setzen wir die Rolle auf "PP", falls keine der beiden Rollen ausgewählt wurde
         else:
             gewaehlte_rolle = "PP"
         session["rollenwahl"] = gewaehlte_rolle
