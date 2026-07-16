@@ -325,10 +325,10 @@ def termin(id):
     termin = db.session.get(Termin, id) 
     
     if not termin or termin.complete:
-         abort(404)
+         abort(404, description = "Termin nicht gefunden")
 
     if (termin.helfer_id!= current_user.id and termin.pp_id != current_user.id):
-        abort (404)
+         abort(404, description = "Termin nicht gefunden")
     
     form = TerminBearbeitenForm(obj=termin)
 
@@ -389,7 +389,8 @@ def termin(id):
 def helfer_auftraege():
     # Sicherheitscheck 
     if current_user.rolle != "Helfer":
-          return "Zugriff verweigert. Nur Helfer können diese Seite sehen.", 403
+        abort(403, description = "Nur Helfer können diese Seite sehen")
+
     
     statement = db.select(Auftrag).filter_by(angenommen=False)
     
@@ -403,10 +404,10 @@ def helfer_auftraege():
 def auftrag_annehmen(auftrag_id):
 
     if current_user.rolle != "Helfer":
-        return "Zugriff verweigert. Nur Helfer können diese Seite sehen.", 403
+        abort(403, description = "Nur Helfer können diese Seite sehen")
     auftrag = db.session.get(Auftrag, auftrag_id)
     if not auftrag:
-        return "Auftrag nicht gefunden", 404
+        abort(404, description = "Auftrag nicht gefunden")
     auftrag.angenommen = True
     # Die Id des Nutzers wird mit dem Helfer ID gleichgesetzt 
     auftrag.helfer_id = current_user.id
@@ -483,6 +484,18 @@ def chat_loeschen(partner_id):
             n.geloescht_fuer_empfaenger = True
     db.session.commit()
     return redirect(url_for("chat", empfaenger_id=partner_id))
+
+@app.errorhandler(404)
+def http_not_found(e):
+    return render_template('404.html', message = e.description), 404
+
+@app.errorhandler(500)
+def http_internal_server_error(e):
+    return render_template('500.html'), 500
+
+@app.errorhandler(403)
+def http_access_denied(e):
+    return render_template('403.html', message = e.description), 403
 
 if __name__ == "__main__":
     app.run(debug=True)
