@@ -79,7 +79,7 @@ def check_startzeit(self, field):
             raise ValidationError("Der Termin darf nicht in der Vergangenheit liegen!")
 
 def check_person(self,field):
-    if self.teilnehmer.data == 0:
+    if field.data == 0:
         raise ValidationError("Bitte eine Person auswählen!")
           
 class TerminErstellenForm(FlaskForm):
@@ -87,7 +87,7 @@ class TerminErstellenForm(FlaskForm):
     datum = DateField("Am",validators=[InputRequired(), check_datum], format='%Y-%m-%d')
     uhrzeit_beginn = TimeField("Von",validators=[InputRequired(), check_startzeit],format='%H:%M')
     uhrzeit_ende = TimeField("Bis",validators=[InputRequired(), check_endzeit], format='%H:%M')
-    notizen = TextAreaField("Trage hier deine Notizen ein",validators=[Length(max=800, message= "Die Notiz darf nicht länger als 800 Zeichen sein")],render_kw={"placeholder": "(optional)"})
+    notizen = TextAreaField("Trage hier deine Notizen ein",validators=[Optional(),Length(max=800, message= "Die Notiz darf nicht länger als 800 Zeichen sein")],render_kw={"placeholder": "(optional)"})
     eintragen = SubmitField("Termin eintragen")
 
 class TerminBearbeitenForm(FlaskForm):
@@ -95,7 +95,7 @@ class TerminBearbeitenForm(FlaskForm):
     datum = DateField("Am",validators=[InputRequired(), check_datum], format='%Y-%m-%d')
     uhrzeit_beginn = TimeField("Von",validators=[InputRequired()],format='%H:%M')
     uhrzeit_ende = TimeField("Bis",validators=[InputRequired(), check_endzeit], format='%H:%M')
-    notizen = TextAreaField("Trage hier deine Notizen ein",validators=[Optional()])
+    notizen = TextAreaField("Trage hier deine Notizen ein",validators=[Optional(),Length(max=800, message= "Die Notiz darf nicht länger als 800 Zeichen sein")])
     speichern = SubmitField("Änderungen Speichern")
     entfernen = SubmitField("Termin löschen", render_kw = {"class": "btn btn-outline-danger"})
     zurueck = SubmitField("Zurück", render_kw={"class": "btn btn-info"})
