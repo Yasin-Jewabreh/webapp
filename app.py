@@ -206,7 +206,6 @@ def historie():
 @login_required
 def termine():
     form = TerminErstellenForm()
-    form.teilnehmer.choices = [(0, "---Bitte wählen---")]
 
     verfuegbare_auftraege = []
     bestaetigte_termine = []
