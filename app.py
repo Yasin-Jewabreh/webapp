@@ -366,29 +366,42 @@ def auftrag_annehmen(auftrag_id):
 def chat_uebersicht():
     return redirect(url_for("chat"))
 
+
 @app.route("/chat")
 @app.route("/chat/<int:empfaenger_id>", methods=["GET", "POST"])
 @login_required
 def chat(empfaenger_id=None):
-    gesendete_nachrichten = Nachricht.query.filter_by(sender_id=current_user.id).all()
-    empfangene_nachrichten = Nachricht.query.filter_by(empfaenger_id=current_user.id).all()
-    
+    # Alle Chatpartner ermitteln (moderne SQLAlchemy 2.0 Syntax)
+    gesendete_nachrichten = db.session.execute(
+        db.select(Nachricht).where(Nachricht.sender_id == current_user.id)
+    ).scalars().all()
+    empfangene_nachrichten = db.session.execute(
+        db.select(Nachricht).where(Nachricht.empfaenger_id == current_user.id)
+    ).scalars().all()
+
     partner_ids = set()
     for n in gesendete_nachrichten:
         partner_ids.add(n.empfaenger_id)
     for n in empfangene_nachrichten:
         partner_ids.add(n.sender_id)
-    
+
     partner_ids.discard(current_user.id)
-    chat_partner = Nutzer.query.filter(Nutzer.id.in_(partner_ids)).all() if partner_ids else []
+
+    if partner_ids:
+        chat_partner = db.session.execute(
+            db.select(Nutzer).where(Nutzer.id.in_(partner_ids))
+        ).scalars().all()
+    else:
+        chat_partner = []
 
     aktiver_partner = None
     nachrichten = []
-    
+
     if empfaenger_id:
         aktiver_partner = db.session.get(Nutzer, empfaenger_id)
         if aktiver_partner and aktiver_partner not in chat_partner:
             chat_partner.append(aktiver_partner)
+
         if request.method == "POST" and request.form.get("inhalt"):
             neue_nachricht = Nachricht(
                 inhalt=request.form["inhalt"],
@@ -399,20 +412,28 @@ def chat(empfaenger_id=None):
             db.session.add(neue_nachricht)
             db.session.commit()
             return redirect(url_for("chat", empfaenger_id=empfaenger_id))
-        nachrichten = Nachricht.query.filter(
-            ((Nachricht.sender_id == current_user.id) & (Nachricht.empfaenger_id == empfaenger_id)) |
-            ((Nachricht.sender_id == empfaenger_id) & (Nachricht.empfaenger_id == current_user.id))
-        ).order_by(Nachricht.zeitstempel.asc()).all()
+
+        # Chatverlauf für das aktuelle Paar laden (beide Richtungen)
+        nachrichten = db.session.execute(
+            db.select(Nachricht).where(
+                ((Nachricht.sender_id == current_user.id) & (Nachricht.empfaenger_id == empfaenger_id)) |
+                ((Nachricht.sender_id == empfaenger_id) & (Nachricht.empfaenger_id == current_user.id))
+            ).order_by(Nachricht.zeitstempel.asc())
+        ).scalars().all()
 
     return render_template("chat.html", chat_partner=chat_partner, aktiver_partner=aktiver_partner, nachrichten=nachrichten)
+
 
 @app.route("/chat/loeschen/<int:partner_id>", methods=["POST"])
 @login_required
 def chat_loeschen(partner_id):
-    nachrichten = Nachricht.query.filter(
-        ((Nachricht.sender_id == current_user.id) & (Nachricht.empfaenger_id == partner_id)) |
-        ((Nachricht.sender_id == partner_id) & (Nachricht.empfaenger_id == current_user.id))
-    ).all()
+    nachrichten = db.session.execute(
+        db.select(Nachricht).where(
+            ((Nachricht.sender_id == current_user.id) & (Nachricht.empfaenger_id == partner_id)) |
+            ((Nachricht.sender_id == partner_id) & (Nachricht.empfaenger_id == current_user.id))
+        )
+    ).scalars().all()
+
     for n in nachrichten:
         if n.sender_id == current_user.id:
             n.geloescht_fuer_sender = True
