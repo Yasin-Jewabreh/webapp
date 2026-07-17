@@ -134,12 +134,12 @@ def logout():
 @app.route("/auftrag/erstellen", methods=["GET", "POST"])
 @login_required
 def auftrag_erstellen():
-    form = AuftragFormular()
-    
     # Verhinderung von falschen Nutzer zugriffen
     if current_user.rolle != "PP":
-        return "Zugriff verweigert. Nur Pflegebedürftige können diese Seite sehen.", 403
-     
+        abort(403, description = "Zugriff verweigert. Nur Pflegebedürftige können diese Seite sehen.")
+    
+    form = AuftragFormular()
+    
     vorhandener_auftrag = db.session.scalar(db.select(Auftrag).filter_by(
                             pp_id = current_user.id, abgeschlossen = False))
     
@@ -166,7 +166,6 @@ def auftrag_erstellen():
 @login_required
 def auftrag_bearbeiten(auftrag_id):
     
-
     auftrag = db.get_or_404(Auftrag, auftrag_id)
 
     if auftrag.pp_id != current_user.id:
