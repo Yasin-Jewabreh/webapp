@@ -2,10 +2,6 @@
 {% block TITLE %}Chat{% endblock %}
 {% block CONTENT %}
 <div class="container mt-4">
-    <a href="{{ url_for('dashboard') }}" class="btn btn-outline-secondary mb-3">
-        &larr; Zurück zur Übersicht
-    </a>
-
     <div class="row">
         <div class="col-md-4">
             <h3>Meine Chats</h3>
@@ -23,13 +19,13 @@
                 {% endfor %}
             </div>
         </div>
-
         <div class="col-md-8">
             {% if aktiver_partner %}
-                
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <h3 class="m-0">Chat mit {{ aktiver_partner.vorname }} {{ aktiver_partner.nachname }}</h3>
-                    
+                    <form action="{{ url_for('chat_loeschen', partner_id=aktiver_partner.id) }}" method="post" class="m-0">
+                        <button type="submit" class="btn btn-outline-danger btn-sm">Chat löschen</button>
+                    </form>
                 </div>
                 
                 <div class="chat-verlauf border p-3 mb-3 bg-light" style="height: 400px; overflow-y: scroll;">
@@ -58,10 +54,9 @@
                             </div>
                         {% endif %}
                     {% else %}
-                        <p class="text-muted text-center strt-chat-placeholder">Sende eine Nachricht, um das Gespräch zu beginnen!</p>
+                        <p class="text-muted text-center">Sende eine Nachricht, um das Gespräch zu beginnen!</p>
                     {% endfor %}
                 </div>
-
                 <form action="{{ url_for('chat', empfaenger_id=aktiver_partner.id) }}" method="post">
                     <div class="input-group">
                         <textarea name="inhalt" class="form-control" rows="2" placeholder="Nachricht eingeben..." required></textarea>

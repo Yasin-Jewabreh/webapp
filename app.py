@@ -361,22 +361,23 @@ def auftrag_annehmen(auftrag_id):
     db.session.commit()
     return render_template("auftrag_angenommen.html", auftrag=auftrag)
 
-@app.route("/chat_uebersicht")
-@login_required
-def chat_uebersicht():
-    return redirect(url_for("chat"))
-
-
 @app.route("/chat")
 @app.route("/chat/<int:empfaenger_id>", methods=["GET", "POST"])
 @login_required
 def chat(empfaenger_id=None):
-    # Alle Chatpartner ermitteln (moderne SQLAlchemy 2.0 Syntax)
+    # Lade nur Nachrichten in die Kontaktliste, die für MICH NICHT gelöscht sind
     gesendete_nachrichten = db.session.execute(
-        db.select(Nachricht).where(Nachricht.sender_id == current_user.id)
+        db.select(Nachricht).where(
+            (Nachricht.sender_id == current_user.id) &
+            (Nachricht.geloescht_fuer_sender.is_(False))
+        )
     ).scalars().all()
+
     empfangene_nachrichten = db.session.execute(
-        db.select(Nachricht).where(Nachricht.empfaenger_id == current_user.id)
+        db.select(Nachricht).where(
+            (Nachricht.empfaenger_id == current_user.id) &
+            (Nachricht.geloescht_fuer_empfaenger.is_(False))
+        )
     ).scalars().all()
 
     partner_ids = set()
@@ -413,16 +414,22 @@ def chat(empfaenger_id=None):
             db.session.commit()
             return redirect(url_for("chat", empfaenger_id=empfaenger_id))
 
-        # Chatverlauf für das aktuelle Paar laden (beide Richtungen)
+        # Lade in den Chatverlauf nur Nachrichten, die ICH noch nicht gelöscht habe
         nachrichten = db.session.execute(
             db.select(Nachricht).where(
-                ((Nachricht.sender_id == current_user.id) & (Nachricht.empfaenger_id == empfaenger_id)) |
-                ((Nachricht.sender_id == empfaenger_id) & (Nachricht.empfaenger_id == current_user.id))
+                (
+                    (Nachricht.sender_id == current_user.id) &
+                    (Nachricht.empfaenger_id == empfaenger_id) &
+                    (Nachricht.geloescht_fuer_sender.is_(False))
+                ) | (
+                    (Nachricht.sender_id == empfaenger_id) &
+                    (Nachricht.empfaenger_id == current_user.id) &
+                    (Nachricht.geloescht_fuer_empfaenger.is_(False))
+                )
             ).order_by(Nachricht.zeitstempel.asc())
         ).scalars().all()
 
     return render_template("chat.html", chat_partner=chat_partner, aktiver_partner=aktiver_partner, nachrichten=nachrichten)
-
 
 @app.route("/chat/loeschen/<int:partner_id>", methods=["POST"])
 @login_required
@@ -440,7 +447,4 @@ def chat_loeschen(partner_id):
         else:
             n.geloescht_fuer_empfaenger = True
     db.session.commit()
-    return redirect(url_for("chat", empfaenger_id=partner_id))
-
-if __name__ == "__main__":
-    app.run(debug=True)
+    return redirect(url_for("chat"))
