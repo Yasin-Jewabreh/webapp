@@ -3,32 +3,37 @@
 {% block TITLE %}Rolle auswählen{% endblock %}
 
 {% block CONTENT %}
-    <div class="container text-center mt-5">
+<div class="container container-sm mt-5"> 
+    <a href="{{ url_for('startseite') }}" class="btn btn-outline-secondary mb-3">
+        ← Zurück
+    </a>
 
-    <h1>Willkommen bei HelpYourNeighbour</h1>
+    <div class="row justify-content-center">
+        <div class="col-12 col-md-8"> <div class="card shadow-sm">
+                <div class="card-body p-4 text-center">
+                    
+                    <h1 class="h2 mb-2">Willkommen bei HelpYourNeighbour</h1>
+                    <p class="lead text-muted mb-4">Wie möchten Sie die Plattform nutzen?</p>
+                    <hr>
+                    
+                    <form method="POST">
+                        {{ form.hidden_tag() }} <table class="table table-borderless table-responsive justify-content-center d-flex mb-0">
+                            <tbody>
+                                <tr>
+                                    <td class="px-3">
+                                        {{ form.helfer_btn(class="btn btn-success btn-lg rounded-3 px-4") }}
+                                    </td>
+                                    <td class="px-3">
+                                        {{ form.suchender_btn(class="btn btn-primary btn-lg rounded-3 px-4") }}
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </form>   
 
-    <p class="lead">
-        Wie möchten Sie die Plattform nutzen?
-    </p>
-
-<form action="{{ url_for('register') }}" method="get">
-            <input type="hidden" name="rolle" value="hilfe_suchend">
-
-            <button type="submit" class="btn btn-primary btn-lg m-2">
-                Hilfe suchen
-            </button>
-        </form>
-
-        <form action="{{ url_for('register') }}" method="get">
-            <input type="hidden" name="rolle" value="hilfe_anbietend">
-
-            <button type="submit" class="btn btn-success btn-lg m-2">
-                Hilfe anbieten
-            </button>
-        </form>
-
+                </div>
+            </div>
+        </div>
     </div>
-
 </div>
-
 {% endblock %}

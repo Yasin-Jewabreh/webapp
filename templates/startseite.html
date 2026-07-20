@@ -3,57 +3,64 @@
 {% block TITLE %}Startseite{% endblock %}
 
 {% block CONTENT %}
-    <h1>Willkommen auf unserer Plattform!</h1>
-    <p>Hier können Sie Aufträge erstellen und Helfer finden.</p>
+<div class="container container-sm mt-5">
+    <div class="row justify-content-center">
+        <div class="col-12 col-md-10"> <div class="card shadow-sm">
+                <div class="card-body p-5">
+                    
+                    <div class="text-center mb-4">
+                        <h1 class="display-5 fw-bold text-primary">HelpYourNeighbour</h1>
+                        <p class="lead text-muted">Nachbarschaftshilfe einfach und sicher.</p>
+                        <p class="fs-5">Hier können Sie Aufträge erstellen und Helfer finden.</p>
+                    </div>
+                    
+                    <hr class="my-4">
 
-<h1>HelpYourNeighbour</h1>
+                    <div class="mb-4">
+                        <h3 class="h4 mb-3 text-secondary">So funktioniert's</h3>
+                        <ol class="list-group list-group-numbered list-group-flush mb-3">
+                            <li class="list-group-item bg-transparent">Registrieren</li>
+                            <li class="list-group-item bg-transparent">Hilfe suchen oder Hilfe anbieten</li>
+                            <li class="list-group-item bg-transparent">Menschen unterstützen</li>
+                        </ol>
+                    </div>
 
-<p>
-    Nachbarschaftshilfe einfach und sicher.
-</p>
+                    <hr class="my-4">
 
-<hr>
+                    <div class="row text-center g-4 mb-4">
+                        <div class="col-md-6">
+                            <div class="p-3 border rounded-3 bg-light h-100">
+                                <h4 class="h5 text-primary">Für Hilfesuchende</h4>
+                                <p class="small text-muted mb-0">
+                                    Erstellen Sie einen Auftrag und finden Sie Unterstützung für Einkäufe, Arzttermine oder andere Aufgaben im Alltag.
+                                </p>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="p-3 border rounded-3 bg-light h-100">
+                                <h4 class="h5 text-success">Für Helfer</h4>
+                                <p class="small text-muted mb-0">
+                                    Finden Sie Hilfsanfragen in Ihrer Umgebung und helfen Sie Menschen, die Unterstützung benötigen.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
 
-<h2>So funktioniert's</h2>
+                    <hr class="my-4">
 
-<ol>
-    <li>Registrieren</li>
-    <li>Hilfe suchen oder Hilfe anbieten</li>
-    <li>Menschen unterstützen</li>
-</ol>
+                    <div class="text-center">
+                        <h3 class="h5 mb-3">Jetzt starten</h3>
+                        <div class="d-grid gap-2 d-md-block">
+                            <a href="{{ url_for('rolle_waehlen') }}" class="btn btn-primary btn-lg rounded-3 me-md-2 px-4">Registrieren</a>
+                            <a href="{{ url_for('login') }}" class="btn btn-outline-secondary btn-lg rounded-3 px-4">
+                                Login
+                            </a>
+                        </div>
+                    </div>
 
-<hr>
-
-<h2>Für Hilfesuchende</h2>
-
-<p>
-    Erstellen Sie einen Auftrag und finden Sie Unterstützung
-    für Einkäufe, Arzttermine oder andere Aufgaben im Alltag.
-</p>
-
-<hr>
-
-<h2>Für Helfer</h2>
-
-<p>
-    Finden Sie Hilfsanfragen in Ihrer Umgebung und helfen Sie
-    Menschen, die Unterstützung benötigen.
-</p>
-
-<hr>
-
-<h2>Jetzt starten</h2>
-
-<p>
-    <a href="{{ url_for('rolle_auswaehlen') }}">
-        Registrieren
-    </a>
-</p>
-
-<p>
-    <a href="{{ url_for('login') }}">
-        Login
-    </a>
-</p>
-
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}

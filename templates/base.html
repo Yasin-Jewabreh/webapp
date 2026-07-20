@@ -1,3 +1,5 @@
+{% from 'bootstrap5/utils.html' import render_messages %}
+
 <!DOCTYPE html>
 <html lang="de">
 <head>
@@ -12,43 +14,11 @@
         <a class="navbar-brand" href="#">HelpYourNeighbour</a>
     </div> 
 </nav>
-
 <main class="container">
-<div class="container mt-3">
-    {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-            {% for category, message in messages %}
-                <div class="alert alert-{{ category }} alert-dismissible fade show col-md-6 mx-auto flash-message py-2" role="alert">
-                  {{ message }}
-                  <button type="button" class="btn-close py-2.5" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>
-            {% endfor %}
-        {% endif %}
-    {% endwith %}
-</div>
+    {{ render_messages(dismissible=True, dismiss_animate=True) }}
+
      {% block CONTENT %}{% endblock %}
-      </main>
+</main>
     {{bootstrap.load_js()}}
-    <script>
-    document.addEventListener("DOMContentLoaded", function() {
-        
-        const alertElements = document.querySelectorAll('.flash-message');
-        
-        alertElements.forEach(function(alertEl) {
-            
-            setTimeout(function() {
-                
-                if (typeof bootstrap !== 'undefined' && bootstrap.Alert) {
-                    const bsAlert = new bootstrap.Alert(alertEl);
-                    bsAlert.close();
-                } else {
-                    
-                    alertEl.classList.remove('show');
-                    setTimeout(() => alertEl.remove(), 500);
-                }
-            }, 3000);
-        });
-    });
-</script>
 </body>
 </html>

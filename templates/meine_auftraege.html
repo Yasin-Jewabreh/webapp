@@ -1,12 +1,15 @@
 {% extends "base.html" %}
 
-{% block TITLE %}Offene Aufträge{% endblock %}
+{% block TITLE %}Meine Aufträge{% endblock %}
 
 {% block CONTENT %}
 <div class="container mt-5">
+    <a href="{{ url_for('dashboard') }}" class="btn btn-outline-secondary mb-3">
+        ← Zurück zum Dashboard
+    </a>
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h2>Meine Aufträge</h2>
-        <p class="text-muted">Hier sieht du alle deine angenommenen Aufträge</p>
+        <p class="text-muted">Hier siehst du alle deine angenommenen Aufträge</p>
         <span class="badge bg-secondary">{{ auftraege|length }} Anzahl der Aufträge</span>
     </div>
 
@@ -17,16 +20,16 @@
                 <div class="card shadow-sm border-0 rounded-3 p-3 bg-white">
                     <div class="row align-items-center">
                         <div class="col-md-3">
-                            <h5>{{ auftrag.nutzer.vorname }} {{ auftrag.nutzer.nachname }}</h5>
+                            <h5>{{ auftrag.pp.vorname }} {{ auftrag.pp.nachname }}</h5>
                         </div>
                         <div class="col-md-5">
                             <p>{{ auftrag.beschreibung }}</p>
                         </div>
                         <div class="col-md-2">
-                            <span>{{ auftrag.nutzer.ort }}</span>
+                            <span>{{ auftrag.pp.ort }}</span>
                         </div>
                         <div class="col-md-2 text-md-end text-start mt-3 mt-md-0">
-                <a href="{{ url_for('chat', empfaenger_id=auftrag.nutzer.id) }}" class="btn btn-success w-100 py-2 fw-medium">
+                <a href="{{ url_for('chat', empfaenger_id=auftrag.pp.id) }}" class="btn btn-success w-100 py-2 fw-medium">
                      Chatten
                  </a>
             </div>

@@ -1,19 +1,40 @@
 {% extends "base.html" %}
+{% from 'bootstrap5/form.html' import render_form %}
 
-{% block TITLE %}
-Login
-{% endblock %}
+{% block TITLE %} Login {% endblock %}
 
-{% block CONTENT %}
-<h2>Login</h2>
+{% block CONTENT %}    
+    <div class="container container-sm mt-5">    
+        <a href="{{ url_for('startseite') }}" class="btn btn-outline-secondary mb-3">
+            ← Zurück
+        </a>
 
-<form method="POST">
-    <label>E-Mail</label>
-    <input type="email" name="email">
+        <div class="row justify-content-center">
+            <div class="col-12 col-md-6"> <div class="card shadow-sm">
+                    <div class="card-body p-4">
+                        <h2 class="mb-3">Login</h2>
+                        <hr>
+                        
+                        {# Eigene Fehlermeldungen aus der Route anzeigen #}
+                        {% if fehler %}
+                        <div class="alert alert-danger mb-4">
+                            {{ fehler }}
 
-    <label>Passwort</label>
-    <input type="password" name="passwort">
+                            {% if "Benutzer nicht vorhanden" in fehler %}
+                                <br><br>
+                                <a href="{{ url_for('rolle_waehlen') }}" class="btn btn-primary btn-sm">
+                                    Zur Registrierung
+                                </a>
+                            {% endif %}
+                        </div>
+                        {% endif %}
 
-    <button type="submit">Login</button>
-</form>
+                        {# WTForms-Formular automatisch rendern #}
+                        {{ render_form(form) }}
+                        
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 {% endblock %}
