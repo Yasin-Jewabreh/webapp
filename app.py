@@ -173,6 +173,16 @@ def auftrag_bearbeiten(auftrag_id):
         return redirect (url_for("dashboard"))
     
     form = AuftragFormular()
+
+    if request.method == "POST" and "loeschen" in request.form:
+
+        db.session.execute(db.select(Termin).where(Termin.auftrag_id == auftrag.id))
+                
+        db.session.delete(auftrag)
+        db.session.commit()
+        flash("Auftrag erfolgreich gelöscht!", "success")
+        return redirect(url_for("dashboard"))
+    
     # Ob ein Post gemacht wurde oder alle Felder gefüllt sind
     if form.validate_on_submit():
         auftrag.wohnsituation=form.wohnsituation.data
@@ -467,7 +477,7 @@ def chat(empfaenger_id=None):
         ).order_by(Nachricht.zeitstempel.asc()).all()
 
     return render_template("chat.html", chat_partner=chat_partner, aktiver_partner=aktiver_partner, nachrichten=nachrichten)
-
+'''
 @app.route("/chat/loeschen/<int:partner_id>", methods=["POST"])
 @login_required
 def chat_loeschen(partner_id):
@@ -482,7 +492,7 @@ def chat_loeschen(partner_id):
             n.geloescht_fuer_empfaenger = True
     db.session.commit()
     return redirect(url_for("chat", empfaenger_id=partner_id))
-
+'''
 @app.errorhandler(404)
 def http_not_found(e):
     return render_template('404.html', message = e.description), 404
