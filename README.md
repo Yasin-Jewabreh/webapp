@@ -1,82 +1,84 @@
-# 🤝 HelpYourNeighbour
+# HelpYourneighbour
+Eine webbasierte Vermittlungsplattform, die hilfsbedürftige Menschen mit engagierten Helfern (Studenten, Schülern und Azubis) verbindet.
 
-Eine webbasierte Vermittlungsplattform (Two-Sided Platform), die pflegebedürftige Menschen mit engagierten Helfern (Studenten, Schülern und Azubis) verbindet. 
+## Features
+Zwei-Rollen-System: Getrennte Dashboards und Logiken für Hilfesuchende und Helfer.
 
-Entwickelt im Rahmen des Moduls "Full-Stack Web Development".
+Auftragsmanagement: Hilfesuchende können Hilfe anfragen; Helfer können offene Aufträge einsehen und annehmen. Die Zuordnung erfolgt rollenbasiert über das bei der Registrierung gewählte Nutzerprofil.
 
----
+Terminverwaltung: Helfer und Hilfesuchende können Termine anfragen, bestätigen, ablehnen, bearbeiten, löschen und als erledigt markieren — mit rollenbasierter Statusansicht und Terminhistorie.
 
-## 💡 Value Proposition
+Integriertes Chat-System: Direkte, datenbankgestützte Kommunikation zwischen Helfer und Hilfesuchendem im WhatsApp-Stil (Nachrichten links/rechts je nach Absender).
 
-**Das Problem:**
-In Deutschland gibt es über 5,7 Millionen Pflegebedürftige (Tendenz steigend). Viele dieser Menschen haben Anspruch auf Pflege- und Entlastungsleistungen, machen diese aber nicht geltend – oft aus Unwissenheit oder weil keine Angehörigen in der Nähe sind. Gleichzeitig suchen viele junge Menschen (Studenten, Schüler, Azubis ab 18 Jahren) nach flexiblen Nebenjobs, um den steigenden Lebenshaltungskosten entgegenzuwirken, finden aber oft keine Tätigkeit, die sich mit ihrem Zeitplan vereinbaren lässt.
+Sichere Authentifizierung: Login-System mit gehashten Passwörtern, Session-Management via Flask-Login und @login_required-Absicherung aller relevanten Routen.
 
-**Unsere Lösung:**
-*HelpYourNeighbour* schließt diese Lücke. Die Plattform ermöglicht es pflegebedürftigen Personen (PP), unkompliziert Alltagshilfe (Haushalt, Einkaufen, Gesellschaft) anzufragen. Junge Helfer können diese Aufträge flexibel annehmen, sich sozial engagieren und gleichzeitig Geld verdienen. 
+## Anleitung zur Reproduktion des Happy Paths
 
----
+### Zusammenfassung
+1. Repository klonen, Python Virtual erstellen und benötigte Pakete mit pip install -r requirements.txt installieren
+2. Programm mit Python app.py starten
+3. Als Hilfesuchender registrieren und einloggen
+4. Auftrag erstellen und abschicken
+5. Ausloggen und als Hilfeanbietender registrieren und einloggen
+6. Offenen Auftrag annehmen
+7. Chat öffnen und Testnachricht versenden
+8. In der Terminübersicht Terminanfragen stellen, diese können bearbeitet und gelöscht werden
+9. Wieder ausloggen und mit den Zugangsdaten des Hilfesuchenden einloggen
+10. Chat öffnen und Testnachricht versenden
+11. Zurück und in die Terminübersicht
+12. Dort Termine annehmen oder ablehnen, neue Terminanfragen stellen
+13. Termine bearbeiten oder löschen
+14. Termine auf erledigt setzen, welche über die Historie über den Button in der Navigationsleiste wieder geöffnet werden können
 
-## ✨ Features (Core Scope)
+### Detaillierter
+1. Git clone des repositories
+2. <kbd>Ctrl</kbd>+<kbd>P</kbd> und dann neues Terminal erstellen
+3. Mit python -m venv venv (Windows) oder python3 -m venv venv (Mac) Virtual Environment erstellen
+4. <kbd>Ctrl</kbd>+<kbd>P</kbd> und dann Python interpreter auswählen -> hier auf den Eintrag mit (venv) klicken
+5. <kbd>Ctrl</kbd>+<kbd>P</kbd> und dann neues Terminal erstellen
+6. Im Terminal pip install -r requirements.txt eingeben
+11. Im Terminal "python app.py" eingeben
+12. Link im Browser oder im Editor öffnen
 
-* **Zwei-Rollen-System:** Getrennte Dashboards und Logiken für Pflegebedürftige und Helfer.
-* **Auftragsmanagement:** Pflegebedürftige können Hilfe anfragen; Helfer können offene Aufträge in ihrer Umgebung einsehen und annehmen.
-* **Integriertes Chat-System:** Direkte, datenbankgestützte Kommunikation zwischen Helfer und Pflegebedürftigem zur Terminabsprache.
-* **Privacy / Soft-Delete:** Chatverläufe können einseitig gelöscht werden (analog zu WhatsApp), ohne die Datenbankintegrität zu verletzen.
-* **Sichere Authentifizierung:** Login-System mit gehashten Passwörtern und Session-Management.
+13. Den Button "registrieren" wählen
+14. Den Button "Hilfe suchen" wählen
+15. Daten zur Registrierung eingeben
+16. Mit Email und Passwort einloggen
+17. "Neuen Auftrag erstellen" wählen
+18. "Wohnsituation" im Dropdown auswählen
+19. "Beispieltext" eingeben, z.B. "Ich brauche Hilfe beim Einkauf" (normalerweise wäre eine Auftragsbeschreibung umfangreicher
+20. "Auftrag veröffentlichen" wählen
+21. "Logout" wählen
+22. Punkte 13 bis 16 wiederholen, diesmal jedoch auf "Hilfe anbieten" klicken und darauf achten, dass die email und telefonnummer anders sind als beim ersten Nutzer
+23. "Offen Auftraege ansehen" wählen
+24. "Annehmen" klicken, um den Auftrag anzunehmen
+25. "Zurück zur Übersicht" wählen
+26. "Chatten" wählen
+27. Testnachricht schreiben und auf "senden" klicken
+28. "Zurück zur Übersicht" wählen
+29. "Terminübersicht/ Termin erstellen" wählen
+30. Zwei neue Termine mit Hilfe des Formulars eintragen
+31. Auf "Bearbeiten Klicken" um eine der Terminanfragen zu bearbeiten
+32. Irgendeine Änderung vornehmen
+33. "Änderung speichern" klicken
+34. "Zurück zur Übersicht" klicken
+35. Logout und wieder einloggen mit den Zugangsdaten für die hilfesuchende Person
+36. "Chat" öffnen und den Helfer auswählen
+37. Wieder eine Testnachricht schreiben und abschicken
+38. Über die Übersicht wieder in die Terminübersicht
+40. Neuen Termin erstellen
+41. Einen Termin bestätigen
+42. Diesen Termin als erledigt markieren
+43. "Deine abgeschlossenen Termine ansehen" klicken
+44. "Wieder öffnen" klicken"
 
----
 
-## 🛠️ Tech Stack & Constraints
 
-Dieses Projekt wurde streng nach den Vorgaben des Moduls entwickelt. **Es wurde vollständig auf den Einsatz von custom JavaScript/TypeScript verzichtet.** Alle UI-Updates und Interaktionen basieren auf Jinja2 Server-Side-Rendering und klassischem HTTP-Routing.
 
-* **Backend:** Python 3, Flask
-* **Datenbank:** SQLite (Nutzung einer einzigen lokalen `.db` Datei)
-* **ORM:** Flask-SQLAlchemy (Modern SQLAlchemy 2.0 Syntax)
-* **Frontend:** HTML5, CSS3, Jinja2 Template-Engine
-* **Styling:** Bootstrap 5 (Pulse Theme via Flask-Bootstrap)
-* **Formulare & Auth:** Flask-WTF, WTForms, Flask-Login
 
----
 
-## 🚀 Installation & Setup (Local Development)
 
-Das Projekt ist nativ auf Windows und macOS lauffähig. Es werden keine Container (Docker) benötigt.
 
-**1. Repository klonen**
-```bash
-git clone [HIER_EUREN_GITHUB_LINK_EINFÜGEN]
-cd webapp
 
-2. Virtuelle Umgebung erstellen und aktivieren
 
-Windows: python -m venv venv
-  venv\Scripts\activate
 
-  Mac/Linux: python3 -m venv venv
-  source venv/bin/activate
-
-  3. Abhängigkeiten installieren
-
-pip install -r requirements.txt
-
-4. Datenbank generieren & Server starten
-Die SQLite-Datenbank (helpyourneighbour.db) wird beim ersten Start der Applikation automatisch im Ordner generiert.
-
-python app.py
-# oder: flask run
-
-Die App ist nun unter http://127.0.0.1:5000 im Browser erreichbar.
-
-👥 Das Team & Contributions
-Jedes Teammitglied hat signifikant zum Erfolg dieses Projekts beigetragen. Die individuelle Aufgabenverteilung gliederte sich wie folgt:
-
-Mohamed: Architektur des Frontends und UI/UX-Design mittels zentraler base.html (siehe DD-04). Konzeption und Implementierung der empfängerspezifischen Chat-Routenstruktur (/chat/<int:empfaenger_id>) sowie des zugrundeliegenden Datenbankmodells für Nachrichten inklusive dynamischem Zeitzonen-Management via pytz (siehe DD-05).
-
-Yavuz: Backend-Logik für das Auftragsmanagement, Session-Management und sichere Verknüpfung von erstellten Aufträgen mit dem eingeloggten Nutzer zur Sicherstellung der Datenintegrität (siehe DD-01).
-
-Yasin: Konzeption und Implementierung des erweiterten Datenmodells für die Registrierung (siehe DD-02). Abwägung zwischen User Experience und Plattform-Sicherheit bei der Erfassung von Nutzerdaten und Validierung (WTForms).
-
-Salih: Scope-Management und Anforderungsanalyse für das MVP (siehe DD-03). Strategische Ausrichtung der Kernfunktionen, Definition der Value Proposition für die Two-Sided Platform und grundlegende Dokumentation.
-
-(Detaillierte Design-Entscheidungen und Mockups befinden sich im /docs Verzeichnis).

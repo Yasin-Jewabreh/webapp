@@ -4,17 +4,14 @@
 
 {% block CONTENT %}
 <div class="container mt-5">
-    <div class="mx-auto" style="max-width: 600px; text-align: left;">
+    <div class="mx-auto" style="max-width: 600px;">
         <a href="{{ url_for('dashboard') }}" class="btn btn-outline-secondary mb-3">
             ← Zurück zum Dashboard
         </a>
     </div>
 
     <div class="card shadow border-0 p-5 bg-white mx-auto" style="max-width: 600px;">
-        <div class="text-success mb-4 text-center">
-            <i class="bi bi-check-circle-fill" style="font-size: 4rem;"></i>
-        </div>
-        
+    
         <h2 class="fw-bold text-dark mb-3 text-center">Auftrag erfolgreich angenommen!</h2>
         <p class="text-secondary mb-4 text-center">
             Du hast den Auftrag von <strong>{{ auftrag.pp.vorname }} {{ auftrag.pp.nachname }}</strong> übernommen. <br>
@@ -25,7 +22,7 @@
         
         <div class="d-grid gap-2">
             <a href="{{ url_for('meine_auftraege') }}" class="btn btn-primary py-2 fw-medium">
-                Zurück zur Übersicht
+                Zur Übersicht
             </a>
         </div>
     </div>

@@ -77,7 +77,12 @@ Alles auf dem Branch calendar.html gehört zu meinen Contributions
 
 | #   | AI Tool | Purpose of Use | Affected Sections (Code + Docs) | Remarks, Procedure, Prompts |
 | :-- | :--     | :--            | :--                             | :--                         |
-| 01  |    GEMINI     |   Bootstrap class Design             |       termine.html                          |  Ich bin so vorgegangen, dass ich mir Zwischenziele gesetzt habe und erstmal versucht habe, es selbst hinzubekommen mit dem Layout. Wenn ich nicht weiterwusste, habe ich GEMINI gefragt und er hat mir z.B. gesagt, wie ich einen Tabelleninhalt anklickbar mache,nachdm es bei mir nicht geklappt hatte mit meinem Code.                          |
+| 01  |    GEMINI     |   Bootstrap class Design             |       termine.html                          |  Ich bin so vorgegangen, dass ich mir Zwischenziele gesetzt habe und erstmal versucht habe, es selbst hinzubekommen mit dem Layout. Wenn ich nicht weiterwusste, habe ich GEMINI gefragt und er hat mir z.B. gesagt, wie ich einen Tabelleninhalt anklickbar mache, nachdem es bei mir nicht geklappt hatte, den Text Zeile einfach als Link zu machen.                         |
 | 02  |      GEMINI   |        Anzeigen von Flash Messages        |       base.html                          |         Das ist die einzige Sache, die ich einfach von der KI reinkopiert habe, sonst habe ich alles selbst geschrieben.                    |
 | 03 |     GEMINI    |        Fehlermessages erklären        |         app.py                        |        Ich hatte Fehlercodes, als ich eine Liste mit .scalars() (wie im Tutorial) angelegt habe. Gemini  hat mir dann gesagt, dass ich ein .all() einfügen kann damit es klappt. Danach hat es geklappt .                  |
 | 04 | GEMINI | Probleme mit der JSON Headless API lösen | app.py | Mit dem Code aus dem Tutorial allein, kamen nur Fehlercodes und ich habe es allein nicht geschafft, es zum laufen zu kriegen. Gemini hat mir z.B. dabei geholfen, dass ich die Date- Variablen in einen String umwandeln muss.
+
+
+Nachtrag zu Eintrag 1 des AI Directories: Die Funktion, den Tabelleninhalt anzuklicken, um den Termin zu bearbeiten, wurde entfernt. Da der Vorschlag von GEMINI KI enthielt. 
+
+Nachtrag zu Eintrag 2 des AI Directories: Diese Funktion wurde entfernt und stattdessen das Bootstrap design aus dem Tutorial gewählt. Welches am Anfang übersehen wurde. Demzufolge gibt es hier keine KI Nutzung und kein JavaScript mehr.

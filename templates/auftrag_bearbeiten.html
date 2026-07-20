@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block TITLE %}Auftrag erstellen{% endblock %}
+{% block TITLE %}Auftrag bearbeiten{% endblock %}
 
 {% block CONTENT %}
 <main class="profile-page mt-4">
@@ -12,11 +12,12 @@
         <div class="profile-card">
             <div class="profile-header">
                 <span class="profile-label">Pflegeprofil</span>
-                <h1>Erstelle deinen Auftrag</h1>
+                <h1>Bearbeite deinen Auftrag</h1>
             </div>
 
-            <form method="POST" action="{{ url_for('auftrag_erstellen') }}" class="profile-form">
+            <form method="POST" action="{{ url_for('auftrag_bearbeiten', auftrag_id=auftrag.id) }}" class="profile-form">
                 {{ form.hidden_tag() }} 
+                
                 <div class="row">
                     <div class="col-md-6">
                         <div class="form-group mb-2">
@@ -63,7 +64,7 @@
                     <div class="col-md-6">
                         <div class="form-group">
                             {{ form.beschreibung.label(class="form-label") }}
-                            {{ form.beschreibung(class="form-control description-field", rows="7", placeholder="Erzähle etwas über dich...") }}
+                            {{ form.beschreibung(class="form-control description-field", rows="7") }}
                             {% if form.beschreibung.errors %}
                                 <div class="text-danger">{{ form.beschreibung.errors[0] }}</div>
                             {% endif %}
@@ -71,16 +72,16 @@
                     </div>
                 </div>
 
-            <div class ="form-group mb-4">
-                <div class="border rounded p-3 py-2">
-                    <div class = "d-flex align-items-center gap-2">
-                    {{ form.bestaetigung(class="form-check-input mt-0 flex-shrink-0") }}
-                    {{ form.bestaetigung.label(class="form-check-label mb-0") }}
-                    </div>
-                </div>
-                      <div class="form-text ms-4">
-                        Bitte überprüfe deine Angaben, bevor du den Auftrag veröffentlichst.
+                <div class ="form-group mb-4">
+                    <div class="border rounded p-3 py-2">
+                        <div class = "d-flex align-items-center gap-2">
+                        {{ form.bestaetigung(class="form-check-input mt-0 flex-shrink-0") }}
+                        {{ form.bestaetigung.label(class="form-check-label mb-0") }}
                         </div>
+                    </div>
+                    <div class="form-text ms-4">
+                        Bitte überprüfe deine geänderten Angaben, bevor du sie speicherst.
+                    </div>
                     
                     {% if form.bestaetigung.errors %}
                         <div class="text-danger small mt-2 ms-4">{{ form.bestaetigung.errors[0] }}</div>
@@ -88,9 +89,15 @@
                 </div>
 
                 <div class="form-actions">
+                <div class="d-flex align-items-center gap-2 mt-4">
                     <a href="{{ url_for('dashboard') }}" class="btn btn-outline-secondary">Abbrechen</a>
-                    {{ form.submit(class="btn btn-primary publish-button") }}
+                    <button type="submit" class="btn btn-primary publish-button">Änderungen speichern</button>
+                   <button type="submit" name="loeschen" class="btn btn-danger">
+                                    Auftrag löschen
+                                        </button>
                 </div>
+           </div>
+</div>
             </form>
         </div>
     </div>
