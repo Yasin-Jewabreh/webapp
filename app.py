@@ -93,7 +93,7 @@ def login():
                     return redirect(url_for("nutzeruebersicht"))
                 return redirect(url_for("dashboard"))
             else:
-                fehler = "Passwort oder Emailadresse falsch!"
+                fehler = "Passwort oder Email-Adresse falsch!"
                 flash(fehler)
     return render_template("login.html", form=form, fehler=fehler)
 
@@ -145,22 +145,72 @@ def logout():
 def auftrag_erstellen():
     if current_user.freigegeben == False:
         return render_template("warten_auf_bestaetigung.html")
+    # Verhinderung von falschen Nutzer zugriffen
+    if current_user.rolle != "PP":
+        abort(403, description = "Zugriff verweigert. Nur Pflegebedürftige können diese Seite sehen.")
     
     form = AuftragFormular()
+    
+    vorhandener_auftrag = db.session.scalar(db.select(Auftrag).filter_by(
+                            pp_id = current_user.id, abgeschlossen = False))
+    
+    if vorhandener_auftrag:
+        return redirect (url_for("auftrag_bearbeiten", auftrag_id = vorhandener_auftrag.id))
+    
     # Prüfen ob ein Post ausgeführt wurde und ob alle Pflichtfelder gefüllt sind
     if form.validate_on_submit():
         # Es wird ein neuer Auftrag mit den eingegebenen Daten angelegt
         neuer_auftrag = Auftrag(
             wohnsituation=form.wohnsituation.data,
             beschreibung=form.beschreibung.data,
-            pp_id=current_user.id 
-        )
+            pp_id=current_user.id)
+        
         # Hinzufügen in die DB
         db.session.add(neuer_auftrag)
         db.session.commit()
         flash("Auftrag erfolgreich veröffentlicht!", "success")
         return redirect(url_for("dashboard"))
     return render_template("auftrag_erstellen.html", nutzer=current_user, form=form)
+
+
+@app.route("/auftrag/bearbeiten/<int:auftrag_id>", methods = ["GET", "POST"])
+@login_required
+def auftrag_bearbeiten(auftrag_id):
+    
+    auftrag = db.get_or_404(Auftrag, auftrag_id)
+
+    if auftrag.pp_id != current_user.id:
+        flash("Zufriff verweigert", "danger")
+        return redirect (url_for("dashboard"))
+    
+    form = AuftragFormular()
+
+    if request.method == "POST" and "loeschen" in request.form:
+
+        db.session.execute(db.select(Termin).where(Termin.auftrag_id == auftrag.id))
+                
+        db.session.delete(auftrag)
+        db.session.commit()
+        flash("Auftrag erfolgreich gelöscht!", "success")
+        return redirect(url_for("dashboard"))
+    
+    # Ob ein Post gemacht wurde oder alle Felder gefüllt sind
+    if form.validate_on_submit():
+        auftrag.wohnsituation=form.wohnsituation.data
+        auftrag.beschreibung=form.beschreibung.data
+        db.session.commit()
+
+        flash("Auftrag erfolgreich aktualisiert!", "success")
+        return redirect(url_for("dashboard"))
+
+    # Falls nichts bearbeitet wurde werden die alten daten aufgegriffen
+    elif request.method == "GET":
+        form.wohnsituation.data = auftrag.wohnsituation
+        form.beschreibung.data = auftrag.beschreibung
+        form.bestaetigung.data = True
+    
+    return render_template("auftrag_bearbeiten.html", form=form, nutzer=current_user, auftrag=auftrag)
+
 
 @app.route("/termine/historie/")
 @login_required
@@ -182,7 +232,6 @@ def termine():
         return render_template("warten_auf_bestaetigung.html")
     
     form = TerminErstellenForm()
-    form.teilnehmer.choices = [(0, "---Bitte wählen---")]
 
     verfuegbare_auftraege = []
     bestaetigte_termine = []
@@ -457,7 +506,7 @@ def chat(empfaenger_id=None):
         ).order_by(Nachricht.zeitstempel.asc()).all()
 
     return render_template("chat.html", chat_partner=chat_partner, aktiver_partner=aktiver_partner, nachrichten=nachrichten)
-
+'''
 @app.route("/chat/loeschen/<int:partner_id>", methods=["POST"])
 @login_required
 def chat_loeschen(partner_id):
@@ -547,6 +596,7 @@ def nutzeruebersicht():
                 flash("Nutzer erfolgreich deaktiviert!", "success")
         return redirect("nutzeruebersicht")
 
+'''
 @app.errorhandler(404)
 def http_not_found(e):
     return render_template('404.html', message = e.description), 404

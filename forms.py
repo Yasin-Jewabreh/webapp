@@ -44,22 +44,17 @@ class AuftragFormular(FlaskForm):
             ("wohngemeinschaft", "Ich lebe in einer Wohngemeinschaft"),
             ("pflegeeinrichtung", "Ich lebe in einer Pflegeeinrichtung"),
             ("andere Wohnsituation", "Andere Wohnsituation")
-        ],
-        validators=[DataRequired(message="Bitte wähle deine Wohnsituation aus.")]
-    )
+        ],validators=[DataRequired(message="Bitte wähle deine Wohnsituation aus.")])
 
     beschreibung = TextAreaField(
         "Über mich",
         validators=[
             DataRequired(message="Bitte erzähle etwas über dich."),
-            Length(max=500, message="Die Beschreibung darf maximal 500 Zeichen lang sein.")
-        ]
-    )
+            Length(max=500, message="Die Beschreibung darf maximal 500 Zeichen lang sein.")])
     
     bestaetigung = BooleanField(
         "Ich bestätige, dass die angegebenen Informationen gespeichert und sichtbar sein dürfen.",
-        validators=[DataRequired(message="Du musst der Bestätigung zustimmen.")]
-    )
+        validators=[DataRequired(message="Du musst der Bestätigung zustimmen.")])
     
     submit = SubmitField("Auftrag veröffentlichen")
 
@@ -83,7 +78,7 @@ def check_person(self,field):
         raise ValidationError("Bitte eine Person auswählen!")
           
 class TerminErstellenForm(FlaskForm):
-    teilnehmer = SelectField("Der Termin ist mit:", coerce=int, validators=[InputRequired(),check_person])
+    teilnehmer = SelectField("Der Termin ist mit:", coerce=int, choices=[(0, "---Bitte wählen---")],validators=[InputRequired(),check_person])
     datum = DateField("Am",validators=[InputRequired(), check_datum], format='%Y-%m-%d')
     uhrzeit_beginn = TimeField("Von",validators=[InputRequired(), check_startzeit],format='%H:%M')
     uhrzeit_ende = TimeField("Bis",validators=[InputRequired(), check_endzeit], format='%H:%M')
