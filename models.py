@@ -20,7 +20,7 @@ class Nutzer(db.Model, UserMixin):
     passwort = db.Column(db.String(), nullable=False)
     telefon = db.Column(db.String(30), nullable=False, unique=True)
     rolle = db.Column(db.String(), nullable=False, index=True)
-    profil_text = db.Column(db.Text, nullable=True)
+    profil_text = db.Column(db.String(700), nullable=True)
     
 class Auftrag(db.Model):
     __tablename__ = "auftrag"
