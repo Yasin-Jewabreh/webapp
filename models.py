@@ -21,8 +21,9 @@ class Nutzer(db.Model, UserMixin):
     passwort = db.Column(db.String(), nullable=False)
     telefon = db.Column(db.String(30), nullable=False, unique=True)
     rolle = db.Column(db.String(), nullable=False, index=True)
-    profil_text = db.Column(db.String(700), nullable=True)
-    
+    vortellungstext = db.Column(db.String(700), nullable=True)
+    bewerbungen = db.relationship('Bewerbung', back_populates='helfer', cascade="all, delete-orphan")
+
     @property
     def alter(self):
         if not self.geburtsdatum:
@@ -38,15 +39,26 @@ class Auftrag(db.Model):
     id = db.Column(db.Integer, primary_key = True, index = True)
     wohnsituation = db.Column(db.String(100), nullable = False)
     beschreibung = db.Column(db.String(500), nullable = False)
-    angenommen = db.Column(db.Boolean, default = False, nullable = False)
-    abgeschlossen = db.Column(db.Boolean, default = False, nullable = False)
+    status = db.Column(db.String(50), default="Offen", nullable=False)
     helfer_id = db.Column("helfer_id", db.ForeignKey("nutzer.id"), nullable = True)
     pp_id = db.Column("pp_id", db.ForeignKey("nutzer.id"), nullable = False)
 
     pp = db.relationship("Nutzer", foreign_keys=[pp_id], backref="erstellte_auftraege")
     helfer = db.relationship("Nutzer", foreign_keys=[helfer_id], backref="angenommene_auftraege")
     termine = db.relationship("Termin", backref="auftrag", cascade="all, delete-orphan")
+    bewerbungen = db.relationship('Bewerbung', back_populates='auftrag', cascade="all, delete-orphan")
 
+class Bewerbung(db.Model):
+    __tablename__ = 'bewerbung'
+
+    id = db.Column(db.Integer, primary_key=True)
+    auftrag_id = db.Column(db.Integer, db.ForeignKey('auftrag.id'), nullable=False)
+    helfer_id = db.Column(db.Integer, db.ForeignKey('nutzer.id'), nullable=False)
+    status = db.Column(db.String(20), default='ausstehend') # 'ausstehend', 'akzeptiert', 'abgelehnt'
+    erstellt_am = db.Column(db.DateTime, default=datetime.utcnow)
+
+    auftrag = db.relationship('Auftrag', back_populates='bewerbungen')
+    helfer = db.relationship('Nutzer', back_populates='bewerbungen')
 
 def berlin_time():
     tz_berlin =pytz.timezone("Europe/Berlin")

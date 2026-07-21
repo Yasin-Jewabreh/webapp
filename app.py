@@ -4,7 +4,7 @@ from forms import TerminBearbeitenForm, TerminErstellenForm, RollenWahlForm, Reg
 from flask import Flask, render_template, redirect, url_for, request, session, flash, abort
 from flask_bootstrap import Bootstrap5
 from db import db
-from models import Nutzer, Auftrag, Termin, Nachricht, berlin_time
+from models import Nutzer, Auftrag, Termin, Nachricht, Bewerbung, berlin_time
 
 app = Flask(__name__)
 
@@ -153,7 +153,7 @@ def auftrag_erstellen():
     form = AuftragFormular()
     
     vorhandener_auftrag = db.session.scalar(db.select(Auftrag).filter_by(
-                            pp_id = current_user.id, abgeschlossen = False))
+                            pp_id = current_user.id, status = "Offen"))
     
     if vorhandener_auftrag:
         return redirect (url_for("auftrag_bearbeiten", auftrag_id = vorhandener_auftrag.id))
@@ -164,6 +164,7 @@ def auftrag_erstellen():
         neuer_auftrag = Auftrag(
             wohnsituation=form.wohnsituation.data,
             beschreibung=form.beschreibung.data,
+            status = "Offen",
             pp_id=current_user.id)
         
         # Hinzufügen in die DB
@@ -411,9 +412,8 @@ def helfer_auftraege():
     if current_user.rolle != "Helfer":
         abort(403, description = "Nur Helfer können diese Seite sehen")
 
-    
-    statement = db.select(Auftrag).filter_by(angenommen=False)
-    
+    statement = db.select(Auftrag).filter_by(status="Offen")    
+
     # Füge die ergebnisse aus Statement in die Variable offene Auftrage ein
     offene_auftraege = db.session.scalars(statement).all()
     heute = date.today()
@@ -422,20 +422,34 @@ def helfer_auftraege():
 @app.route("/auftrag/bewerben/<int:auftrag_id>", methods=["POST"])
 @login_required
 def auftrag_bewerben(auftrag_id):
+    stmt = db.select(Auftrag).where(Auftrag.id == auftrag_id)
+    auftrag = db.session.scalar(stmt)
+
     if current_user.rolle != "Helfer":
         abort(403, description="Nur Helfer können sich bewerben.")
         
-    auftrag = db.session.get(Auftrag, auftrag_id)
     if not auftrag:
         abort(404, description="Auftrag nicht gefunden.")
     
-    # Helfer eintragen, aber "angenommen" bleibt False (Wartet auf PP)
-    auftrag.helfer_id = current_user.id
-    auftrag.angenommen = False 
-    db.session.commit()
+    if auftrag.status != "Offen":
+        flash("Dieser Auftrag ist leider nicht mehr offen.", "danger")
+        return redirect(url_for("dashboard"))
     
-    flash("Bewerbung erfolgreich abgeschickt! Der Pflegebedürftige wird sich bei dir melden.", "success")
-    return redirect(url_for("helfer_auftraege")) # Passe den Namen an deine Route an
+    stmt_check = db.select(Bewerbung).where(
+        Bewerbung.auftrag_id == auftrag_id,
+        Bewerbung.helfer_id == current_user.id)
+    
+    bereits_beworben = db.session.scalar(stmt_check)
+
+    if bereits_beworben:
+        flash("Du hast dich auf diesen Auftrag bereits beworben!", "info")
+    else:
+        neue_bewerbung = Bewerbung(auftrag_id=auftrag.id, helfer_id=current_user.id)
+        db.session.add(neue_bewerbung)
+        db.session.commit()
+        flash("Deine Bewerbung wurde erfolgreich verschickt!", "success")
+
+    return redirect(url_for("dashboard"))
 
 @app.route("/pp/anfragen", methods=["GET", "POST"])
 @login_required
@@ -446,27 +460,23 @@ def pp_anfragen():
     if request.method == "POST":
         auftrag_id = int(request.form.get("auftrag_id"))
         aktion = request.form.get("aktion")
-        auftrag = db.session.get(Auftrag, auftrag_id)
         
+        helfer_id = request.form.get("helfer_id")   
+        auftrag = db.session.get(Auftrag, auftrag_id)
+
         if auftrag and auftrag.pp_id == current_user.id:
-            if aktion == "annehmen":
-                auftrag.angenommen = True
+            if aktion == "Annehmen" and helfer_id:
+                auftrag.helfer_id = int(helfer_id)
+                auftrag.status = "Angenommen" 
                 db.session.commit()
                 flash("Bewerbung angenommen!", "success")
-            elif aktion == "ablehnen":
-                auftrag.helfer_id = None
-                auftrag.angenommen = False
-                db.session.commit()
+            elif aktion == "Ablehnen":
                 flash("Bewerbung abgelehnt.", "info")
+                
         return redirect(url_for("pp_anfragen"))
     
     anfragen = db.session.execute(
-        db.select(Auftrag).where(
-            Auftrag.pp_id == current_user.id,
-            Auftrag.angenommen == False,
-            Auftrag.helfer_id != None
-        )
-    ).scalars().all()
+        db.select(Auftrag).where(Auftrag.pp_id == current_user.id)).scalars().all()
     
     return render_template("pp_anfragen.html", anfragen=anfragen)
 
@@ -474,11 +484,13 @@ def pp_anfragen():
 @app.route("/meine_auftraege")
 @login_required
 def meine_auftraege():
-    # Filtert die Aufträge die angenommen wurden und die Helfer ID mit dem Nutzer ID übereinstimmt 
-    statement = db.select(Auftrag).filter_by(angenommen=True, helfer_id =current_user.id)
+    if current_user.rolle != "Helfer":
+        abort(403, description="Nur Helfer können diese Seite sehen.")
     
+    # Filtert die Aufträge die angenommen wurden und die Helfer ID mit dem Nutzer ID übereinstimmt 
+    statement = db.select(Auftrag).filter_by(status="Angenommen", helfer_id=current_user.id)
     meine = db.session.scalars(statement).all()
-    return render_template("meine_auftraege.html", auftraege=meine) 
+    return render_template("meine_auftraege.html", auftraege=meine)
 
 
 @app.route("/chat_uebersicht")
@@ -554,4 +566,4 @@ def http_access_denied(e):
     return render_template('403.html', message = e.description), 403
 
 if __name__ == "__main__":
-    app.run(debug=True, port = 5000)
+    app.run(debug=True, port = 5001)
