@@ -6,28 +6,51 @@ from datetime import date, datetime
 from flask_wtf.file import FileField, FileRequired, FileAllowed
 from flask_login import current_user
 
+from db import db
+from models import Nutzer
 
 class RollenWahlForm(FlaskForm):
     helfer_btn = SubmitField('Hilfe anbieten')
     suchender_btn = SubmitField('Hilfe suchen')
 
+def validate_email(self, field):
+        field.data = field.data.strip().lower()
+        if current_user.id:
+            vorhandener_nutzer = db.session.scalar(db.select(Nutzer).where(Nutzer.email == field.data,Nutzer.id != current_user.id))
+        else:
+            vorhandener_nutzer = db.session.scalar(db.select(Nutzer).where(Nutzer.email == field.data,Nutzer.id != current_user.id))
+        if vorhandener_nutzer:raise ValidationError("Diese E-Mail-Adresse wird bereits verwendet.")
+
+def validate_telefon(self, field):
+        field.data = field.data.strip().lower()
+        if current_user.id:
+            vorhandener_nutzer = db.session.scalar(db.select(Nutzer).where(Nutzer.telefon == field.data,Nutzer.id != current_user.id))
+        else:
+            vorhandener_nutzer = db.session.scalar(db.select(Nutzer).where(Nutzer.telefon == field.data,Nutzer.id != current_user.id))
+        if vorhandener_nutzer:raise ValidationError("Diese Telefonnummer ist bereits vergeben.")
+       
 def check_geburtsdatum(self, field):
     if field.data: 
         if ((date.today() - field.data).days / 365.25) < 18:
             raise ValidationError("Du musst mindestens 18 Jahre alt sein.")
         
+def strip_text(value):
+    if value:
+        return value.strip()
+    return value
+        
 class RegistrierungFormular(FlaskForm):
-    vorname = StringField("Vorname:", validators=[InputRequired()])
-    nachname = StringField("Nachname:", validators=[InputRequired()])
+    vorname = StringField("Vorname:", validators=[InputRequired()], filters=[strip_text])
+    nachname = StringField("Nachname:", validators=[InputRequired()], filters=[strip_text])
     geschlecht = SelectField("Geschlecht:", validators=[DataRequired()],choices = [("","--Bitte wählen--"), ("M", "Männlich"), ("W","Weiblich"), ("D", "Divers")])
     geburtsdatum = DateField("Geburtsdatum",validators=[InputRequired(), check_geburtsdatum], format='%Y-%m-%d')
-    adresse = StringField("Adresse:", validators=[InputRequired()])
-    plz = StringField("Postleitzahl:", validators=[InputRequired()])
+    adresse = StringField("Adresse:", validators=[InputRequired()], filters=[strip_text])
+    plz = StringField("Postleitzahl:", validators=[InputRequired()],filters=[strip_text])
     ort = SelectField("Ort:", validators=[InputRequired()], choices = [("","--Bitte wählen--"), ("Berlin", "Berlin")])
-    email = EmailField("Email:", validators=[InputRequired(), Email(message="Bitte gib eine gültige E-Mail-Adresse ein.")])
+    email = EmailField("Email:", validators=[InputRequired(), validate_email, Email(message="Bitte gib eine gültige E-Mail-Adresse ein.")], filters=[strip_text])
     passwort = PasswordField("Passwort:", validators=[InputRequired(), Length(min=8, message = "Das Passwort muss mindestens 8 Zeichen lang sein!")])
     passwort_wiederholen = PasswordField("Passwort wiederholen:", validators=[InputRequired(), EqualTo("passwort", message = "Die Passwörter müssen übereinstimmen!")])
-    telefon = StringField("Telefon:", validators=[InputRequired()])
+    telefon = StringField("Telefon:", validators=[InputRequired(), validate_telefon], filters=[strip_text])
     
 class RegistrierungPP(RegistrierungFormular):
     registrieren = SubmitField("Registrieren")
@@ -42,7 +65,7 @@ class RegistrierungHelfer(RegistrierungFormular):
 
 
 class LoginFormular(FlaskForm):
-    email = EmailField("Email:", validators=[InputRequired()])
+    email = EmailField("Email:", validators=[InputRequired()], filters=[strip_text])
     passwort = PasswordField("Passwort:", validators=[InputRequired()])
     login = SubmitField("Login")
 
@@ -113,12 +136,11 @@ def validate_vorstellungstext(self, field):
             raise ValidationError("Dieses Feld darf nicht leer bleiben")
         
 class ProfilFormular(FlaskForm):
-    vorname = StringField('Vorname', validators=[DataRequired(message="Bitte Vornamen eingeben.")])
-    nachname = StringField('Nachname', validators=[DataRequired(message="Bitte Nachnamen eingeben.")])
-    email = EmailField("Email:", validators=[InputRequired(), Email(message="Bitte gib eine gültige E-Mail-Adresse ein.")])
-    telefon = StringField('Telefonnummer', validators=[DataRequired(message="Bitte Telefonnummer eingeben.")])
-    adresse = StringField('Adresse', validators=[DataRequired(message="Bitte Adresse eingeben.")])
-    plz = StringField('PLZ', validators=[DataRequired(message="Bitte PLZ eingeben.")])
-    ort = StringField('Ort', validators=[DataRequired(message="Bitte Ort eingeben.")])
+    vorname = StringField('Vorname', validators=[DataRequired(message="Bitte Vornamen eingeben.")], filters=[strip_text])
+    nachname = StringField('Nachname', validators=[DataRequired(message="Bitte Nachnamen eingeben.")], filters=[strip_text])
+    email = EmailField("Email:", validators=[InputRequired(),validate_email, Email(message="Bitte gib eine gültige E-Mail-Adresse ein.")],filters=[strip_text])
+    telefon = StringField('Telefonnummer', validators=[validate_telefon,DataRequired(message="Bitte Telefonnummer eingeben.")], filters=[strip_text])
+    adresse = StringField('Adresse', validators=[DataRequired(message="Bitte Adresse eingeben.")], filters=[strip_text])
+    plz = StringField('PLZ', validators=[DataRequired(message="Bitte PLZ eingeben.")], filters=[strip_text])
     vorstellungstext = TextAreaField("Über mich", validators=[validate_vorstellungstext, Length(max=500, message="Die Beschreibung darf maximal 500 Zeichen lang sein.")])
     submit = SubmitField('Änderungen speichern')

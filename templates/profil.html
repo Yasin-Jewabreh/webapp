@@ -31,8 +31,6 @@
                         {{ render_field(form.telefon) }}
                         {{ render_field(form.adresse) }}
                         {{ render_field(form.plz) }}
-                        {{ render_field(form.ort) }}
-
                         {% if current_user.rolle == 'PP' or current_user.rolle == ROLLE_PP %}
                             {{ render_field(form.vorstellungstext) }}
                         {% endif %}
