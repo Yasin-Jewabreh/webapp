@@ -33,7 +33,6 @@ with app.app_context():
 def startseite():  
     return render_template("startseite.html")
 
-
 @app.route('/rolle_auswaehlen', methods=['GET', 'POST'])
 def rolle_waehlen():
        
@@ -43,7 +42,6 @@ def rolle_waehlen():
             gewaehlte_rolle = "Helfer"
         elif form.suchender_btn.data:
             gewaehlte_rolle = "PP"
-            #Sicherheitshalber setzen wir die Rolle auf "PP", falls keine der beiden Rollen ausgewählt wurde
         else:
             gewaehlte_rolle = "PP"
         session["rollenwahl"] = gewaehlte_rolle
@@ -93,7 +91,7 @@ def login():
                     return redirect(url_for("nutzeruebersicht"))
                 return redirect(url_for("dashboard"))
             else:
-                fehler = "Passwort oder Email-Adresse falsch!"
+                fehler = "Passwort oder Emailadresse falsch!"
                 flash(fehler)
     return render_template("login.html", form=form, fehler=fehler)
 
@@ -150,70 +148,18 @@ def auftrag_erstellen():
         abort(403, description = "Zugriff verweigert. Nur Pflegebedürftige können diese Seite sehen.")
     
     form = AuftragFormular()
-    
-    vorhandener_auftrag = db.session.scalar(db.select(Auftrag).filter_by(
-                            pp_id = current_user.id, abgeschlossen = False))
-    
-    if vorhandener_auftrag:
-        return redirect (url_for("auftrag_bearbeiten", auftrag_id = vorhandener_auftrag.id))
-    
-    # Prüfen ob ein Post ausgeführt wurde und ob alle Pflichtfelder gefüllt sind
     if form.validate_on_submit():
-        # Es wird ein neuer Auftrag mit den eingegebenen Daten angelegt
         neuer_auftrag = Auftrag(
             wohnsituation=form.wohnsituation.data,
             beschreibung=form.beschreibung.data,
-            pp_id=current_user.id)
-        
-        # Hinzufügen in die DB
+            pp_id=current_user.id 
+        )
         db.session.add(neuer_auftrag)
         db.session.commit()
-        flash("Auftrag erfolgreich veröffentlicht!", "success")
         return redirect(url_for("dashboard"))
     return render_template("auftrag_erstellen.html", nutzer=current_user, form=form)
 
-
-@app.route("/auftrag/bearbeiten/<int:auftrag_id>", methods = ["GET", "POST"])
-@login_required
-def auftrag_bearbeiten(auftrag_id):
-    
-    auftrag = db.get_or_404(Auftrag, auftrag_id)
-
-    if auftrag.pp_id != current_user.id:
-        flash("Zufriff verweigert", "danger")
-        return redirect (url_for("dashboard"))
-    
-    form = AuftragFormular()
-
-    if request.method == "POST" and "loeschen" in request.form:
-
-        db.session.execute(db.select(Termin).where(Termin.auftrag_id == auftrag.id))
-                
-        db.session.delete(auftrag)
-        db.session.commit()
-        flash("Auftrag erfolgreich gelöscht!", "success")
-        return redirect(url_for("dashboard"))
-    
-    # Ob ein Post gemacht wurde oder alle Felder gefüllt sind
-    if form.validate_on_submit():
-        auftrag.wohnsituation=form.wohnsituation.data
-        auftrag.beschreibung=form.beschreibung.data
-        db.session.commit()
-
-        flash("Auftrag erfolgreich aktualisiert!", "success")
-        return redirect(url_for("dashboard"))
-
-    # Falls nichts bearbeitet wurde werden die alten daten aufgegriffen
-    elif request.method == "GET":
-        form.wohnsituation.data = auftrag.wohnsituation
-        form.beschreibung.data = auftrag.beschreibung
-        form.bestaetigung.data = True
-    
-    return render_template("auftrag_bearbeiten.html", form=form, nutzer=current_user, auftrag=auftrag)
-
-
-@app.route("/termine/historie/")
-@login_required
+@app.route("/termine/historie/", methods = ["GET"])
 def historie():
     if current_user.freigegeben == False:
         return render_template("warten_auf_bestaetigung.html")
@@ -222,7 +168,8 @@ def historie():
         erledigte_termine =  db.session.execute(db.select(Termin).where(Termin.helfer_id == current_user.id,Termin.complete == True).order_by(Termin.datum, Termin.uhrzeit_beginn)).scalars().all()
     elif current_user.rolle == "PP":
         erledigte_termine =  db.session.execute(db.select(Termin).where(Termin.pp_id == current_user.id,Termin.complete == True).order_by(Termin.datum, Termin.uhrzeit_beginn)).scalars().all()
-    return render_template("historie.html", erledigte = erledigte_termine , nutzer= current_user)
+    if request.method == "GET":
+        return render_template("historie.html", erledigte = erledigte_termine , nutzer= current_user)
 
 
 @app.route("/termine/", methods = ["GET", "POST"])
@@ -232,28 +179,24 @@ def termine():
         return render_template("warten_auf_bestaetigung.html")
     
     form = TerminErstellenForm()
-
-    verfuegbare_auftraege = []
+  
     bestaetigte_termine = []
     offene_termine = []
     warten_auf_antwort_termine = []
 
     if current_user.rolle == "Helfer":
-        verfuegbare_auftraege = db.session.execute(db.select(Auftrag).where(Auftrag.helfer_id == current_user.id)).scalars().all()
-        if verfuegbare_auftraege:
-            form.teilnehmer.choices += [(a.id, f"{a.pp.vorname} {a.pp.nachname} - {a.pp.adresse}") for a in verfuegbare_auftraege]
-
-        else:
-            flash("Um Termine zu vereinbaren, nimm bitte erstmal einen Auftrag an!", "info")
+        verfuegbare_auftraege = current_user.angenommene_auftraege
+        if not verfuegbare_auftraege:
+            return("Du hast noch keinen Auftrag angenommen. Bitte Vereinbare zunächst einen Termin!")
+        form.teilnehmer.choices = [(a.id, f"{a.pp.vorname} {a.pp.nachname} - {a.pp.adresse}") for a in verfuegbare_auftraege]
+        form.teilnehmer.choices.insert(0,(0, "---Bitte wählen---"))
         bestaetigte_termine =  db.session.execute(db.select(Termin).where(Termin.helfer_id == current_user.id,Termin.complete == False,Termin.bestaetigt == True).order_by(Termin.datum, Termin.uhrzeit_beginn)).scalars().all()
         offene_termine =  db.session.execute(db.select(Termin).where(Termin.helfer_id == current_user.id,Termin.complete == False,Termin.bestaetigt == False, Termin.ersteller_id != current_user.id).order_by(Termin.datum, Termin.uhrzeit_beginn)).scalars().all()
         warten_auf_antwort_termine = db.session.execute(db.select(Termin).where(Termin.helfer_id == current_user.id,Termin.complete == False,Termin.bestaetigt == False, Termin.ersteller_id == current_user.id).order_by(Termin.datum, Termin.uhrzeit_beginn)).scalars().all()
     elif current_user.rolle == "PP":
-        verfuegbare_auftraege = db.session.execute(db.select(Auftrag).where(Auftrag.pp_id == current_user.id, Auftrag.angenommen == True)).scalars().all()
-        if verfuegbare_auftraege:
-            form.teilnehmer.choices += [(a.id, f"{a.helfer.vorname} {a.helfer.nachname}") for a in verfuegbare_auftraege]
-        else:
-            flash("Um Termine zu erstellen, leg bitte einen Auftrag an und warte, bis dieser angeommen wird!", "info")
+        verfuegbare_auftraege = current_user.erstellte_auftraege
+        form.teilnehmer.choices = [(a.id, f"{a.helfer.vorname} {a.helfer.nachname}") for a in verfuegbare_auftraege]
+        form.teilnehmer.choices.insert(0,(0, "---Bitte wählen---"))
         bestaetigte_termine =  db.session.execute(db.select(Termin).where(Termin.pp_id == current_user.id,Termin.complete == False,Termin.bestaetigt == True).order_by(Termin.datum, Termin.uhrzeit_beginn)).scalars().all()
         offene_termine =  db.session.execute(db.select(Termin).where(Termin.pp_id == current_user.id,Termin.complete == False,Termin.bestaetigt == False, Termin.ersteller_id != current_user.id).order_by(Termin.datum, Termin.uhrzeit_beginn)).scalars().all()
         warten_auf_antwort_termine = db.session.execute(db.select(Termin).where(Termin.pp_id == current_user.id,Termin.complete == False,Termin.bestaetigt == False, Termin.ersteller_id == current_user.id).order_by(Termin.datum, Termin.uhrzeit_beginn)).scalars().all()
@@ -350,49 +293,46 @@ def termin(id):
         return render_template("warten_auf_bestaetigung.html")
     
     termin = db.session.get(Termin, id) 
-    
-    if not termin or termin.complete:
-         abort(404, description = "Termin nicht gefunden")
-
-    if (termin.helfer_id!= current_user.id and termin.pp_id != current_user.id):
-         abort(404, description = "Termin nicht gefunden")
-    
     form = TerminBearbeitenForm(obj=termin)
-
+    
     if current_user.rolle == "Helfer":
         verfuegbare_auftraege = db.session.execute(db.select(Auftrag).where(Auftrag.helfer_id == current_user.id)).scalars().all()
         form.teilnehmer.choices = [(a.id, f"{a.pp.vorname} {a.pp.nachname} - {a.pp.adresse}") for a in verfuegbare_auftraege]
 
     elif current_user.rolle == "PP":
-        verfuegbare_auftraege = db.session.execute(db.select(Auftrag).where(Auftrag.pp_id == current_user.id, Auftrag.angenommen == True)).scalars().all()
+        verfuegbare_auftraege = db.session.execute(db.select(Auftrag).where(Auftrag.pp_id == current_user.id)).scalars().all()
         form.teilnehmer.choices = [(a.id, f"{a.helfer.vorname} {a.helfer.nachname}") for a in verfuegbare_auftraege]
 
     if request.method == 'GET':
-        form.teilnehmer.data = termin.auftrag_id
-        return render_template('termin-bearbeiten.html', form=form)
+        if termin:
+            return render_template('termin-bearbeiten.html', form=form)
+        else:
+            abort(404)
     else:
-        if form.speichern.data:
+        if form.speichern.data == True:
             if form.validate():
+                form.populate_obj(termin)
+                
+                gewaehlter_auftrag_id = int(form.teilnehmer.data)
+                auftrag = db.session.get(Auftrag, gewaehlter_auftrag_id)
+
                 ueberschneidung = db.session.execute(db.select(Termin).where(
                     Termin.id != id,
                     Termin.datum == form.datum.data,
                     Termin.complete == False,
-                    (Termin.helfer_id == termin.helfer_id)| (Termin.pp_id == termin.pp_id),
+                    (Termin.helfer_id == auftrag.helfer_id)| (Termin.pp_id == auftrag.pp_id),
                     Termin.uhrzeit_beginn < form.uhrzeit_ende.data,
                     Termin.uhrzeit_ende > form.uhrzeit_beginn.data)).scalars().first()
 
                 if ueberschneidung:
                     flash("Fehler: Zu dieser Uhrzeit gibt es eine Terminüberschneidung!", "danger")
                     return redirect(url_for('termin', id=id))
-                
-                form.populate_obj(termin)
-                termin_ende = datetime.combine(termin.datum,termin.uhrzeit_ende)
-                
-                if termin.bestaetigt and termin_ende< datetime.now():    
-                    termin.bestaetigt= True
-                else:
-                    termin.bestaetigt = False
+                termin.auftrag_id= gewaehlter_auftrag_id
+                termin.pp_id = auftrag.pp.id
+                termin.helfer_id = auftrag.helfer.id
+                termin.bestaetigt = False
                 termin.ersteller_id = current_user.id
+                db.session.add(termin)
                 db.session.commit()
                 flash("Deine Änderungen wurden erfolgreich gespeichert", "success")
                 return redirect(url_for('termine'))
@@ -419,29 +359,35 @@ def helfer_auftraege():
     
     # Sicherheitscheck 
     if current_user.rolle != "Helfer":
-        abort(403, description = "Nur Helfer können diese Seite sehen")
-
+        return "Zugriff verweigert. Nur Helfer können diese Seite sehen.", 403
     
     statement = db.select(Auftrag).filter_by(angenommen=False)
     
-    # Füge die ergebnisse aus Statement in die Variable offene Auftrage ein
     offene_auftraege = db.session.scalars(statement).all()
     heute = date.today()
     return render_template("helfer_auftraege.html", auftraege=offene_auftraege, heute=heute)
 
-@app.route("/helfer/auftrag/<int:auftrag_id>", methods= ["POST"])
+@app.route("/meine_auftraege")
 @login_required
+def meine_auftraege():
+    statement = db.select(Auftrag).filter_by(angenommen=True)
+    
+    meine = db.session.scalars(statement).all()
+    return render_template("meine_auftraege.html", auftraege=meine, heute=date.today())
+
+@app.route("/helfer/auftrag/<int:auftrag_id>")
+@login_required
+def auftrag_annehmen(auftrag_id):
 def auftrag_annehmen(auftrag_id):
     if current_user.freigegeben == False:
         return render_template("warten_auf_bestaetigung.html")
     
     if current_user.rolle != "Helfer":
-        abort(403, description = "Nur Helfer können diese Seite sehen")
+        return "Zugriff verweigert. Nur Helfer können diese Seite sehen.", 403
     auftrag = db.session.get(Auftrag, auftrag_id)
     if not auftrag:
-        abort(404, description = "Auftrag nicht gefunden")
+        return "Auftrag nicht gefunden", 404
     auftrag.angenommen = True
-    # Die Id des Nutzers wird mit dem Helfer ID gleichgesetzt 
     auftrag.helfer_id = current_user.id
     db.session.commit()
     return render_template("auftrag_angenommen.html", auftrag=auftrag)
@@ -469,6 +415,21 @@ def chat_uebersicht():
 @app.route("/chat/<int:empfaenger_id>", methods=["GET", "POST"])
 @login_required
 def chat(empfaenger_id=None):
+    # Lade nur Nachrichten in die Kontaktliste, die für MICH NICHT gelöscht sind
+    gesendete_nachrichten = db.session.execute(
+        db.select(Nachricht).where(
+            (Nachricht.sender_id == current_user.id) &
+            (Nachricht.geloescht_fuer_sender.is_(False))
+        )
+    ).scalars().all()
+
+    empfangene_nachrichten = db.session.execute(
+        db.select(Nachricht).where(
+            (Nachricht.empfaenger_id == current_user.id) &
+            (Nachricht.geloescht_fuer_empfaenger.is_(False))
+        )
+    ).scalars().all()
+
     if current_user.freigegeben == False:
         return render_template("warten_auf_bestaetigung.html")
     gesendete_nachrichten = Nachricht.query.filter_by(sender_id=current_user.id).all()
@@ -479,17 +440,39 @@ def chat(empfaenger_id=None):
         partner_ids.add(n.empfaenger_id)
     for n in empfangene_nachrichten:
         partner_ids.add(n.sender_id)
-    
+
     partner_ids.discard(current_user.id)
-    chat_partner = Nutzer.query.filter(Nutzer.id.in_(partner_ids)).all() if partner_ids else []
+
+    if partner_ids:
+        chat_partner = db.session.execute(
+            db.select(Nutzer).where(Nutzer.id.in_(partner_ids))
+        ).scalars().all()
+    else:
+        chat_partner = []
 
     aktiver_partner = None
     nachrichten = []
-    
+
     if empfaenger_id:
         aktiver_partner = db.session.get(Nutzer, empfaenger_id)
+
+        # SICHERHEITSPRÜFUNG: Nur chatten wenn ein gemeinsamer Auftrag existiert
+        gemeinsamer_auftrag = db.session.execute(
+            db.select(Auftrag).where(
+                (
+                    (Auftrag.helfer_id == current_user.id) & (Auftrag.pp_id == empfaenger_id)
+                ) | (
+                    (Auftrag.pp_id == current_user.id) & (Auftrag.helfer_id == empfaenger_id)
+                )
+            )
+        ).scalars().first()
+
+        if not gemeinsamer_auftrag:
+            return "Zugriff verweigert. Sie haben keine Berechtigung für diesen Chat.", 403
+
         if aktiver_partner and aktiver_partner not in chat_partner:
             chat_partner.append(aktiver_partner)
+
         if request.method == "POST" and request.form.get("inhalt"):
             neue_nachricht = Nachricht(
                 inhalt=request.form["inhalt"],
@@ -500,23 +483,37 @@ def chat(empfaenger_id=None):
             db.session.add(neue_nachricht)
             db.session.commit()
             return redirect(url_for("chat", empfaenger_id=empfaenger_id))
-        nachrichten = Nachricht.query.filter(
-            ((Nachricht.sender_id == current_user.id) & (Nachricht.empfaenger_id == empfaenger_id)) |
-            ((Nachricht.sender_id == empfaenger_id) & (Nachricht.empfaenger_id == current_user.id))
-        ).order_by(Nachricht.zeitstempel.asc()).all()
+
+        # Lade in den Chatverlauf nur Nachrichten, die ICH noch nicht gelöscht habe
+        nachrichten = db.session.execute(
+            db.select(Nachricht).where(
+                (
+                    (Nachricht.sender_id == current_user.id) &
+                    (Nachricht.empfaenger_id == empfaenger_id) &
+                    (Nachricht.geloescht_fuer_sender.is_(False))
+                ) | (
+                    (Nachricht.sender_id == empfaenger_id) &
+                    (Nachricht.empfaenger_id == current_user.id) &
+                    (Nachricht.geloescht_fuer_empfaenger.is_(False))
+                )
+            ).order_by(Nachricht.zeitstempel.asc())
+        ).scalars().all()
 
     return render_template("chat.html", chat_partner=chat_partner, aktiver_partner=aktiver_partner, nachrichten=nachrichten)
-'''
+
 @app.route("/chat/loeschen/<int:partner_id>", methods=["POST"])
 @login_required
 def chat_loeschen(partner_id):
     if current_user.freigegeben == False:
         return render_template("warten_auf_bestaetigung.html")
-    
-    nachrichten = Nachricht.query.filter(
-        ((Nachricht.sender_id == current_user.id) & (Nachricht.empfaenger_id == partner_id)) |
-        ((Nachricht.sender_id == partner_id) & (Nachricht.empfaenger_id == current_user.id))
-    ).all()
+      
+    nachrichten = db.session.execute(
+        db.select(Nachricht).where(
+            ((Nachricht.sender_id == current_user.id) & (Nachricht.empfaenger_id == partner_id)) |
+            ((Nachricht.sender_id == partner_id) & (Nachricht.empfaenger_id == current_user.id))
+        )
+    ).scalars().all()
+   
     for n in nachrichten:
         if n.sender_id == current_user.id:
             n.geloescht_fuer_sender = True
