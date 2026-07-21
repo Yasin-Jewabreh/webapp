@@ -114,6 +114,10 @@ def profil():
         current_user.adresse = form.adresse.data
         current_user.plz = form.plz.data
         current_user.ort = form.ort.data
+
+        if current_user.rolle == 'Helfer':
+            current_user_profil_text = form.profil_text.data
+
         db.session.commit()
         flash("Profil erfolgreich aktualisiert!", "success")
         return redirect(url_for("dashboard"))
@@ -125,6 +129,10 @@ def profil():
         form.adresse.data = current_user.adresse
         form.plz.data = current_user.plz
         form.ort.data = current_user.ort
+
+        if current_user.rolle == 'Helfer':
+            form.profil_text.data = current_user.profil_text
+
     return render_template("profil.html", form=form)
 
 @app.route("/logout")

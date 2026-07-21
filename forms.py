@@ -98,10 +98,12 @@ class TerminBearbeitenForm(FlaskForm):
 class ProfilFormular(FlaskForm):
     vorname = StringField('Vorname', validators=[DataRequired(message="Bitte Vornamen eingeben.")])
     nachname = StringField('Nachname', validators=[DataRequired(message="Bitte Nachnamen eingeben.")])
-    email = StringField('E-Mail', validators=[DataRequired(message="Bitte E-Mail eingeben."), Email(message="Ungültige E-Mail.")])
+    email = StringField('E-Mail', validators=[DataRequired(message="Bitte E-Mail eingeben."), Email(message="Bitte eine gültige E-Mail-Adresse eingeben.", check_deliverability=False)])
     telefon = StringField('Telefonnummer', validators=[DataRequired(message="Bitte Telefonnummer eingeben.")])
     adresse = StringField('Adresse', validators=[DataRequired(message="Bitte Adresse eingeben.")])
     plz = StringField('PLZ', validators=[DataRequired(message="Bitte PLZ eingeben.")])
     ort = StringField('Ort', validators=[DataRequired(message="Bitte Ort eingeben.")])
+    profil_text = TextAreaField("Kurze Vorstellung über dich", validators=[Optional(), Length(max=700)],render_kw={"rows": 4, "placeholder": "Erzähle kurz, wer du bist und wie du helfen möchtest..."})
     submit = SubmitField('Änderungen speichern')
+    
     
