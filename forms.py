@@ -87,7 +87,7 @@ class AuftragFormular(FlaskForm):
     beschreibung = TextAreaField(
         "Über mich",
         validators=[
-            DataRequired(message="Bitte erzähle etwas über dich."),
+            DataRequired(message="Bitte erzähle etwas über deine Situation und wobei du Hilfe brauchst."),
             Length(max=500, message="Die Beschreibung darf maximal 500 Zeichen lang sein.")])
     
     bestaetigung = BooleanField(
