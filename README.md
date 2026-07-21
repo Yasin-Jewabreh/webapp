@@ -1,84 +1,179 @@
-# HelpYourneighbour
-Eine webbasierte Vermittlungsplattform, die hilfsbedürftige Menschen mit engagierten Helfern (Studenten, Schülern und Azubis) verbindet.
+# HelpYourNeighbour
+
+HelpYourNeighbour ist eine webbasierte Vermittlungsplattform, die hilfsbedürftige Menschen mit engagierten Helferinnen und Helfern – insbesondere Studierenden, Schülerinnen und Schülern sowie Auszubildenden – verbindet.
 
 ## Features
-Zwei-Rollen-System: Getrennte Dashboards und Logiken für Hilfesuchende und Helfer.
 
-Auftragsmanagement: Hilfesuchende können Hilfe anfragen; Helfer können offene Aufträge einsehen und annehmen. Die Zuordnung erfolgt rollenbasiert über das bei der Registrierung gewählte Nutzerprofil.
+### Rollen- und Freigabesystem
 
-Terminverwaltung: Helfer und Hilfesuchende können Termine anfragen, bestätigen, ablehnen, bearbeiten, löschen und als erledigt markieren — mit rollenbasierter Statusansicht und Terminhistorie.
+Die Anwendung unterscheidet zwischen drei Rollen:
 
-Integriertes Chat-System: Direkte, datenbankgestützte Kommunikation zwischen Helfer und Hilfesuchendem im WhatsApp-Stil (Nachrichten links/rechts je nach Absender).
+- **Pflegebedürftige Person (PP):** Kann einen Hilfsauftrag erstellen, Bewerbungen prüfen, Termine verwalten und mit dem ausgewählten Helfer chatten.
+- **Helfer:** Kann offene Aufträge einsehen, sich darauf bewerben, Termine verwalten und mit einer zugeordneten pflegebedürftigen Person chatten.
+- **Admin:** Kann neu registrierte Nutzer prüfen, freigeben und deaktivieren.
 
-Sichere Authentifizierung: Login-System mit gehashten Passwörtern, Session-Management via Flask-Login und @login_required-Absicherung aller relevanten Routen.
+Nicht freigegebene Nutzer können sich anmelden, erhalten aber noch keinen Zugriff auf die geschützten Funktionen der Plattform.
 
-## Anleitung zur Reproduktion des Happy Paths
+### Registrierung und Helferprüfung
 
-### Zusammenfassung
-1. Repository klonen, Python Virtual erstellen und benötigte Pakete mit pip install -r requirements.txt installieren
-2. Programm mit Python app.py starten
-3. Als Hilfesuchender registrieren und einloggen
-4. Auftrag erstellen und abschicken
-5. Ausloggen und als Hilfeanbietender registrieren und einloggen
-6. Offenen Auftrag annehmen
-7. Chat öffnen und Testnachricht versenden
-8. In der Terminübersicht Terminanfragen stellen, diese können bearbeitet und gelöscht werden
-9. Wieder ausloggen und mit den Zugangsdaten des Hilfesuchenden einloggen
-10. Chat öffnen und Testnachricht versenden
-11. Zurück und in die Terminübersicht
-12. Dort Termine annehmen oder ablehnen, neue Terminanfragen stellen
-13. Termine bearbeiten oder löschen
-14. Termine auf erledigt setzen, welche über die Historie über den Button in der Navigationsleiste wieder geöffnet werden können
+Bei der Registrierung wird zunächst die gewünschte Rolle ausgewählt.
 
-### Detaillierter
-1. Git clone des repositories
-2. <kbd>Ctrl</kbd>+<kbd>P</kbd> und dann neues Terminal erstellen
-3. Mit python -m venv venv (Windows) oder python3 -m venv venv (Mac) Virtual Environment erstellen
-4. <kbd>Ctrl</kbd>+<kbd>P</kbd> und dann Python interpreter auswählen -> hier auf den Eintrag mit (venv) klicken
-5. <kbd>Ctrl</kbd>+<kbd>P</kbd> und dann neues Terminal erstellen
-6. Im Terminal pip install -r requirements.txt eingeben
-11. Im Terminal "python app.py" eingeben
-12. Link im Browser oder im Editor öffnen
+Helfer müssen zusätzlich:
 
-13. Den Button "registrieren" wählen
-14. Den Button "Hilfe suchen" wählen
-15. Daten zur Registrierung eingeben
-16. Mit Email und Passwort einloggen
-17. "Neuen Auftrag erstellen" wählen
-18. "Wohnsituation" im Dropdown auswählen
-19. "Beispieltext" eingeben, z.B. "Ich brauche Hilfe beim Einkauf" (normalerweise wäre eine Auftragsbeschreibung umfangreicher
-20. "Auftrag veröffentlichen" wählen
-21. "Logout" wählen
-22. Punkte 13 bis 16 wiederholen, diesmal jedoch auf "Hilfe anbieten" klicken und darauf achten, dass die email und telefonnummer anders sind als beim ersten Nutzer
-23. "Offen Auftraege ansehen" wählen
-24. "Annehmen" klicken, um den Auftrag anzunehmen
-25. "Zurück zur Übersicht" wählen
-26. "Chatten" wählen
-27. Testnachricht schreiben und auf "senden" klicken
-28. "Zurück zur Übersicht" wählen
-29. "Terminübersicht/ Termin erstellen" wählen
-30. Zwei neue Termine mit Hilfe des Formulars eintragen
-31. Auf "Bearbeiten Klicken" um eine der Terminanfragen zu bearbeiten
-32. Irgendeine Änderung vornehmen
-33. "Änderung speichern" klicken
-34. "Zurück zur Übersicht" klicken
-35. Logout und wieder einloggen mit den Zugangsdaten für die hilfesuchende Person
-36. "Chat" öffnen und den Helfer auswählen
-37. Wieder eine Testnachricht schreiben und abschicken
-38. Über die Übersicht wieder in die Terminübersicht
-40. Neuen Termin erstellen
-41. Einen Termin bestätigen
-42. Diesen Termin als erledigt markieren
-43. "Deine abgeschlossenen Termine ansehen" klicken
-44. "Wieder öffnen" klicken"
+- einen Vorstellungstext eingeben,
+- ein Führungszeugnis als PDF hochladen.
 
+Das Führungszeugnis kann anschließend in der Adminübersicht geprüft werden, bevor der Helfer freigegeben wird.
 
+### Auftrags- und Bewerbungsmanagement
 
+Pflegebedürftige Personen können einen Hilfsauftrag mit ihrer Wohnsituation und einer Beschreibung des Unterstützungsbedarfs erstellen.
 
+Helfer können:
 
+- offene Aufträge einsehen,
+- sich auf einen Auftrag bewerben,
+- keine doppelte Bewerbung für denselben Auftrag absenden.
 
+Die pflegebedürftige Person kann eingegangene Bewerbungen ansehen und einen Helfer annehmen oder ablehnen.
 
+Erst nach Annahme einer Bewerbung wird der Auftrag dem ausgewählten Helfer zugeordnet.
 
+### Terminverwaltung
 
+Helfer und pflegebedürftige Personen können innerhalb eines angenommenen Auftrags:
 
+- Termine anfragen,
+- Termine bestätigen oder ablehnen,
+- Termine bearbeiten,
+- Termine löschen,
+- Termine als erledigt markieren,
+- abgeschlossene Termine in der Historie einsehen.
 
+Die Anwendung unterscheidet zwischen:
+
+- bestätigten Terminen,
+- offenen Terminanfragen,
+- Terminen, bei denen auf die Antwort der anderen Person gewartet wird.
+
+Zusätzlich verhindert eine Überschneidungsprüfung, dass für dieselben Beteiligten gleichzeitig mehrere Termine angelegt werden.
+
+### Integriertes Chat-System
+
+Nach der Zuordnung können Helfer und pflegebedürftige Person direkt miteinander kommunizieren.
+
+Der Chat bietet:
+
+- datenbankgestützte Nachrichten,
+- eine Darstellung im WhatsApp-Stil,
+- eine unterschiedliche Ausrichtung für eigene und empfangene Nachrichten,
+- eine Soft-Delete-Funktion zum Leeren des eigenen Chatverlaufs.
+
+Ein Chat ist nur möglich, wenn zwischen den beiden Nutzern ein gemeinsamer angenommener Auftrag besteht.
+
+### Profilverwaltung
+
+Nutzer können ihre persönlichen Daten bearbeiten.
+
+Helfer können zusätzlich ihren Vorstellungstext aktualisieren.
+
+Der Vorstellungstext wird pflegebedürftigen Personen bei einer Bewerbung angezeigt.
+
+E-Mail-Adresse und Telefonnummer werden auf bereits vorhandene Einträge geprüft, damit keine doppelten Werte gespeichert werden.
+
+Texteingaben werden vor der Verarbeitung von überflüssigen Leerzeichen bereinigt.
+
+Passwörter bleiben von dieser Bereinigung ausgenommen.
+
+### Sichere Authentifizierung
+
+Die Anwendung verwendet:
+
+- gehashte Passwörter mit Werkzeug,
+- Session-Management mit Flask-Login,
+- `@login_required` für geschützte Routen,
+- rollenbasierte Zugriffskontrollen,
+- CSRF-Schutz über Flask-WTF.
+
+## Installation
+
+### 1. Repository klonen
+
+```bash
+git clone <REPOSITORY-URL>
+cd Projekt_Team14
+```
+
+### 2. Virtuelle Umgebung erstellen
+
+```bash
+python -m venv venv
+```
+
+### 3. Abhängigkeiten installieren
+
+```bash
+python -m pip install -r requirements.txt
+```
+
+### 4. Anwendung starten
+
+```bash
+python app.py
+```
+
+Die Anwendung ist anschließend normalerweise unter folgender Adresse erreichbar:
+
+```text
+http://127.0.0.1:5000
+```
+
+## Happy Path
+
+### Variante mit eigener Registrierung
+
+1. Anwendung starten.
+2. Als pflegebedürftige Person registrieren.
+3. Als Admin anmelden.
+4. Den neu registrierten Nutzer in der Nutzerübersicht freigeben.
+5. Als pflegebedürftige Person anmelden.
+6. Einen Auftrag erstellen und veröffentlichen.
+7. Ausloggen.
+8. Als Helfer registrieren.
+9. Einen Vorstellungstext eingeben.
+10. Ein Führungszeugnis als PDF hochladen.
+11. Als Admin anmelden.
+12. Das Führungszeugnis prüfen.
+13. Den Helfer freigeben.
+14. Als Helfer anmelden.
+15. Die offenen Aufträge öffnen.
+16. Auf den Auftrag der pflegebedürftigen Person bewerben.
+17. Ausloggen.
+18. Als pflegebedürftige Person anmelden.
+19. Die eingegangenen Bewerbungen öffnen.
+20. Die Bewerbung des Helfers annehmen.
+21. Den Chat öffnen.
+22. Eine Testnachricht senden.
+23. In der Terminübersicht einen Termin anfragen.
+24. Ausloggen.
+25. Als Helfer anmelden.
+26. Die Nachricht im Chat beantworten.
+27. Den vorgeschlagenen Termin bestätigen oder ablehnen.
+28. Weitere Termine anfragen.
+29. Termine bearbeiten oder löschen.
+30. Einen Termin als erledigt markieren.
+31. Den abgeschlossenen Termin über die Historie erneut ansehen.
+
+## Vorhandene Testnutzer
+
+Für Entwicklungs- und Demonstrationszwecke werden beim Start Testnutzer angelegt, sofern sie noch nicht existieren.
+
+| Rolle | E-Mail-Adresse | Passwort |
+|---|---|---|
+| Admin | `admin@email.com` | `12345678` |
+| Helfer | `helfer1@email.com` | `12345678` |
+| Helfer | `helfer2@email.com` | `12345678` |
+| PP | `pp1@email.com` | `12345678` |
+| PP | `pp2@email.com` | `12345678` |
+
+Die Testnutzer sind bereits freigegeben, wobei die Helfer kein hochgeladenes Führungszeugnis besitzen.
