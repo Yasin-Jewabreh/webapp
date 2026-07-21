@@ -63,7 +63,7 @@
                     <div class="col-md-6">
                         <div class="form-group">
                             {{ form.beschreibung.label(class="form-label") }}
-                            {{ form.beschreibung(class="form-control description-field", rows="7", placeholder="Erzähle etwas über dich...") }}
+                            {{ form.beschreibung(class="form-control description-field", rows="7", placeholder="Bitte erzähle etwas über deine Situation und wobei du Hilfe brauchst.") }}
                             {% if form.beschreibung.errors %}
                                 <div class="text-danger">{{ form.beschreibung.errors[0] }}</div>
                             {% endif %}
