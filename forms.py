@@ -1,7 +1,7 @@
 from datetime import date
 from flask_wtf import FlaskForm
-from wtforms import SelectField, TextAreaField, SubmitField, BooleanField, DateField, TimeField, HiddenField, TextAreaField, EmailField, PasswordField, StringField
-from wtforms.validators import DataRequired, Length, InputRequired, Optional, ValidationError, Email, EqualTo
+from wtforms import SelectField, TextAreaField, SubmitField, BooleanField, DateField, TimeField, HiddenField, TextAreaField, EmailField, PasswordField, StringField, FileField
+from wtforms.validators import DataRequired, Length, InputRequired, Optional, ValidationError, Email, EqualTo, FileRequired, FileAllowed
 from datetime import date, datetime
 
 
@@ -26,7 +26,11 @@ class RegistrierungFormular(FlaskForm):
     passwort = PasswordField("Passwort:", validators=[InputRequired(), Length(min=8, message = "Das Passwort muss mindestens 8 Zeichen lang sein!")])
     passwort_wiederholen = PasswordField("Passwort wiederholen:", validators=[InputRequired(), EqualTo("passwort", message = "Die Passwörter müssen übereinstimmen!")])
     telefon = StringField("Telefon:", validators=[InputRequired()])
+    fuehrungszeugnis = FileField("Führungszeugnis", validators=[FileRequired(), FileAllowed(['pdf'])])
     registrieren = SubmitField("Registrieren")
+
+
+
 
 class LoginFormular(FlaskForm):
     email = EmailField("Email:", validators=[InputRequired()])

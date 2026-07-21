@@ -1,10 +1,12 @@
 from datetime import date, datetime
+import os
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 from forms import TerminBearbeitenForm, TerminErstellenForm, RollenWahlForm, RegistrierungFormular, LoginFormular, AuftragFormular, ProfilFormular
 from flask import Flask, render_template, redirect, url_for, request, session, flash, abort
 from flask_bootstrap import Bootstrap5
 from db import db
 from models import Nutzer, Auftrag, Termin, Nachricht, berlin_time
+from werkzeug.utils import secure_filename
 
 app = Flask(__name__)
 
@@ -43,19 +45,19 @@ def rolle_waehlen():
             gewaehlte_rolle = "Helfer"
         elif form.suchender_btn.data:
             gewaehlte_rolle = "PP"
-            #Sicherheitshalber setzen wir die Rolle auf "PP", falls keine der beiden Rollen ausgewählt wurde
-        else:
-            gewaehlte_rolle = "PP"
+        
         session["rollenwahl"] = gewaehlte_rolle
         return redirect(url_for('register'))
     return render_template('rolle_auswaehlen.html', form=form)
 
 @app.route("/register", methods=["GET", "POST"])
 def register():
+    gewaehlte_rolle = session.get("rollenwahl")
+    if not gewaehlte_rolle:
+        return redirect(url_for("rolle_waehlen"))
     
     form = RegistrierungFormular()
     if form.validate_on_submit():
-        gewaehlte_rolle = session.get("rollenwahl", "PP")
         neuer_nutzer = Nutzer(
             vorname=form.vorname.data,
             nachname=form.nachname.data,
@@ -70,9 +72,17 @@ def register():
             rolle=gewaehlte_rolle
         )
         db.session.add(neuer_nutzer)
+        db.session.flush()
+
+        f = form.fuehrungszeugnis.data
+        filename = secure_filename(f.filename)
+        filename.append(neuer_nutzer.id)
+        f.save(os.path.join(app.instance_path, "fuehrungszeugnisse", filename))
+        neuer_nutzer.fuehrungszeugnis_dateiname = filename
         db.session.commit()
+        
         return redirect(url_for("login"))
-    return render_template("register.html", form=form)
+    return render_template("register.html", form=form, rolle = gewaehlte_rolle)
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
