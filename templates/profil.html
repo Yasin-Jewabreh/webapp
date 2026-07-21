@@ -1,6 +1,5 @@
 {% extends "base.html" %}
-{% from 'bootstrap5/form.html' import render_form %}
-
+{% from "bootstrap5/form.html" import render_field %}
 {% block TITLE %}Profil{% endblock %}
 
 {% block CONTENT %}
@@ -21,9 +20,21 @@
                         </span>
                     </div>
                     <hr class="mb-4">
+                    <form method="POST">
+                        {{ form.hidden_tag() }}
+                        {{ render_field(form.vorname) }}
+                        {{ render_field(form.nachname) }}
+                        {{ render_field(form.email) }}
+                        {{ render_field(form.telefon) }}
+                        {{ render_field(form.adresse) }}
+                        {{ render_field(form.plz) }}
+                        {{ render_field(form.ort) }}
 
-                    {{ render_form(form) }}
-
+                        {% if current_user.rolle == "Helfer" %}
+                            {{ render_field(form.vorstellungstext) }}
+                        {% endif %}
+                        {{ render_field(form.submit) }}
+                    </form>
                 </div>
             </div>
         </div>
