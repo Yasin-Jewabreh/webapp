@@ -152,8 +152,7 @@ def auftrag_erstellen():
     
     form = AuftragFormular()
     
-    vorhandener_auftrag = db.session.scalar(db.select(Auftrag).where(
-                            Auftrag.pp_id == current_user.id, Auftrag.status.in_ (["Offen", "Angenommen"])))
+    vorhandener_auftrag = db.session.scalar(db.select(Auftrag).where(Auftrag.pp_id == current_user.id))
     
     if vorhandener_auftrag:
         return redirect (url_for("auftrag_bearbeiten", auftrag_id = vorhandener_auftrag.id))
@@ -164,7 +163,7 @@ def auftrag_erstellen():
         neuer_auftrag = Auftrag(
             wohnsituation=form.wohnsituation.data,
             beschreibung=form.beschreibung.data,
-            status = "Offen",
+            angenommen = False,
             pp_id=current_user.id)
         
         # Hinzufügen in die DB
@@ -412,7 +411,7 @@ def helfer_auftraege():
     if current_user.rolle != "Helfer":
         abort(403, description = "Nur Helfer können diese Seite sehen")
 
-    statement = db.select(Auftrag).filter_by(status="Offen")    
+    statement = db.select(Auftrag).filter_by(angenommen = False)    
 
     # Füge die ergebnisse aus Statement in die Variable offene Auftrage ein
     offene_auftraege = db.session.scalars(statement).all()
@@ -431,7 +430,7 @@ def auftrag_bewerben(auftrag_id):
     if not auftrag:
         abort(404, description="Auftrag nicht gefunden.")
     
-    if auftrag.status != "Offen":
+    if auftrag.angenommen:
         flash("Dieser Auftrag ist leider nicht mehr offen.", "danger")
         return redirect(url_for("dashboard"))
     
@@ -467,7 +466,7 @@ def pp_anfragen():
         if auftrag and auftrag.pp_id == current_user.id:
             if aktion == "Annehmen" and helfer_id:
                 auftrag.helfer_id = int(helfer_id)
-                auftrag.status = "Angenommen" 
+                auftrag.angenommen = True 
                 db.session.commit()
                 flash("Bewerbung angenommen!", "success")
             elif aktion == "Ablehnen":
@@ -488,7 +487,7 @@ def meine_auftraege():
         abort(403, description="Nur Helfer können diese Seite sehen.")
     
     # Filtert die Aufträge die angenommen wurden und die Helfer ID mit dem Nutzer ID übereinstimmt 
-    statement = db.select(Auftrag).filter_by(status="Angenommen", helfer_id=current_user.id)
+    statement = db.select(Auftrag).filter_by(angenommen=True, helfer_id=current_user.id)
     meine = db.session.scalars(statement).all()
     return render_template("meine_auftraege.html", auftraege=meine)
 

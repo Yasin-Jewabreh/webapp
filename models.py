@@ -39,7 +39,7 @@ class Auftrag(db.Model):
     id = db.Column(db.Integer, primary_key = True, index = True)
     wohnsituation = db.Column(db.String(100), nullable = False)
     beschreibung = db.Column(db.String(500), nullable = False)
-    status = db.Column(db.String(50), default="Offen", nullable=False)
+    angenommen = db.Column(db.Boolean, default = False, nullable = False)
     helfer_id = db.Column("helfer_id", db.ForeignKey("nutzer.id"), nullable = True)
     pp_id = db.Column("pp_id", db.ForeignKey("nutzer.id"), nullable = False)
 
