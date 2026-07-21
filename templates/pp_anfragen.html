@@ -33,17 +33,13 @@
 
                                 {{ auftrag.helfer.profil_text }}
                             </div>
-                            
-                            <p class="mb-0 small text-secondary">
-                                <strong>Betrifft deinen Auftrag:</strong> {{ auftrag.beschreibung }}
-                            </p>
                         </div>
 
                         <div class="col-md-4 d-flex flex-column justify-content-center align-items-md-end mt-3 mt-md-0 gap-2">
                             <form action="{{ url_for('pp_anfragen') }}" method="POST" class="w-100">
                                 <input type="hidden" name="auftrag_id" value="{{ auftrag.id }}">
                                 <button type="submit" name="aktion" value="annehmen" class="btn btn-success w-100 mb-2">
-                                    Bewerbung annehmen
+                                    Annehmen
                                 </button>
                                 <button type="submit" name="aktion" value="ablehnen" class="btn btn-outline-danger w-100">
                                     Ablehnen

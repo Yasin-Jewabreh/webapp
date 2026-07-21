@@ -51,9 +51,12 @@ def rolle_waehlen():
 
 @app.route("/register", methods=["GET", "POST"])
 def register():
+    
+    gewaehlte_rolle = session.get("rollenwahl")
+    
     form = RegistrierungFormular()
     if form.validate_on_submit():
-        gewaehlte_rolle = session.get("rollenwahl")
+        
         neuer_nutzer = Nutzer(
             vorname=form.vorname.data,
             nachname=form.nachname.data,
@@ -543,4 +546,4 @@ def http_access_denied(e):
     return render_template('403.html', message = e.description), 403
 
 if __name__ == "__main__":
-    app.run(debug=True, port = 5001)
+    app.run(debug=True, port = 5000)

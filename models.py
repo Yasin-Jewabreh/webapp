@@ -3,6 +3,7 @@ from datetime import datetime
 from flask_login import UserMixin
 import pytz
 from flask_login import UserMixin
+from datetime import date
 
 class Nutzer(db.Model, UserMixin):
     __tablename__ = "nutzer"
@@ -22,6 +23,15 @@ class Nutzer(db.Model, UserMixin):
     rolle = db.Column(db.String(), nullable=False, index=True)
     profil_text = db.Column(db.String(700), nullable=True)
     
+    @property
+    def alter(self):
+        if not self.geburtsdatum:
+            return None
+
+        heute = date.today()
+        hat_geburtstag_gehabt = (heute.month, heute.day) >= (self.geburtsdatum.month, self.geburtsdatum.day,)
+        return heute.year - self.geburtsdatum.year - (not hat_geburtstag_gehabt)
+
 class Auftrag(db.Model):
     __tablename__ = "auftrag"
 

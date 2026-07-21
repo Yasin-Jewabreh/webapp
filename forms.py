@@ -13,7 +13,7 @@ def check_geburtsdatum(self, field):
     if field.data: 
         if ((date.today() - field.data).days / 365.25) < 18:
             raise ValidationError("Du musst mindestens 18 Jahre alt sein.")
-        
+
 class RegistrierungFormular(FlaskForm):
     vorname = StringField("Vorname:", validators=[InputRequired()])
     nachname = StringField("Nachname:", validators=[InputRequired()])
@@ -104,3 +104,4 @@ class ProfilFormular(FlaskForm):
     plz = StringField('PLZ', validators=[DataRequired(message="Bitte PLZ eingeben.")])
     ort = StringField('Ort', validators=[DataRequired(message="Bitte Ort eingeben.")])
     submit = SubmitField('Änderungen speichern')
+    
