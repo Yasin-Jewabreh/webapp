@@ -27,11 +27,14 @@ class Auftrag(db.Model):
     wohnsituation = db.Column(db.String(100), nullable = False)
     beschreibung = db.Column(db.String(500), nullable = False)
     angenommen = db.Column(db.Boolean, default = False, nullable = False)
+    abgeschlossen = db.Column(db.Boolean, default = False, nullable = False)
     helfer_id = db.Column("helfer_id", db.ForeignKey("nutzer.id"), nullable = True)
     pp_id = db.Column("pp_id", db.ForeignKey("nutzer.id"), nullable = False)
 
     pp = db.relationship("Nutzer", foreign_keys=[pp_id], backref="erstellte_auftraege")
     helfer = db.relationship("Nutzer", foreign_keys=[helfer_id], backref="angenommene_auftraege")
+    termine = db.relationship("Termin", backref="auftrag", cascade="all, delete-orphan")
+
 
 def berlin_time():
     tz_berlin =pytz.timezone("Europe/Berlin")
@@ -66,4 +69,4 @@ class Termin(db.Model):
     ersteller_id = db.Column(db.Integer, nullable = False, index = True)
     helfer = db.relationship("Nutzer", foreign_keys=[helfer_id], backref="helfer_termine")
     pp = db.relationship("Nutzer", foreign_keys=[pp_id], backref="pp_termine")
-    auftrag = db.relationship("Auftrag", backref="termine")
+    #auftrag = db.relationship("Auftrag", backref="termine")
