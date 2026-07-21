@@ -15,7 +15,7 @@ class Nutzer(db.Model, UserMixin):
     plz = db.Column(db.String(10), nullable=False)
     ort = db.Column(db.String(50), nullable=False)
     email = db.Column(db.String(), nullable=False, unique=True)
-    email_verified = db.Column(db.Boolean, default=False, nullable=False)
+    freigegeben = db.Column(db.Boolean, default=False, nullable=False)
     passwort = db.Column(db.String(), nullable=False)
     telefon = db.Column(db.String(30), nullable=False, unique=True)
     rolle = db.Column(db.String(), nullable=False, index=True)

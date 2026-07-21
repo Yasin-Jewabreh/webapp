@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+{% block TITLE %} Nutzerübersicht {% endblock %}
+
+{%block CONTENT%}
+                <div class ="mb-5">     
+                    <div class = "card shadow-sm p-3">
+                        <h3 class = "mb-3">Nutzer</h3>
+                        <div class = "rounded-3 overflow-hidden border shadow-sm">
+                            <table class = "table table-hover mb-0">
+                                <thead class ="table-light">
+                                    <tr> <th>Freizugebende Nutzer</th> <th></th> </tr>
+                                </thead>
+                                <tbody>
+                                {% for n in nicht_freigegebene%}
+                                    <tr>
+                                        <td>
+                                        {{n.vorname}} {{n.nachname}} <br>
+                                        Geburtsdatum: {{n.geburtsdatum.strftime('%d.%m.%Y')}}<br>
+                                        Geschlecht:{{n.geschlecht}}<br>
+                                        Adresse: {{n.adresse}}, {{n.plz}} {{n.ort}}<br>
+                                        Email: {{n.email}}<br>
+                                        Telefon: {{n.telefon}}<br>
+                                        Rolle: {{n.rolle}}
+                                        </td>
+                                        <td>
+                                            <form method="POST">
+                                                <input type="hidden" name="freigeben_id" value  ="{{n.id}}">
+                                                <button type  ="submit" class ="btn btn-sm btn-outline-success rounded-pill">
+                                                    Freigeben
+                                                </button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                {%else%}
+                                    <tr>
+                                        <td colspan = "3" class = "text-center text-muted">
+                                            Es gibt keine freizugebenden Nutzer!
+                                        </td>
+                                    </tr>
+                                {%endfor%}
+                                </tbody>
+                            </table>
+                            <table class = "table table-hover mb-0">
+                                <thead class ="table-light">
+                                    <tr> <th>Freigegebene Nutzer</th> <th></th> </tr>
+                                </thead>
+                                <tbody>
+                                {% for n in freigegebene%}
+                                    <tr>
+                                        <td>
+                                        {{n.vorname}} {{n.nachname}} <br>
+                                        Geburtsdatum: {{n.geburtsdatum.strftime('%d.%m.%Y')}}<br>
+                                        Geschlecht:{{n.geschlecht}}<br>
+                                        Adresse: {{n.adresse}}, {{n.plz}} {{n.ort}}<br>
+                                        Email: {{n.email}}<br>
+                                        Telefon: {{n.telefon}}<br>
+                                        Rolle: {{n.rolle}}
+                                        </td>
+                                        <td>
+                                            <form method="POST">
+                                                <input type="hidden" name="deaktivieren_id" value  ="{{n.id}}">
+                                                <button type  ="submit" class ="btn btn-sm btn-outline-danger rounded-pill">
+                                                    Deaktivieren
+                                                </button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                {%else%}
+                                    <tr>
+                                        <td colspan = "3" class = "text-center text-muted">
+                                            Es gibt keine freigegebenen Nutzer!
+                                        </td>
+                                    </tr>
+                                {%endfor%}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+{% endblock %}
