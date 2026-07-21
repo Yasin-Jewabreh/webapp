@@ -467,6 +467,8 @@ def termine():
         if "erledigen_id" in request.form:
             termin_id = int(request.form.get("erledigen_id"))
             termin = db.session.get(Termin,termin_id)
+            if not termin:
+                abort(404, description = "Termin nicht gefunden")
             if (termin.helfer_id!= current_user.id and termin.pp_id != current_user.id):
                 abort(404, description = "Termin nicht gefunden")
             if termin:
@@ -478,6 +480,8 @@ def termine():
         if "bestaetigen_id" in request.form:
             termin_id = int(request.form.get("bestaetigen_id"))
             termin = db.session.get(Termin,termin_id)
+            if not termin:
+                abort(404, description = "Termin nicht gefunden")
             if (termin.helfer_id!= current_user.id and termin.pp_id != current_user.id):
                 abort(404, description = "Termin nicht gefunden")
             if termin:
@@ -489,6 +493,8 @@ def termine():
         if "ablehnen_id" in request.form:
             termin_id = int(request.form.get("ablehnen_id"))
             termin = db.session.get(Termin,termin_id)
+            if not termin:
+                abort(404, description = "Termin nicht gefunden")
             if (termin.helfer_id!= current_user.id and termin.pp_id != current_user.id):
                 abort(404, description = "Termin nicht gefunden")
             if termin:
