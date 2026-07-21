@@ -5,6 +5,10 @@ import pytz
 from flask_login import UserMixin
 from datetime import date
 
+def berlin_time():
+    tz_berlin =pytz.timezone("Europe/Berlin")
+    return datetime.now(tz_berlin)
+
 class Nutzer(db.Model, UserMixin):
     __tablename__ = "nutzer"
 
@@ -55,14 +59,11 @@ class Bewerbung(db.Model):
     auftrag_id = db.Column(db.Integer, db.ForeignKey('auftrag.id'), nullable=False)
     helfer_id = db.Column(db.Integer, db.ForeignKey('nutzer.id'), nullable=False)
     status = db.Column(db.String(20), default='ausstehend') # 'ausstehend', 'akzeptiert', 'abgelehnt'
-    erstellt_am = db.Column(db.DateTime, default=datetime.utcnow)
+    erstellt_am = db.Column(db.DateTime, default= berlin_time)
 
     auftrag = db.relationship('Auftrag', back_populates='bewerbungen')
     helfer = db.relationship('Nutzer', back_populates='bewerbungen')
 
-def berlin_time():
-    tz_berlin =pytz.timezone("Europe/Berlin")
-    return datetime.now(tz_berlin)
 
 class Nachricht (db.Model):
     __tablename__ = "nachricht"
