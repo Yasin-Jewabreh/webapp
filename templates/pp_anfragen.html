@@ -4,7 +4,9 @@
 
 {% block CONTENT %}
 <div class="container mt-5">
-    <a href="{{ url_for('dashboard') }}" class="btn btn-outline-secondary mb-3">
+
+    <a href="{{ url_for('dashboard') }}"
+       class="btn btn-outline-secondary mb-3">
         ← Zurück zum Dashboard
     </a>
 
@@ -13,63 +15,130 @@
     </div>
 
     {% if anfragen %}
+
         <div class="d-flex flex-column gap-4">
-            
+
             {% for auftrag in anfragen %}
+
                 {% if not auftrag.angenommen and auftrag.bewerbungen %}
-                    
-                    <h5 class="text-muted border-bottom pb-2 mt-3">Auftrag: {{ auftrag.wohnsituation }}</h5>
-                    
+
+                    <h5 class="text-muted border-bottom pb-2 mt-3">
+                        Auftrag: {{ auftrag.wohnsituation }}
+                    </h5>
+
                     {% for bewerbung in auftrag.bewerbungen %}
+
                         <div class="card shadow-sm border-0 rounded-3 p-4 bg-white mb-3">
                             <div class="row">
 
                                 <div class="col-md-8">
-                                    <h4 class="fw-bold mb-1">{{ bewerbung.helfer.vorname }} {{ bewerbung.helfer.nachname }}</h4>
-                                    
+
+                                    <h4 class="fw-bold mb-1">
+                                        {{ bewerbung.helfer.vorname }}
+                                        {{ bewerbung.helfer.nachname }}
+                                    </h4>
+
                                     <div class="text-muted mb-3">
-                                        <span class="me-3"><strong>Alter: </strong>{{ bewerbung.helfer.alter }}</span>
-                                        <span class="me-3"><strong>Geschlecht: </strong> {{ bewerbung.helfer.geschlecht }}</span>
-                                        <span><strong>PLZ: </strong>{{ bewerbung.helfer.plz }}</span>
+
+                                        <span class="me-3">
+                                            <strong>Alter:</strong>
+                                            {{ bewerbung.helfer.alter }}
+                                        </span>
+
+                                        <span class="me-3">
+                                            <strong>Geschlecht:</strong>
+                                            {{ bewerbung.helfer.geschlecht }}
+                                        </span>
+
+                                        <span>
+                                            <strong>PLZ:</strong>
+                                            {{ bewerbung.helfer.plz }}
+                                        </span>
+
                                     </div>
 
-                                    <p class="mb-2"><strong>Vorstellung:</strong></p>
+                                    <p class="mb-2">
+                                        <strong>Vorstellung:</strong>
+                                    </p>
+
                                     <div class="p-3 bg-light rounded text-dark mb-3">
-                                        {{ bewerbung.helfer.vorstellungstext or 'Keine Vorstellung angegeben.' }}
+                                        {{ bewerbung.helfer.vorstellungstext or
+                                        'Keine Vorstellung angegeben.' }}
                                     </div>
+
                                 </div>
 
                                 <div class="col-md-4 d-flex flex-column justify-content-center align-items-md-end mt-3 mt-md-0 gap-2">
-                                    <form action="{{ url_for('pp_anfragen') }}" method="POST" class="w-100">
-                                        
-                                        <input type="hidden" name="auftrag_id" value="{{ auftrag.id }}">
-                                        <input type="hidden" name="helfer_id" value="{{ bewerbung.helfer.id }}">
-                                        
-                                        <button type="submit" name="aktion" value="Annehmen" class="btn btn-success w-100 mb-2">
-                                            Annehmen
-                                        </button>
-                                        <button type="submit" name="aktion" value="Ablehnen" class="btn btn-outline-danger w-100">
-                                            Ablehnen
-                                        </button>
-                                    </form>
+
+                                    {% if bewerbung.status == "ausstehend" %}
+
+                                        <form action="{{ url_for('pp_anfragen') }}"
+                                              method="POST"
+                                              class="w-100">
+
+                                            <input type="hidden"
+                                                   name="auftrag_id"
+                                                   value="{{ auftrag.id }}">
+
+                                            <input type="hidden"
+                                                   name="helfer_id"
+                                                   value="{{ bewerbung.helfer.id }}">
+
+                                            <button type="submit"
+                                                    name="aktion"
+                                                    value="Annehmen"
+                                                    class="btn btn-success w-100 mb-2">
+                                                Annehmen
+                                            </button>
+
+                                            <button type="submit"
+                                                    name="aktion"
+                                                    value="Ablehnen"
+                                                    class="btn btn-outline-danger w-100">
+                                                Ablehnen
+                                            </button>
+
+                                        </form>
+
+                                    {% elif bewerbung.status == "abgelehnt" %}
+
+                                        <span class="badge bg-danger fs-6">
+                                            Bewerbung abgelehnt
+                                        </span>
+
+                                    {% endif %}
+
                                 </div>
+
                             </div>
                         </div>
+
                     {% endfor %}
-                    
+
                 {% elif auftrag.angenommen %}
+
                     <div class="alert alert-success mt-2">
-                        Dieser Auftrag wurde bereits an <strong>{{ auftrag.helfer.vorname }} {{ auftrag.helfer.nachname }}</strong> vergeben.
+                        Dieser Auftrag wurde bereits an
+                        <strong>
+                            {{ auftrag.helfer.vorname }}
+                            {{ auftrag.helfer.nachname }}
+                        </strong>
+                        vergeben.
                     </div>
+
                 {% endif %}
-                
+
             {% endfor %}
-            
+
         </div>
+
     {% else %}
+
         <div class="alert alert-info text-center" role="alert">
             Aktuell hast du keine offenen Aufträge.
         </div>
+
     {% endif %}
+
 </div>
 {% endblock %}

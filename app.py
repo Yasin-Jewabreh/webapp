@@ -369,30 +369,45 @@ def auftrag_bewerben(auftrag_id):
 @login_required
 def pp_anfragen():
     if current_user.rolle != ROLLE_PP:
-        abort(403, description="Nur Pflegebedürftige können diese Seite sehen")
-    
+        abort(403,description="Nur Pflegebedürftige können diese Seite sehen")
+
     if request.method == "POST":
         auftrag_id = int(request.form.get("auftrag_id"))
+        helfer_id = int(request.form.get("helfer_id"))
         aktion = request.form.get("aktion")
-        
-        helfer_id = request.form.get("helfer_id")   
+
         auftrag = db.session.get(Auftrag, auftrag_id)
 
-        if auftrag and auftrag.pp_id == current_user.id:
-            if aktion == "Annehmen" and helfer_id:
-                auftrag.helfer_id = int(helfer_id)
-                auftrag.angenommen = True 
-                db.session.commit()
-                flash("Bewerbung angenommen!", "success")
-            elif aktion == "Ablehnen":
-                flash("Bewerbung abgelehnt.", "info")
-                
+        if not auftrag or auftrag.pp_id != current_user.id:
+            abort(404, description="Auftrag nicht gefunden")
+
+        bewerbung = db.session.scalar(db.select(Bewerbung).where(Bewerbung.auftrag_id == auftrag_id,Bewerbung.helfer_id == helfer_id))
+
+        if not bewerbung:
+            abort(404, description="Bewerbung nicht gefunden")
+
+        if bewerbung.status != "ausstehend":
+            flash("Diese Bewerbung wurde bereits bearbeitet.","warning")
+            return redirect(url_for("pp_anfragen"))
+
+        if aktion == "Annehmen":
+            auftrag.helfer_id = helfer_id
+            auftrag.angenommen = True
+
+            for einzelne_bewerbung in list(auftrag.bewerbungen):
+                db.session.delete(einzelne_bewerbung)
+
+            flash("Bewerbung angenommen!", "success")
+
+        elif aktion == "Ablehnen":
+            bewerbung.status = "abgelehnt"
+            flash("Bewerbung abgelehnt.", "info")
+
+        db.session.commit()
         return redirect(url_for("pp_anfragen"))
-    
-    anfragen = db.session.execute(
-        db.select(Auftrag).where(Auftrag.pp_id == current_user.id)).scalars().all()
-        
-    return render_template("pp_anfragen.html", anfragen=anfragen)
+
+    anfragen = db.session.execute(db.select(Auftrag).where(Auftrag.pp_id == current_user.id)).scalars().all()
+    return render_template("pp_anfragen.html",anfragen=anfragen)
 
 @app.route("/termine/historie/")
 @login_required
