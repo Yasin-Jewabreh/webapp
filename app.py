@@ -7,6 +7,7 @@ from flask_bootstrap import Bootstrap5
 from db import db
 from models import Nutzer, Auftrag, Termin, Nachricht, berlin_time
 from werkzeug.utils import secure_filename
+from werkzeug.security import generate_password_hash, check_password_hash
 
 app = Flask(__name__)
 
@@ -19,6 +20,10 @@ app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = "login"
+
+ROLLE_HELFER = "Helfer"
+ROLLE_PP = "PP"
+ROLLE_ADMIN = "Admin"
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -42,10 +47,11 @@ def rolle_waehlen():
     form = RollenWahlForm()
     if form.validate_on_submit():
         if form.helfer_btn.data:
-            gewaehlte_rolle = "Helfer"
+            gewaehlte_rolle = ROLLE_HELFER
         elif form.suchender_btn.data:
-            gewaehlte_rolle = "PP"
-        
+            gewaehlte_rolle = ROLLE_PP
+        else:
+            return render_template('rolle_auswaehlen.html', form=form)
         session["rollenwahl"] = gewaehlte_rolle
         return redirect(url_for('register'))
     return render_template('rolle_auswaehlen.html', form=form)
@@ -53,13 +59,13 @@ def rolle_waehlen():
 @app.route("/register", methods=["GET", "POST"])
 def register():
     gewaehlte_rolle = session.get("rollenwahl")
-    if not gewaehlte_rolle:
+    if gewaehlte_rolle not in [ROLLE_HELFER, ROLLE_PP]:
         return redirect(url_for("rolle_waehlen"))
     
     helfer_form = RegistrierungHelfer()
     pp_form = RegistrierungPP()
 
-    if gewaehlte_rolle == "Helfer":
+    if gewaehlte_rolle == ROLLE_HELFER:
         if helfer_form.validate_on_submit():
             neuer_nutzer = Nutzer(
                 vorname=helfer_form.vorname.data,
@@ -71,7 +77,7 @@ def register():
                 ort=helfer_form.ort.data,
                 email=helfer_form.email.data,
                 telefon=helfer_form.telefon.data,
-                passwort=helfer_form.passwort.data,
+                passwort= generate_password_hash(helfer_form.passwort.data),
                 rolle=gewaehlte_rolle,
                 vorstellungstext = helfer_form.vorstellungstext.data
             )
@@ -80,12 +86,15 @@ def register():
 
             f = helfer_form.fuehrungszeugnis.data
             filename = f"{neuer_nutzer.id}_{secure_filename(f.filename)}"
-            f.save(os.path.join(app.static_folder, "fuehrungszeugnisse", filename))
+            upload_ordner = os.path.join(app.static_folder,"fuehrungszeugnisse")
+            os.makedirs(upload_ordner, exist_ok=True)
+            f.save(os.path.join(upload_ordner, filename))
             neuer_nutzer.fuehrungszeugnis_dateiname = filename
             db.session.commit()
+            session.pop("rollenwahl", None)
             return redirect(url_for("login"))
 
-    elif gewaehlte_rolle == "PP":
+    elif gewaehlte_rolle == ROLLE_PP:
         if pp_form.validate_on_submit():
             neuer_nutzer = Nutzer(
                 vorname=pp_form.vorname.data,
@@ -97,11 +106,12 @@ def register():
                 ort=pp_form.ort.data,
                 email=pp_form.email.data,
                 telefon=pp_form.telefon.data,
-                passwort=pp_form.passwort.data,
+                passwort=generate_password_hash(pp_form.passwort.data),
                 rolle=gewaehlte_rolle
             )
             db.session.add(neuer_nutzer)
             db.session.commit()
+            session.pop("rollenwahl", None)
             return redirect(url_for("login"))
 
        
@@ -120,9 +130,9 @@ def login():
             fehler = "Benutzer nicht vorhanden. Bitte prüfe deine Eingabe oder registriere dich neu!"
             flash(fehler)
         else:
-            if nutzer.passwort == passwort:
+            if check_password_hash(nutzer.passwort, passwort):
                 login_user(nutzer)
-                if nutzer.rolle == "Admin":
+                if nutzer.rolle == ROLLE_ADMIN:
                     return redirect(url_for("nutzeruebersicht"))
                 return redirect(url_for("dashboard"))
             else:
@@ -179,7 +189,7 @@ def auftrag_erstellen():
     if current_user.freigegeben == False:
         return render_template("warten_auf_bestaetigung.html")
     # Verhinderung von falschen Nutzer zugriffen
-    if current_user.rolle != "PP":
+    if current_user.rolle != ROLLE_PP:
         abort(403, description = "Zugriff verweigert. Nur Pflegebedürftige können diese Seite sehen.")
     
     form = AuftragFormular()
@@ -217,10 +227,7 @@ def auftrag_bearbeiten(auftrag_id):
     
     form = AuftragFormular()
 
-    if request.method == "POST" and "loeschen" in request.form:
-
-        db.session.execute(db.select(Termin).where(Termin.auftrag_id == auftrag.id))
-                
+    if request.method == "POST" and "loeschen" in request.form:                
         db.session.delete(auftrag)
         db.session.commit()
         flash("Auftrag erfolgreich gelöscht!", "success")
@@ -249,10 +256,10 @@ def auftrag_bearbeiten(auftrag_id):
 def historie():
     if current_user.freigegeben == False:
         return render_template("warten_auf_bestaetigung.html")
-    
-    if current_user.rolle == "Helfer":
+    erledigte_termine = []
+    if current_user.rolle == ROLLE_HELFER:
         erledigte_termine =  db.session.execute(db.select(Termin).where(Termin.helfer_id == current_user.id,Termin.complete == True).order_by(Termin.datum, Termin.uhrzeit_beginn)).scalars().all()
-    elif current_user.rolle == "PP":
+    elif current_user.rolle == ROLLE_PP:
         erledigte_termine =  db.session.execute(db.select(Termin).where(Termin.pp_id == current_user.id,Termin.complete == True).order_by(Termin.datum, Termin.uhrzeit_beginn)).scalars().all()
     return render_template("historie.html", erledigte = erledigte_termine , nutzer= current_user)
 
@@ -270,7 +277,7 @@ def termine():
     offene_termine = []
     warten_auf_antwort_termine = []
 
-    if current_user.rolle == "Helfer":
+    if current_user.rolle == ROLLE_HELFER:
         verfuegbare_auftraege = db.session.execute(db.select(Auftrag).where(Auftrag.helfer_id == current_user.id)).scalars().all()
         if verfuegbare_auftraege:
             form.teilnehmer.choices += [(a.id, f"{a.pp.vorname} {a.pp.nachname} - {a.pp.adresse}") for a in verfuegbare_auftraege]
@@ -280,7 +287,7 @@ def termine():
         bestaetigte_termine =  db.session.execute(db.select(Termin).where(Termin.helfer_id == current_user.id,Termin.complete == False,Termin.bestaetigt == True).order_by(Termin.datum, Termin.uhrzeit_beginn)).scalars().all()
         offene_termine =  db.session.execute(db.select(Termin).where(Termin.helfer_id == current_user.id,Termin.complete == False,Termin.bestaetigt == False, Termin.ersteller_id != current_user.id).order_by(Termin.datum, Termin.uhrzeit_beginn)).scalars().all()
         warten_auf_antwort_termine = db.session.execute(db.select(Termin).where(Termin.helfer_id == current_user.id,Termin.complete == False,Termin.bestaetigt == False, Termin.ersteller_id == current_user.id).order_by(Termin.datum, Termin.uhrzeit_beginn)).scalars().all()
-    elif current_user.rolle == "PP":
+    elif current_user.rolle == ROLLE_PP:
         verfuegbare_auftraege = db.session.execute(db.select(Auftrag).where(Auftrag.pp_id == current_user.id, Auftrag.angenommen == True)).scalars().all()
         if verfuegbare_auftraege:
             form.teilnehmer.choices += [(a.id, f"{a.helfer.vorname} {a.helfer.nachname}") for a in verfuegbare_auftraege]
@@ -317,6 +324,8 @@ def termine():
         if "erledigen_id" in request.form:
             termin_id = int(request.form.get("erledigen_id"))
             termin = db.session.get(Termin,termin_id)
+            if (termin.helfer_id!= current_user.id and termin.pp_id != current_user.id):
+                abort(404, description = "Termin nicht gefunden")
             if termin:
                 termin.complete = True
                 db.session.commit()
@@ -326,6 +335,8 @@ def termine():
         if "bestaetigen_id" in request.form:
             termin_id = int(request.form.get("bestaetigen_id"))
             termin = db.session.get(Termin,termin_id)
+            if (termin.helfer_id!= current_user.id and termin.pp_id != current_user.id):
+                abort(404, description = "Termin nicht gefunden")
             if termin:
                 termin.bestaetigt = True
                 db.session.commit()
@@ -335,6 +346,8 @@ def termine():
         if "ablehnen_id" in request.form:
             termin_id = int(request.form.get("ablehnen_id"))
             termin = db.session.get(Termin,termin_id)
+            if (termin.helfer_id!= current_user.id and termin.pp_id != current_user.id):
+                abort(404, description = "Termin nicht gefunden")
             if termin:
                 db.session.delete(termin)  
                 db.session.commit()
@@ -391,11 +404,11 @@ def termin(id):
     
     form = TerminBearbeitenForm(obj=termin)
 
-    if current_user.rolle == "Helfer":
+    if current_user.rolle == ROLLE_HELFER:
         verfuegbare_auftraege = db.session.execute(db.select(Auftrag).where(Auftrag.helfer_id == current_user.id)).scalars().all()
         form.teilnehmer.choices = [(a.id, f"{a.pp.vorname} {a.pp.nachname} - {a.pp.adresse}") for a in verfuegbare_auftraege]
 
-    elif current_user.rolle == "PP":
+    elif current_user.rolle == ROLLE_PP:
         verfuegbare_auftraege = db.session.execute(db.select(Auftrag).where(Auftrag.pp_id == current_user.id, Auftrag.angenommen == True)).scalars().all()
         form.teilnehmer.choices = [(a.id, f"{a.helfer.vorname} {a.helfer.nachname}") for a in verfuegbare_auftraege]
 
@@ -461,7 +474,7 @@ def helfer_auftraege():
         return render_template("warten_auf_bestaetigung.html")
     
     # Sicherheitscheck 
-    if current_user.rolle != "Helfer":
+    if current_user.rolle != ROLLE_HELFER:
         abort(403, description = "Nur Helfer können diese Seite sehen")
 
     
@@ -478,27 +491,26 @@ def auftrag_annehmen(auftrag_id):
     if current_user.freigegeben == False:
         return render_template("warten_auf_bestaetigung.html")
     
-    if current_user.rolle != "Helfer":
+    if current_user.rolle != ROLLE_HELFER:
         abort(403, description = "Nur Helfer können diese Seite sehen")
     auftrag = db.session.get(Auftrag, auftrag_id)
     if not auftrag:
         abort(404, description = "Auftrag nicht gefunden")
+    if auftrag.angenommen:
+        flash("Dieser Auftrag wurde bereits von einem anderen Helfer angenommen.","warning")
+        return redirect(url_for("helfer_auftraege"))
     auftrag.angenommen = True
     # Die Id des Nutzers wird mit dem Helfer ID gleichgesetzt 
     auftrag.helfer_id = current_user.id
     db.session.commit()
     return render_template("auftrag_angenommen.html", auftrag=auftrag)
 
-
-@app.route("/chat_uebersicht")
-@login_required
-def chat_uebersicht():
-    return redirect(url_for("chat"))
-
 @app.route("/chat")
 @app.route("/chat/<int:empfaenger_id>", methods=["GET", "POST"])
 @login_required
 def chat(empfaenger_id=None):
+    if current_user.freigegeben == False:
+        return render_template("warten_auf_bestaetigung.html")
     # Lade nur Nachrichten in die Kontaktliste, die für MICH NICHT gelöscht sind
     gesendete_nachrichten = db.session.execute(
         db.select(Nachricht).where(
@@ -547,7 +559,7 @@ def chat(empfaenger_id=None):
         ).scalars().first()
 
         if not gemeinsamer_auftrag:
-            return "Zugriff verweigert. Sie haben keine Berechtigung für diesen Chat.", 403
+            abort(404, description = "Chat nicht gefunden")
 
         if aktiver_partner and aktiver_partner not in chat_partner:
             chat_partner.append(aktiver_partner)
@@ -583,6 +595,8 @@ def chat(empfaenger_id=None):
 @app.route("/chat/loeschen/<int:partner_id>", methods=["POST"])
 @login_required
 def chat_loeschen(partner_id):
+    if current_user.freigegeben == False:
+        return render_template("warten_auf_bestaetigung.html")
     nachrichten = db.session.execute(
         db.select(Nachricht).where(
             ((Nachricht.sender_id == current_user.id) & (Nachricht.empfaenger_id == partner_id)) |
@@ -601,13 +615,13 @@ def chat_loeschen(partner_id):
 @app.route("/nutzeruebersicht", methods=["GET", "POST"])
 @login_required
 def nutzeruebersicht():
-    if current_user.rolle != "Admin":
+    if current_user.rolle != ROLLE_ADMIN:
         abort(404)
 
     nicht_freigegebene_liste = []
-    nicht_freigegebene_liste = db.session.execute(db.select(Nutzer).where(Nutzer.rolle != "Admin", Nutzer.freigegeben == False)).scalars().all()
+    nicht_freigegebene_liste = db.session.execute(db.select(Nutzer).where(Nutzer.rolle != ROLLE_ADMIN, Nutzer.freigegeben == False)).scalars().all()
     freigegebene_liste = []
-    freigegebene_liste = db.session.execute(db.select(Nutzer).where(Nutzer.rolle != "Admin", Nutzer.freigegeben == True)).scalars().all()
+    freigegebene_liste = db.session.execute(db.select(Nutzer).where(Nutzer.rolle != ROLLE_ADMIN, Nutzer.freigegeben == True)).scalars().all()
    
     if request.method == "GET":
         return(render_template("nutzer_bestaetigen.html", nicht_freigegebene = nicht_freigegebene_liste, freigegebene = freigegebene_liste))
@@ -627,7 +641,7 @@ def nutzeruebersicht():
                 nutzer.freigegeben = False
                 db.session.commit()
                 flash("Nutzer erfolgreich deaktiviert!", "success")
-        return redirect("nutzeruebersicht")
+        return redirect(url_for("nutzeruebersicht"))
 
 
 @app.errorhandler(404)
@@ -646,8 +660,8 @@ with app.app_context():
             admin = db.session.execute(db.select(Nutzer).where(Nutzer.email == "admin@email.com")).scalar()
             if not admin:
                 admin = Nutzer(
-                    vorname="Admin",
-                    nachname="Admin",
+                    vorname=ROLLE_ADMIN,
+                    nachname=ROLLE_ADMIN,
                     geschlecht="Männlich",
                     geburtsdatum=date(1995, 5, 20),
                     adresse="Hauptstraße 42",
@@ -655,9 +669,9 @@ with app.app_context():
                     ort="Berlin",
                     email="admin@email.com",
                     freigegeben=True,
-                    passwort="12345678", 
+                    passwort=generate_password_hash("12345678"), 
                     telefon="015112345678",
-                    rolle="Admin"
+                    rolle=ROLLE_ADMIN
                 )
                 db.session.add(admin)
 
@@ -666,7 +680,7 @@ with app.app_context():
             if not helfer1:
                 helfer1 = Nutzer(
                     vorname="Max",
-                    nachname="Helfer",
+                    nachname=ROLLE_HELFER,
                     geschlecht="Männlich",
                     geburtsdatum=date(2001, 3, 12),
                     adresse="Müllerstraße 20",
@@ -674,9 +688,9 @@ with app.app_context():
                     ort="Berlin",
                     email="helfer1@email.com",
                     freigegeben=True,
-                    passwort="12345678",
+                    passwort=generate_password_hash("12345678"),
                     telefon="015100000001",
-                    rolle="Helfer"
+                    rolle=ROLLE_HELFER
                 )
                 db.session.add(helfer1)
 
@@ -693,9 +707,9 @@ with app.app_context():
                     ort="Berlin",
                     email="helfer2@email.com",
                     freigegeben=True,
-                    passwort="12345678",
+                    passwort=generate_password_hash("12345678"),
                     telefon="015100000002",
-                    rolle="Helfer"
+                    rolle=ROLLE_HELFER
                 )
                 db.session.add(helfer2)
 
@@ -713,9 +727,9 @@ with app.app_context():
                     ort="Berlin",
                     email="pp1@email.com",
                     freigegeben=True,
-                    passwort="12345678",
+                    passwort=generate_password_hash("12345678"),
                     telefon="015100000003",
-                    rolle="PP"
+                    rolle = ROLLE_PP
                 )
                 db.session.add(pp1)
 
@@ -732,9 +746,9 @@ with app.app_context():
                     ort="Berlin",
                     email="pp2@email.com",
                     freigegeben=True,
-                    passwort="12345678",
+                    passwort=generate_password_hash("12345678"),
                     telefon="015100000004",
-                    rolle="PP"
+                    rolle = ROLLE_PP
                 )
                 db.session.add(pp2)
             db.session.commit()
