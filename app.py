@@ -151,8 +151,7 @@ def auftrag_erstellen():
     
     form = AuftragFormular()
     
-    vorhandener_auftrag = db.session.scalar(db.select(Auftrag).filter_by(
-                            pp_id = current_user.id, abgeschlossen = False))
+    vorhandener_auftrag = db.session.scalar(db.select(Auftrag).filter_by(pp_id = current_user.id))
     
     if vorhandener_auftrag:
         return redirect (url_for("auftrag_bearbeiten", auftrag_id = vorhandener_auftrag.id))
