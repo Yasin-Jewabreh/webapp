@@ -270,7 +270,7 @@ def termine():
 @login_required
 def termin(id):
     termin = db.session.get(Termin, id) 
-    form = TerminBearbeiternForm(obj=termin)
+    form = TerminBearbeitenForm(obj=termin)
     
     if current_user.rolle == "Helfer":
         verfuegbare_auftraege = db.session.execute(db.select(Auftrag).where(Auftrag.helfer_id == current_user.id)).scalars().all()
@@ -400,6 +400,21 @@ def chat(empfaenger_id=None):
 
     if empfaenger_id:
         aktiver_partner = db.session.get(Nutzer, empfaenger_id)
+
+        # SICHERHEITSPRÜFUNG: Nur chatten wenn ein gemeinsamer Auftrag existiert
+        gemeinsamer_auftrag = db.session.execute(
+            db.select(Auftrag).where(
+                (
+                    (Auftrag.helfer_id == current_user.id) & (Auftrag.pp_id == empfaenger_id)
+                ) | (
+                    (Auftrag.pp_id == current_user.id) & (Auftrag.helfer_id == empfaenger_id)
+                )
+            )
+        ).scalars().first()
+
+        if not gemeinsamer_auftrag:
+            return "Zugriff verweigert. Sie haben keine Berechtigung für diesen Chat.", 403
+
         if aktiver_partner and aktiver_partner not in chat_partner:
             chat_partner.append(aktiver_partner)
 
