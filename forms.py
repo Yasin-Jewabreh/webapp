@@ -18,16 +18,18 @@ def validate_email(self, field):
         if current_user.id:
             vorhandener_nutzer = db.session.scalar(db.select(Nutzer).where(Nutzer.email == field.data,Nutzer.id != current_user.id))
         else:
-            vorhandener_nutzer = db.session.scalar(db.select(Nutzer).where(Nutzer.email == field.data,Nutzer.id != current_user.id))
-        if vorhandener_nutzer:raise ValidationError("Diese E-Mail-Adresse wird bereits verwendet.")
+            vorhandener_nutzer = db.session.scalar(db.select(Nutzer).where(Nutzer.email == field.data))
+        if vorhandener_nutzer:
+            raise ValidationError("Diese E-Mail-Adresse wird bereits verwendet.")
 
 def validate_telefon(self, field):
         field.data = field.data.strip().lower()
         if current_user.id:
             vorhandener_nutzer = db.session.scalar(db.select(Nutzer).where(Nutzer.telefon == field.data,Nutzer.id != current_user.id))
         else:
-            vorhandener_nutzer = db.session.scalar(db.select(Nutzer).where(Nutzer.telefon == field.data,Nutzer.id != current_user.id))
-        if vorhandener_nutzer:raise ValidationError("Diese Telefonnummer ist bereits vergeben.")
+            vorhandener_nutzer = db.session.scalar(db.select(Nutzer).where(Nutzer.telefon == field.data))
+        if vorhandener_nutzer:
+            raise ValidationError("Diese Telefonnummer ist bereits vergeben.")
        
 def check_geburtsdatum(self, field):
     if field.data: 
