@@ -378,7 +378,6 @@ def meine_auftraege():
 @app.route("/helfer/auftrag/<int:auftrag_id>")
 @login_required
 def auftrag_annehmen(auftrag_id):
-def auftrag_annehmen(auftrag_id):
     if current_user.freigegeben == False:
         return render_template("warten_auf_bestaetigung.html")
     
@@ -593,7 +592,7 @@ def nutzeruebersicht():
                 flash("Nutzer erfolgreich deaktiviert!", "success")
         return redirect("nutzeruebersicht")
 
-'''
+
 @app.errorhandler(404)
 def http_not_found(e):
     return render_template('404.html', message = e.description), 404
