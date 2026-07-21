@@ -632,25 +632,6 @@ def helfer_auftraege():
     heute = date.today()
     return render_template("helfer_auftraege.html", auftraege=offene_auftraege, heute=heute)
 
-@app.route("/helfer/auftrag/<int:auftrag_id>", methods= ["POST"])
-@login_required
-def auftrag_annehmen(auftrag_id):
-    if current_user.freigegeben == False:
-        return render_template("warten_auf_bestaetigung.html")
-    
-    if current_user.rolle != ROLLE_HELFER:
-        abort(403, description = "Nur Helfer können diese Seite sehen")
-    auftrag = db.session.get(Auftrag, auftrag_id)
-    if not auftrag:
-        abort(404, description = "Auftrag nicht gefunden")
-    if auftrag.angenommen:
-        flash("Dieser Auftrag wurde bereits von einem anderen Helfer angenommen.","warning")
-        return redirect(url_for("helfer_auftraege"))
-    auftrag.angenommen = True
-    # Die Id des Nutzers wird mit dem Helfer ID gleichgesetzt 
-    auftrag.helfer_id = current_user.id
-    db.session.commit()
-    return render_template("auftrag_angenommen.html", auftrag=auftrag)
 
 @app.route("/chat")
 @app.route("/chat/<int:empfaenger_id>", methods=["GET", "POST"])
