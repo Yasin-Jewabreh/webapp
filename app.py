@@ -410,6 +410,17 @@ def termin(id):
             flash("Nichts passiert", "info")
             return redirect(url_for('termin', id=id))
         
+@app.route("/meine_auftraege")
+@login_required
+def meine_auftraege():
+    if current_user.freigegeben == False:
+        return render_template("warten_auf_bestaetigung.html")
+    
+    # Filtert die Aufträge die angenommen wurden und die Helfer ID mit dem Nutzer ID übereinstimmt 
+    statement = db.select(Auftrag).filter_by(angenommen=True, helfer_id =current_user.id)
+    
+    meine = db.session.scalars(statement).all()
+    return render_template("meine_auftraege.html", auftraege=meine) 
 
 @app.route("/helfer/auftraege")
 @login_required
@@ -565,43 +576,102 @@ def chat_loeschen(partner_id):
 
 
 with app.app_context():
-        admin = db.session.execute(db.select(Nutzer).where(Nutzer.email == "admin@email.com")).scalar()
-        if admin:
-            db.session.delete(admin)
+            admin = db.session.execute(db.select(Nutzer).where(Nutzer.email == "admin@email.com")).scalar()
+            if not admin:
+                admin = Nutzer(
+                    vorname="Admin",
+                    nachname="Admin",
+                    geschlecht="Männlich",
+                    geburtsdatum=date(1995, 5, 20),
+                    adresse="Hauptstraße 42",
+                    plz="10115",
+                    ort="Berlin",
+                    email="admin@email.com",
+                    freigegeben=True,
+                    passwort="12345678", 
+                    telefon="015112345678",
+                    rolle="Admin"
+                )
+                db.session.add(admin)
+
+            helfer1 = db.session.execute(db.select(Nutzer).where(Nutzer.email == "helfer1@email.com")).scalar()
+            
+            if not helfer1:
+                helfer1 = Nutzer(
+                    vorname="Max",
+                    nachname="Helfer",
+                    geschlecht="Männlich",
+                    geburtsdatum=date(2001, 3, 12),
+                    adresse="Müllerstraße 20",
+                    plz="13353",
+                    ort="Berlin",
+                    email="helfer1@email.com",
+                    freigegeben=True,
+                    passwort="12345678",
+                    telefon="015100000001",
+                    rolle="Helfer"
+                )
+                db.session.add(helfer1)
+
+
+            helfer2 = db.session.execute(db.select(Nutzer).where(Nutzer.email == "helfer2@email.com")).scalar()
+            if not helfer2:
+                helfer2 = Nutzer(
+                    vorname="Lena",
+                    nachname="Hilfsbereit",
+                    geschlecht="Weiblich",
+                    geburtsdatum=date(2000, 8, 25),
+                    adresse="Turmstraße 15",
+                    plz="10559",
+                    ort="Berlin",
+                    email="helfer2@email.com",
+                    freigegeben=True,
+                    passwort="12345678",
+                    telefon="015100000002",
+                    rolle="Helfer"
+                )
+                db.session.add(helfer2)
+
+
+            pp1 = db.session.execute(db.select(Nutzer).where(Nutzer.email == "pp1@email.com")).scalar()
+
+            if not pp1:
+                pp1 = Nutzer(
+                    vorname="Maria",
+                    nachname="Mustermann",
+                    geschlecht="Weiblich",
+                    geburtsdatum=date(1948, 6, 10),
+                    adresse="Alt-Moabit 80",
+                    plz="10555",
+                    ort="Berlin",
+                    email="pp1@email.com",
+                    freigegeben=True,
+                    passwort="12345678",
+                    telefon="015100000003",
+                    rolle="PP"
+                )
+                db.session.add(pp1)
+
+
+            pp2 = db.session.execute(db.select(Nutzer).where(Nutzer.email == "pp2@email.com")).scalar()
+            if not pp2:
+                pp2 = Nutzer(
+                    vorname="Peter",
+                    nachname="Beispiel",
+                    geschlecht="Männlich",
+                    geburtsdatum=date(1952, 11, 4),
+                    adresse="Invalidenstraße 30",
+                    plz="10115",
+                    ort="Berlin",
+                    email="pp2@email.com",
+                    freigegeben=True,
+                    passwort="12345678",
+                    telefon="015100000004",
+                    rolle="PP"
+                )
+                db.session.add(pp2)
             db.session.commit()
-            admin = Nutzer(
-                vorname="Admin",
-                nachname="Admin",
-                geschlecht="Männlich",
-                geburtsdatum=date(1995, 5, 20),
-                adresse="Hauptstraße 42",
-                plz="10115",
-                ort="Berlin",
-                email="admin@email.com",
-                freigegeben=True,
-                passwort="12345678", 
-                telefon="015112345678",
-                rolle="Admin"
-            )
-            db.session.add(admin)
-            db.session.commit()
-        else:
-            admin = Nutzer(
-                vorname="Admin",
-                nachname="Admin",
-                geschlecht="Männlich",
-                geburtsdatum=date(1995, 5, 20),
-                adresse="Hauptstraße 42",
-                plz="10115",
-                ort="Berlin",
-                email="admin@email.com",
-                freigegeben=True,
-                passwort="12345678", 
-                telefon="015112345678",
-                rolle="Admin"
-            )
-            db.session.add(admin)
-            db.session.commit()  
+
 
 @app.route("/nutzeruebersicht", methods=["GET", "POST"])
 @login_required
