@@ -456,6 +456,21 @@ def chat_uebersicht():
 @app.route("/chat/<int:empfaenger_id>", methods=["GET", "POST"])
 @login_required
 def chat(empfaenger_id=None):
+    # Lade nur Nachrichten in die Kontaktliste, die für MICH NICHT gelöscht sind
+    gesendete_nachrichten = db.session.execute(
+        db.select(Nachricht).where(
+            (Nachricht.sender_id == current_user.id) &
+            (Nachricht.geloescht_fuer_sender.is_(False))
+        )
+    ).scalars().all()
+
+    empfangene_nachrichten = db.session.execute(
+        db.select(Nachricht).where(
+            (Nachricht.empfaenger_id == current_user.id) &
+            (Nachricht.geloescht_fuer_empfaenger.is_(False))
+        )
+    ).scalars().all()
+
     if current_user.freigegeben == False:
         return render_template("warten_auf_bestaetigung.html")
     gesendete_nachrichten = Nachricht.query.filter_by(sender_id=current_user.id).all()
@@ -466,17 +481,39 @@ def chat(empfaenger_id=None):
         partner_ids.add(n.empfaenger_id)
     for n in empfangene_nachrichten:
         partner_ids.add(n.sender_id)
-    
+
     partner_ids.discard(current_user.id)
-    chat_partner = Nutzer.query.filter(Nutzer.id.in_(partner_ids)).all() if partner_ids else []
+
+    if partner_ids:
+        chat_partner = db.session.execute(
+            db.select(Nutzer).where(Nutzer.id.in_(partner_ids))
+        ).scalars().all()
+    else:
+        chat_partner = []
 
     aktiver_partner = None
     nachrichten = []
-    
+
     if empfaenger_id:
         aktiver_partner = db.session.get(Nutzer, empfaenger_id)
+
+        # SICHERHEITSPRÜFUNG: Nur chatten wenn ein gemeinsamer Auftrag existiert
+        gemeinsamer_auftrag = db.session.execute(
+            db.select(Auftrag).where(
+                (
+                    (Auftrag.helfer_id == current_user.id) & (Auftrag.pp_id == empfaenger_id)
+                ) | (
+                    (Auftrag.pp_id == current_user.id) & (Auftrag.helfer_id == empfaenger_id)
+                )
+            )
+        ).scalars().first()
+
+        if not gemeinsamer_auftrag:
+            return "Zugriff verweigert. Sie haben keine Berechtigung für diesen Chat.", 403
+
         if aktiver_partner and aktiver_partner not in chat_partner:
             chat_partner.append(aktiver_partner)
+
         if request.method == "POST" and request.form.get("inhalt"):
             neue_nachricht = Nachricht(
                 inhalt=request.form["inhalt"],
@@ -487,10 +524,21 @@ def chat(empfaenger_id=None):
             db.session.add(neue_nachricht)
             db.session.commit()
             return redirect(url_for("chat", empfaenger_id=empfaenger_id))
-        nachrichten = Nachricht.query.filter(
-            ((Nachricht.sender_id == current_user.id) & (Nachricht.empfaenger_id == empfaenger_id)) |
-            ((Nachricht.sender_id == empfaenger_id) & (Nachricht.empfaenger_id == current_user.id))
-        ).order_by(Nachricht.zeitstempel.asc()).all()
+
+        # Lade in den Chatverlauf nur Nachrichten, die ICH noch nicht gelöscht habe
+        nachrichten = db.session.execute(
+            db.select(Nachricht).where(
+                (
+                    (Nachricht.sender_id == current_user.id) &
+                    (Nachricht.empfaenger_id == empfaenger_id) &
+                    (Nachricht.geloescht_fuer_sender.is_(False))
+                ) | (
+                    (Nachricht.sender_id == empfaenger_id) &
+                    (Nachricht.empfaenger_id == current_user.id) &
+                    (Nachricht.geloescht_fuer_empfaenger.is_(False))
+                )
+            ).order_by(Nachricht.zeitstempel.asc())
+        ).scalars().all()
 
     return render_template("chat.html", chat_partner=chat_partner, aktiver_partner=aktiver_partner, nachrichten=nachrichten)
 
@@ -499,11 +547,14 @@ def chat(empfaenger_id=None):
 def chat_loeschen(partner_id):
     if current_user.freigegeben == False:
         return render_template("warten_auf_bestaetigung.html")
-    
-    nachrichten = Nachricht.query.filter(
-        ((Nachricht.sender_id == current_user.id) & (Nachricht.empfaenger_id == partner_id)) |
-        ((Nachricht.sender_id == partner_id) & (Nachricht.empfaenger_id == current_user.id))
-    ).all()
+      
+    nachrichten = db.session.execute(
+        db.select(Nachricht).where(
+            ((Nachricht.sender_id == current_user.id) & (Nachricht.empfaenger_id == partner_id)) |
+            ((Nachricht.sender_id == partner_id) & (Nachricht.empfaenger_id == current_user.id))
+        )
+    ).scalars().all()
+   
     for n in nachrichten:
         if n.sender_id == current_user.id:
             n.geloescht_fuer_sender = True
