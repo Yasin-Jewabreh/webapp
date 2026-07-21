@@ -26,7 +26,7 @@ class RegistrierungFormular(FlaskForm):
     passwort = PasswordField("Passwort:", validators=[InputRequired(), Length(min=8, message = "Das Passwort muss mindestens 8 Zeichen lang sein!")])
     passwort_wiederholen = PasswordField("Passwort wiederholen:", validators=[InputRequired(), EqualTo("passwort", message = "Die Passwörter müssen übereinstimmen!")])
     telefon = StringField("Telefon:", validators=[InputRequired()])
-    profil_text = TextAreaField("Kurze Vorstellung über dich", validators=[Optional(), Length(max=700)],render_kw={"rows": 4, "placeholder": "Erzähle kurz, wer du bist und wie du helfen möchtest..."})
+    vorstellungstext = TextAreaField("Kurze Vorstellung über dich", validators=[Optional(), Length(max=700)],render_kw={"rows": 4, "placeholder": "Erzähle kurz, wer du bist und wie du helfen möchtest..."})
     registrieren = SubmitField("Registrieren")
 
 class LoginFormular(FlaskForm):
@@ -103,7 +103,7 @@ class ProfilFormular(FlaskForm):
     adresse = StringField('Adresse', validators=[DataRequired(message="Bitte Adresse eingeben.")])
     plz = StringField('PLZ', validators=[DataRequired(message="Bitte PLZ eingeben.")])
     ort = StringField('Ort', validators=[DataRequired(message="Bitte Ort eingeben.")])
-    profil_text = TextAreaField("Kurze Vorstellung über dich", validators=[Optional(), Length(max=700)],render_kw={"rows": 4, "placeholder": "Erzähle kurz, wer du bist und wie du helfen möchtest..."})
+    vorstellungstext = TextAreaField("Kurze Vorstellung über dich", validators=[Optional(), Length(max=700)],render_kw={"rows": 4, "placeholder": "Erzähle kurz, wer du bist und wie du helfen möchtest..."})
     submit = SubmitField('Änderungen speichern')
     
     

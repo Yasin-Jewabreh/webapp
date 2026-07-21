@@ -21,7 +21,7 @@ class Nutzer(db.Model, UserMixin):
     passwort = db.Column(db.String(), nullable=False)
     telefon = db.Column(db.String(30), nullable=False, unique=True)
     rolle = db.Column(db.String(), nullable=False, index=True)
-    vortellungstext = db.Column(db.String(700), nullable=True)
+    vorstellungstext = db.Column(db.String(700), nullable=True)
     bewerbungen = db.relationship('Bewerbung', back_populates='helfer', cascade="all, delete-orphan")
 
     @property

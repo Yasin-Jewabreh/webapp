@@ -69,7 +69,7 @@ def register():
             telefon=form.telefon.data,
             passwort=form.passwort.data,
             rolle=gewaehlte_rolle,
-            profil_text = form.profil_text.data if gewaehlte_rolle == "Helfer" else None
+            vorstellungstext = form.vorstellungstext.data if gewaehlte_rolle == "Helfer" else None
         )
         db.session.add(neuer_nutzer)
         db.session.commit()
@@ -116,7 +116,7 @@ def profil():
         current_user.ort = form.ort.data
 
         if current_user.rolle == 'Helfer':
-            current_user_profil_text = form.profil_text.data
+            current_user.vorstellungstext = form.vorstellungstext.data
 
         db.session.commit()
         flash("Profil erfolgreich aktualisiert!", "success")
@@ -131,7 +131,7 @@ def profil():
         form.ort.data = current_user.ort
 
         if current_user.rolle == 'Helfer':
-            form.profil_text.data = current_user.profil_text
+            form.vorstellungstext.data = current_user.vorstellungstext
 
     return render_template("profil.html", form=form)
 
@@ -152,8 +152,8 @@ def auftrag_erstellen():
     
     form = AuftragFormular()
     
-    vorhandener_auftrag = db.session.scalar(db.select(Auftrag).filter_by(
-                            pp_id = current_user.id, status = "Offen"))
+    vorhandener_auftrag = db.session.scalar(db.select(Auftrag).where(
+                            pp_id = current_user.id, status = ["Offen", "Angenommen"]))
     
     if vorhandener_auftrag:
         return redirect (url_for("auftrag_bearbeiten", auftrag_id = vorhandener_auftrag.id))
@@ -477,7 +477,7 @@ def pp_anfragen():
     
     anfragen = db.session.execute(
         db.select(Auftrag).where(Auftrag.pp_id == current_user.id)).scalars().all()
-    
+        
     return render_template("pp_anfragen.html", anfragen=anfragen)
 
 
@@ -553,6 +553,8 @@ def chat_loeschen(partner_id):
     db.session.commit()
     return redirect(url_for("chat", empfaenger_id=partner_id))
 '''
+
+
 @app.errorhandler(404)
 def http_not_found(e):
     return render_template('404.html', message = e.description), 404
@@ -566,4 +568,4 @@ def http_access_denied(e):
     return render_template('403.html', message = e.description), 403
 
 if __name__ == "__main__":
-    app.run(debug=True, port = 5001)
+    app.run(debug=True, port = 5002)
