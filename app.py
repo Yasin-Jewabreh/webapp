@@ -5,7 +5,7 @@ from forms import TerminBearbeitenForm, TerminErstellenForm, RollenWahlForm, Reg
 from flask import Flask, render_template, redirect, url_for, request, session, flash, abort, send_from_directory
 from flask_bootstrap import Bootstrap5
 from db import db
-from models import Nutzer, Auftrag, Termin, Nachricht, berlin_time
+from models import Nutzer, Auftrag, Termin, Nachricht, berlin_time, Bewerbung
 from werkzeug.utils import secure_filename
 from werkzeug.security import generate_password_hash, check_password_hash
 
@@ -249,7 +249,66 @@ def auftrag_bearbeiten(auftrag_id):
         form.bestaetigung.data = True
     
     return render_template("auftrag_bearbeiten.html", form=form, nutzer=current_user, auftrag=auftrag)
+@app.route("/auftrag/bewerben/<int:auftrag_id>", methods=["POST"])
+@login_required
+def auftrag_bewerben(auftrag_id):
+    stmt = db.select(Auftrag).where(Auftrag.id == auftrag_id)
+    auftrag = db.session.scalar(stmt)
 
+    if current_user.rolle != "Helfer":
+        abort(403, description="Nur Helfer können sich bewerben.")
+        
+    if not auftrag:
+        abort(404, description="Auftrag nicht gefunden.")
+    
+    if auftrag.angenommen:
+        flash("Dieser Auftrag ist leider nicht mehr offen.", "danger")
+        return redirect(url_for("dashboard"))
+    
+    stmt_check = db.select(Bewerbung).where(
+        Bewerbung.auftrag_id == auftrag_id,
+        Bewerbung.helfer_id == current_user.id)
+    
+    bereits_beworben = db.session.scalar(stmt_check)
+
+    if bereits_beworben:
+        flash("Du hast dich auf diesen Auftrag bereits beworben!", "info")
+    else:
+        neue_bewerbung = Bewerbung(auftrag_id=auftrag.id, helfer_id=current_user.id)
+        db.session.add(neue_bewerbung)
+        db.session.commit()
+        flash("Deine Bewerbung wurde erfolgreich verschickt!", "success")
+
+    return redirect(url_for("dashboard"))
+
+@app.route("/pp/anfragen", methods=["GET", "POST"])
+@login_required
+def pp_anfragen():
+    if current_user.rolle != "PP":
+        abort(403, description="Nur Pflegebedürftige können diese Seite sehen")
+    
+    if request.method == "POST":
+        auftrag_id = int(request.form.get("auftrag_id"))
+        aktion = request.form.get("aktion")
+        
+        helfer_id = request.form.get("helfer_id")   
+        auftrag = db.session.get(Auftrag, auftrag_id)
+
+        if auftrag and auftrag.pp_id == current_user.id:
+            if aktion == "Annehmen" and helfer_id:
+                auftrag.helfer_id = int(helfer_id)
+                auftrag.angenommen = True 
+                db.session.commit()
+                flash("Bewerbung angenommen!", "success")
+            elif aktion == "Ablehnen":
+                flash("Bewerbung abgelehnt.", "info")
+                
+        return redirect(url_for("pp_anfragen"))
+    
+    anfragen = db.session.execute(
+        db.select(Auftrag).where(Auftrag.pp_id == current_user.id)).scalars().all()
+        
+    return render_template("pp_anfragen.html", anfragen=anfragen)
 
 @app.route("/termine/historie/")
 @login_required
