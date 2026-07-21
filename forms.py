@@ -1,7 +1,7 @@
 from datetime import date
 from flask_wtf import FlaskForm
 from wtforms import SelectField, TextAreaField, SubmitField, BooleanField, DateField, TimeField, HiddenField, TextAreaField, EmailField, PasswordField, StringField
-from wtforms.validators import DataRequired, Length, InputRequired, Optional, ValidationError, Email, EqualTo
+from wtforms.validators import DataRequired, Length, InputRequired, Optional, Regexp, ValidationError, Email, EqualTo
 from datetime import date, datetime
 from flask_wtf.file import FileField, FileRequired, FileAllowed
 from flask_login import current_user
@@ -45,12 +45,12 @@ class RegistrierungFormular(FlaskForm):
     geschlecht = SelectField("Geschlecht:", validators=[DataRequired()],choices = [("","--Bitte wählen--"), ("M", "Männlich"), ("W","Weiblich"), ("D", "Divers")])
     geburtsdatum = DateField("Geburtsdatum",validators=[InputRequired(), check_geburtsdatum], format='%Y-%m-%d')
     adresse = StringField("Adresse:", validators=[InputRequired()], filters=[strip_text])
-    plz = StringField("Postleitzahl:", validators=[InputRequired()],filters=[strip_text])
+    plz = StringField("Postleitzahl:", validators=[InputRequired(), Regexp(r"^\d{5}$",message="Die PLZ muss aus genau 5 Ziffern bestehen.")],filters=[strip_text])
     ort = SelectField("Ort:", validators=[InputRequired()], choices = [("","--Bitte wählen--"), ("Berlin", "Berlin")])
     email = EmailField("Email:", validators=[InputRequired(), validate_email, Email(message="Bitte gib eine gültige E-Mail-Adresse ein.")], filters=[strip_text])
     passwort = PasswordField("Passwort:", validators=[InputRequired(), Length(min=8, message = "Das Passwort muss mindestens 8 Zeichen lang sein!")])
     passwort_wiederholen = PasswordField("Passwort wiederholen:", validators=[InputRequired(), EqualTo("passwort", message = "Die Passwörter müssen übereinstimmen!")])
-    telefon = StringField("Telefon:", validators=[InputRequired(), validate_telefon], filters=[strip_text])
+    telefon = StringField('Telefonnummer', validators=[validate_telefon,Regexp(r"^\d+$", message="Die Telefonnummer darf nur aus Ziffern bestehen."),Length(min=7,max=15,message="Die Telefonnummer muss zwischen 7 und 15 Ziffern lang sein."), DataRequired(message="Bitte Telefonnummer eingeben.")], filters=[strip_text])
     
 class RegistrierungPP(RegistrierungFormular):
     registrieren = SubmitField("Registrieren")
@@ -139,8 +139,8 @@ class ProfilFormular(FlaskForm):
     vorname = StringField('Vorname', validators=[DataRequired(message="Bitte Vornamen eingeben.")], filters=[strip_text])
     nachname = StringField('Nachname', validators=[DataRequired(message="Bitte Nachnamen eingeben.")], filters=[strip_text])
     email = EmailField("Email:", validators=[InputRequired(),validate_email, Email(message="Bitte gib eine gültige E-Mail-Adresse ein.")],filters=[strip_text])
-    telefon = StringField('Telefonnummer', validators=[validate_telefon,DataRequired(message="Bitte Telefonnummer eingeben.")], filters=[strip_text])
+    telefon = StringField('Telefonnummer', validators=[validate_telefon,Regexp(r"^\d+$", message="Die Telefonnummer darf nur aus Ziffern bestehen."),Length(min=7,max=15,message="Die Telefonnummer muss zwischen 7 und 15 Ziffern lang sein."), DataRequired(message="Bitte Telefonnummer eingeben.")], filters=[strip_text])
     adresse = StringField('Adresse', validators=[DataRequired(message="Bitte Adresse eingeben.")], filters=[strip_text])
-    plz = StringField('PLZ', validators=[DataRequired(message="Bitte PLZ eingeben.")], filters=[strip_text])
+    plz = StringField("Postleitzahl:", validators=[InputRequired(), Regexp(r"^\d{5}$",message="Die PLZ muss aus genau 5 Ziffern bestehen.")],filters=[strip_text])
     vorstellungstext = TextAreaField("Über mich", validators=[validate_vorstellungstext, Length(max=500, message="Die Beschreibung darf maximal 500 Zeichen lang sein.")])
     submit = SubmitField('Änderungen speichern')
