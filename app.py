@@ -53,7 +53,7 @@ def rolle_waehlen():
 def register():
     form = RegistrierungFormular()
     if form.validate_on_submit():
-        gewaehlte_rolle = session.get("rollenwahl", "PP")
+        gewaehlte_rolle = session.get("rollenwahl")
         neuer_nutzer = Nutzer(
             vorname=form.vorname.data,
             nachname=form.nachname.data,
