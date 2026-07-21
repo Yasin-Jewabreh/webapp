@@ -15,7 +15,7 @@ class RollenWahlForm(FlaskForm):
 
 def validate_email(self, field):
         field.data = field.data.strip().lower()
-        if current_user.id:
+        if current_user.is_authenticated:
             vorhandener_nutzer = db.session.scalar(db.select(Nutzer).where(Nutzer.email == field.data,Nutzer.id != current_user.id))
         else:
             vorhandener_nutzer = db.session.scalar(db.select(Nutzer).where(Nutzer.email == field.data))
@@ -24,7 +24,7 @@ def validate_email(self, field):
 
 def validate_telefon(self, field):
         field.data = field.data.strip().lower()
-        if current_user.id:
+        if current_user.is_authenticated:
             vorhandener_nutzer = db.session.scalar(db.select(Nutzer).where(Nutzer.telefon == field.data,Nutzer.id != current_user.id))
         else:
             vorhandener_nutzer = db.session.scalar(db.select(Nutzer).where(Nutzer.telefon == field.data))
