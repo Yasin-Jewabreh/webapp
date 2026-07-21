@@ -1,7 +1,7 @@
 from datetime import date, datetime
 import os
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
-from forms import TerminBearbeitenForm, TerminErstellenForm, RollenWahlForm, RegistrierungFormular, LoginFormular, AuftragFormular, ProfilFormular
+from forms import TerminBearbeitenForm, TerminErstellenForm, RollenWahlForm, RegistrierungPP, LoginFormular, AuftragFormular, ProfilFormular, RegistrierungHelfer
 from flask import Flask, render_template, redirect, url_for, request, session, flash, abort
 from flask_bootstrap import Bootstrap5
 from db import db
@@ -56,33 +56,55 @@ def register():
     if not gewaehlte_rolle:
         return redirect(url_for("rolle_waehlen"))
     
-    form = RegistrierungFormular()
-    if form.validate_on_submit():
-        neuer_nutzer = Nutzer(
-            vorname=form.vorname.data,
-            nachname=form.nachname.data,
-            geschlecht=form.geschlecht.data,
-            geburtsdatum=form.geburtsdatum.data,
-            adresse=form.adresse.data,
-            plz=form.plz.data,
-            ort=form.ort.data,
-            email=form.email.data,
-            telefon=form.telefon.data,
-            passwort=form.passwort.data,
-            rolle=gewaehlte_rolle
-        )
-        db.session.add(neuer_nutzer)
-        db.session.flush()
+    helfer_form = RegistrierungHelfer()
+    pp_form = RegistrierungPP()
 
-        f = form.fuehrungszeugnis.data
-        filename = secure_filename(f.filename)
-        filename.append(neuer_nutzer.id)
-        f.save(os.path.join(app.instance_path, "fuehrungszeugnisse", filename))
-        neuer_nutzer.fuehrungszeugnis_dateiname = filename
-        db.session.commit()
+    if gewaehlte_rolle == "Helfer":
+        if helfer_form.validate_on_submit():
+            neuer_nutzer = Nutzer(
+                vorname=helfer_form.vorname.data,
+                nachname=helfer_form.nachname.data,
+                geschlecht=helfer_form.geschlecht.data,
+                geburtsdatum=helfer_form.geburtsdatum.data,
+                adresse=helfer_form.adresse.data,
+                plz=helfer_form.plz.data,
+                ort=helfer_form.ort.data,
+                email=helfer_form.email.data,
+                telefon=helfer_form.telefon.data,
+                passwort=helfer_form.passwort.data,
+                rolle=gewaehlte_rolle,
+                vorstellungstext = helfer_form.vorstellungstext.data
+            )
+            db.session.add(neuer_nutzer)
+            db.session.flush()
+
+            f = helfer_form.fuehrungszeugnis.data
+            filename = f"{neuer_nutzer.id}_{secure_filename(f.filename)}"
+            f.save(os.path.join(app.instance_path, "fuehrungszeugnisse", filename))
+            neuer_nutzer.fuehrungszeugnis_dateiname = filename
+            db.session.commit()
+    elif gewaehlte_rolle == "PP":
+        if pp_form.validate_on_submit():
+            neuer_nutzer = Nutzer(
+                vorname=pp_form.vorname.data,
+                nachname=pp_form.nachname.data,
+                geschlecht=pp_form.geschlecht.data,
+                geburtsdatum=pp_form.geburtsdatum.data,
+                adresse=pp_form.adresse.data,
+                plz=pp_form.plz.data,
+                ort=pp_form.ort.data,
+                email=pp_form.email.data,
+                telefon=pp_form.telefon.data,
+                passwort=pp_form.passwort.data,
+                rolle=gewaehlte_rolle
+            )
+            db.session.add(neuer_nutzer)
+            db.session.commit()
+
         
+
         return redirect(url_for("login"))
-    return render_template("register.html", form=form, rolle = gewaehlte_rolle)
+    return render_template("register.html", helfer_form =helfer_form, pp_form = pp_form, rolle = gewaehlte_rolle)
 
 @app.route("/login", methods=["GET", "POST"])
 def login():

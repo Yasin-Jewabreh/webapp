@@ -20,6 +20,7 @@ class Nutzer(db.Model, UserMixin):
     telefon = db.Column(db.String(30), nullable=False, unique=True)
     rolle = db.Column(db.String(), nullable=False, index=True)
     fuehrungszeugnis_dateiname = db.Column(db.String(255),nullable=True)
+    vorstellungstext = db.Column(db.String(500), nullable = True)
 
 class Auftrag(db.Model):
     __tablename__ = "auftrag"

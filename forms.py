@@ -26,7 +26,13 @@ class RegistrierungFormular(FlaskForm):
     passwort = PasswordField("Passwort:", validators=[InputRequired(), Length(min=8, message = "Das Passwort muss mindestens 8 Zeichen lang sein!")])
     passwort_wiederholen = PasswordField("Passwort wiederholen:", validators=[InputRequired(), EqualTo("passwort", message = "Die Passwörter müssen übereinstimmen!")])
     telefon = StringField("Telefon:", validators=[InputRequired()])
+    
+class RegistrierungPP(RegistrierungFormular):
+    registrieren = SubmitField("Registrieren")
+
+class RegistrierungHelfer(RegistrierungFormular):  
     fuehrungszeugnis = FileField("Führungszeugnis", validators=[FileRequired(), FileAllowed(['pdf'])])
+    vorstellungstext = TextAreaField("Über mich", validators=[DataRequired(message="Bitte erzähle etwas über dich. Dieser Text wird angezeigt, wenn du dich für einen Auftrag bewirbst."),                                                    Length(max=500, message="Die Beschreibung darf maximal 500 Zeichen lang sein.")])
     registrieren = SubmitField("Registrieren")
 
 
