@@ -392,19 +392,6 @@ def auftrag_annehmen(auftrag_id):
     return render_template("auftrag_angenommen.html", auftrag=auftrag)
 
 
-@app.route("/meine_auftraege")
-@login_required
-def meine_auftraege():
-    if current_user.freigegeben == False:
-        return render_template("warten_auf_bestaetigung.html")
-    
-    # Filtert die Aufträge die angenommen wurden und die Helfer ID mit dem Nutzer ID übereinstimmt 
-    statement = db.select(Auftrag).filter_by(angenommen=True, helfer_id =current_user.id)
-    
-    meine = db.session.scalars(statement).all()
-    return render_template("meine_auftraege.html", auftraege=meine) 
-
-
 @app.route("/chat_uebersicht")
 @login_required
 def chat_uebersicht():
