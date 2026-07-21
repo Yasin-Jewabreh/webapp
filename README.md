@@ -58,9 +58,21 @@ Die Anwendung unterscheidet zwischen:
 
 Zusätzlich verhindert eine Überschneidungsprüfung, dass für dieselben Beteiligten gleichzeitig mehrere Termine angelegt werden.
 
+Wird ein Auftrag gelöscht, bleiben die bereits vorhandenen Termine absichtlich in der Datenbank erhalten.
+
+Dadurch bleiben vergangene und erledigte Termine weiterhin in der Historie nachvollziehbar.
+
+Da der zugehörige Auftrag nicht mehr existiert, können diese Termine anschließend nicht mehr bearbeitet werden.
+
 ### Integriertes Chat-System
 
 Nach der Zuordnung können Helfer und pflegebedürftige Person direkt miteinander kommunizieren.
+
+Der Helfer muss die pflegebedürftige Person zuerst kontaktieren.
+
+Die pflegebedürftige Person kann den Chat daher nicht selbstständig beginnen.
+
+Sobald der Helfer die erste Nachricht gesendet hat, kann die pflegebedürftige Person auf die Nachricht antworten.
 
 Der Chat bietet:
 
@@ -69,7 +81,13 @@ Der Chat bietet:
 - eine unterschiedliche Ausrichtung für eigene und empfangene Nachrichten,
 - eine Soft-Delete-Funktion zum Leeren des eigenen Chatverlaufs.
 
-Ein Chat ist nur möglich, wenn zwischen den beiden Nutzern ein gemeinsamer angenommener Auftrag besteht.
+Ein neuer Chat ist nur möglich, wenn zwischen den beiden Nutzern ein gemeinsamer angenommener Auftrag besteht.
+
+Wird ein Auftrag gelöscht, bleiben die bereits geschriebenen Nachrichten absichtlich in der Datenbank erhalten.
+
+Der bisherige Chatverlauf kann weiterhin angezeigt werden.
+
+Da kein gemeinsamer Auftrag mehr existiert, können anschließend keine neuen Nachrichten mehr gesendet werden.
 
 ### Profilverwaltung
 
@@ -95,6 +113,18 @@ Die Anwendung verwendet:
 - rollenbasierte Zugriffskontrollen,
 - CSRF-Schutz über Flask-WTF.
 
+## Verwendete Technologien
+
+- Python
+- Flask
+- Flask-SQLAlchemy
+- Flask-Login
+- Flask-WTF
+- Bootstrap 5
+- SQLite
+- Jinja2
+- Werkzeug
+
 ## Installation
 
 ### 1. Repository klonen
@@ -110,13 +140,19 @@ cd Projekt_Team14
 python -m venv venv
 ```
 
-### 3. Abhängigkeiten installieren
+### 3. Virtuelle Umgebung unter Windows aktivieren
+
+```powershell
+.\venv\Scripts\Activate.ps1
+```
+
+### 4. Abhängigkeiten installieren
 
 ```bash
 python -m pip install -r requirements.txt
 ```
 
-### 4. Anwendung starten
+### 5. Anwendung starten
 
 ```bash
 python app.py
@@ -152,17 +188,44 @@ http://127.0.0.1:5000
 18. Als pflegebedürftige Person anmelden.
 19. Die eingegangenen Bewerbungen öffnen.
 20. Die Bewerbung des Helfers annehmen.
-21. Den Chat öffnen.
-22. Eine Testnachricht senden.
-23. In der Terminübersicht einen Termin anfragen.
-24. Ausloggen.
-25. Als Helfer anmelden.
-26. Die Nachricht im Chat beantworten.
-27. Den vorgeschlagenen Termin bestätigen oder ablehnen.
-28. Weitere Termine anfragen.
-29. Termine bearbeiten oder löschen.
-30. Einen Termin als erledigt markieren.
-31. Den abgeschlossenen Termin über die Historie erneut ansehen.
+21. Ausloggen.
+22. Als Helfer anmelden.
+23. Den Chat mit der pflegebedürftigen Person öffnen.
+24. Als Helfer die erste Testnachricht senden.
+25. Ausloggen.
+26. Als pflegebedürftige Person anmelden.
+27. Den vorhandenen Chat öffnen.
+28. Auf die Nachricht des Helfers antworten.
+29. In der Terminübersicht einen Termin anfragen.
+30. Ausloggen.
+31. Als Helfer anmelden.
+32. Den vorgeschlagenen Termin bestätigen oder ablehnen.
+33. Weitere Termine anfragen.
+34. Termine bearbeiten oder löschen.
+35. Einen Termin als erledigt markieren.
+36. Den abgeschlossenen Termin über die Historie erneut ansehen.
+
+## Verhalten beim Löschen eines Auftrags
+
+Beim Löschen eines Auftrags wird der Auftrag vollständig aus der Datenbank entfernt.
+
+Die bereits vorhandenen Termine und Nachrichten werden jedoch absichtlich nicht mitgelöscht.
+
+Für die gespeicherten Termine gilt anschließend:
+
+- Die Termine bleiben in der Datenbank erhalten.
+- Erledigte Termine bleiben in der Historie sichtbar.
+- Der zugehörige Auftrag ist nicht mehr vorhanden.
+- Die Termine können nicht mehr bearbeitet werden.
+
+Für die gespeicherten Nachrichten gilt anschließend:
+
+- Die Nachrichten bleiben in der Datenbank erhalten.
+- Der bisherige Chatverlauf bleibt sichtbar.
+- Es können keine neuen Nachrichten mehr gesendet werden.
+- Ein neuer Chat ohne bestehenden Auftrag kann nicht begonnen werden.
+
+Dieses Verhalten dient dazu, vergangene Kommunikation und bereits durchgeführte Termine weiterhin nachvollziehen zu können.
 
 ## Vorhandene Testnutzer
 
@@ -176,4 +239,12 @@ Für Entwicklungs- und Demonstrationszwecke werden beim Start Testnutzer angeleg
 | PP | `pp1@email.com` | `12345678` |
 | PP | `pp2@email.com` | `12345678` |
 
-Die Testnutzer sind bereits freigegeben, wobei die Helfer kein hochgeladenes Führungszeugnis besitzen.
+Die Testnutzer sind bereits freigegeben.
+
+## Hinweise
+
+- Hochgeladene Führungszeugnisse werden im aktuellen Prototyp ausschließlich zu Demonstrationszwecken verwendet.
+- Der Helfer muss nach der Annahme einer Bewerbung den ersten Kontakt im Chat herstellen.
+- Termine und Nachrichten werden beim Löschen eines Auftrags absichtlich nicht gelöscht.
+- Termine ohne zugehörigen Auftrag können nicht mehr bearbeitet werden.
+- In einem Chat ohne zugehörigen Auftrag können keine neuen Nachrichten mehr gesendet werden.
