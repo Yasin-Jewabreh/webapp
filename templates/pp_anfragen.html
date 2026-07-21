@@ -16,7 +16,7 @@
         <div class="d-flex flex-column gap-4">
             
             {% for auftrag in anfragen %}
-                {% if auftrag.angenommen and auftrag.bewerbungen %}
+                {% if not auftrag.angenommen and auftrag.bewerbungen %}
                     
                     <h5 class="text-muted border-bottom pb-2 mt-3">Auftrag: {{ auftrag.wohnsituation }}</h5>
                     

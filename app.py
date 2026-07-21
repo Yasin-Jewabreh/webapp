@@ -249,6 +249,7 @@ def auftrag_bearbeiten(auftrag_id):
         form.bestaetigung.data = True
     
     return render_template("auftrag_bearbeiten.html", form=form, nutzer=current_user, auftrag=auftrag)
+
 @app.route("/auftrag/bewerben/<int:auftrag_id>", methods=["POST"])
 @login_required
 def auftrag_bewerben(auftrag_id):
