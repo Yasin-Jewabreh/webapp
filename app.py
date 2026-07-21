@@ -514,11 +514,6 @@ def chat(empfaenger_id=None):
         )
     ).scalars().all()
 
-    if current_user.freigegeben == False:
-        return render_template("warten_auf_bestaetigung.html")
-    gesendete_nachrichten = Nachricht.query.filter_by(sender_id=current_user.id).all()
-    empfangene_nachrichten = Nachricht.query.filter_by(empfaenger_id=current_user.id).all()
-    
     partner_ids = set()
     for n in gesendete_nachrichten:
         partner_ids.add(n.empfaenger_id)
@@ -588,23 +583,20 @@ def chat(empfaenger_id=None):
 @app.route("/chat/loeschen/<int:partner_id>", methods=["POST"])
 @login_required
 def chat_loeschen(partner_id):
-    if current_user.freigegeben == False:
-        return render_template("warten_auf_bestaetigung.html")
-      
     nachrichten = db.session.execute(
         db.select(Nachricht).where(
             ((Nachricht.sender_id == current_user.id) & (Nachricht.empfaenger_id == partner_id)) |
             ((Nachricht.sender_id == partner_id) & (Nachricht.empfaenger_id == current_user.id))
         )
     ).scalars().all()
-   
+
     for n in nachrichten:
         if n.sender_id == current_user.id:
             n.geloescht_fuer_sender = True
         else:
             n.geloescht_fuer_empfaenger = True
     db.session.commit()
-    return redirect(url_for("chat", empfaenger_id=partner_id))
+    return redirect(url_for("chat"))
 
 @app.route("/nutzeruebersicht", methods=["GET", "POST"])
 @login_required
