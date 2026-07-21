@@ -28,8 +28,8 @@
                             <span>{{ auftrag.pp.plz }}</span>
                         </div>
                         <div class="col-md-2 text-md-end text-start mt-3 mt-md-0">
-                           <form action="{{ url_for('auftrag_annehmen', auftrag_id=auftrag.id) }}" method="POST" style="display: inline;">
-                            <button type="submit" class="btn btn-success">Annehmen</button>
+                        <form action="{{ url_for('auftrag_bewerben', auftrag_id=auftrag.id) }}" method="POST">                     
+                               <button type="submit" class="btn btn-success">Bewerben</button>
                             </form>
                             </a>
                         </div>

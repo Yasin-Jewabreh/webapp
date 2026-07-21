@@ -65,7 +65,8 @@ def register():
             email=form.email.data,
             telefon=form.telefon.data,
             passwort=form.passwort.data,
-            rolle=gewaehlte_rolle
+            rolle=gewaehlte_rolle,
+            profil_text = form.profil_text.data if gewaehlte_rolle == "Helfer" else None
         )
         db.session.add(neuer_nutzer)
         db.session.commit()
@@ -407,20 +408,56 @@ def helfer_auftraege():
     heute = date.today()
     return render_template("helfer_auftraege.html", auftraege=offene_auftraege, heute=heute)
 
-@app.route("/helfer/auftrag/<int:auftrag_id>", methods= ["POST"])
+@app.route("/auftrag/bewerben/<int:auftrag_id>", methods=["POST"])
 @login_required
-def auftrag_annehmen(auftrag_id):
-
+def auftrag_bewerben(auftrag_id):
     if current_user.rolle != "Helfer":
-        abort(403, description = "Nur Helfer können diese Seite sehen")
+        abort(403, description="Nur Helfer können sich bewerben.")
+        
     auftrag = db.session.get(Auftrag, auftrag_id)
     if not auftrag:
-        abort(404, description = "Auftrag nicht gefunden")
-    auftrag.angenommen = True
-    # Die Id des Nutzers wird mit dem Helfer ID gleichgesetzt 
+        abort(404, description="Auftrag nicht gefunden.")
+    
+    # Helfer eintragen, aber "angenommen" bleibt False (Wartet auf PP)
     auftrag.helfer_id = current_user.id
+    auftrag.angenommen = False 
     db.session.commit()
-    return render_template("auftrag_angenommen.html", auftrag=auftrag)
+    
+    flash("Bewerbung erfolgreich abgeschickt! Der Pflegebedürftige wird sich bei dir melden.", "success")
+    return redirect(url_for("helfer_auftraege")) # Passe den Namen an deine Route an
+
+@app.route("/pp/anfragen", methods=["GET", "POST"])
+@login_required
+def pp_anfragen():
+    if current_user.rolle != "PP":
+        abort(403, description="Nur Pflegebedürftige können diese Seite sehen")
+    
+    if request.method == "POST":
+        auftrag_id = int(request.form.get("auftrag_id"))
+        aktion = request.form.get("aktion")
+        auftrag = db.session.get(Auftrag, auftrag_id)
+        
+        if auftrag and auftrag.pp_id == current_user.id:
+            if aktion == "annehmen":
+                auftrag.angenommen = True
+                db.session.commit()
+                flash("Bewerbung angenommen!", "success")
+            elif aktion == "ablehnen":
+                auftrag.helfer_id = None
+                auftrag.angenommen = False
+                db.session.commit()
+                flash("Bewerbung abgelehnt.", "info")
+        return redirect(url_for("pp_anfragen"))
+    
+    anfragen = db.session.execute(
+        db.select(Auftrag).where(
+            Auftrag.pp_id == current_user.id,
+            Auftrag.angenommen == False,
+            Auftrag.helfer_id != None
+        )
+    ).scalars().all()
+    
+    return render_template("pp_anfragen.html", anfragen=anfragen)
 
 
 @app.route("/meine_auftraege")
@@ -506,4 +543,4 @@ def http_access_denied(e):
     return render_template('403.html', message = e.description), 403
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(debug=True, port = 5001)

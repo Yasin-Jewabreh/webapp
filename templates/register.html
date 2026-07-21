@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% from 'bootstrap5/form.html' import render_form %}
+{% from 'bootstrap5/form.html' import render_field %}
 
 {% block TITLE %} Registrieren {% endblock %}
 
@@ -10,12 +10,35 @@
         </a>
 
         <div class="row justify-content-center">
-            <div class="col-12 col-md-8"> <div class="card shadow-sm">
+            <div class="col-12 col-md-8"> 
+                <div class="card shadow-sm">
                     <div class="card-body p-4">
-                        <h2 class="mb-3">Registrieren</h2>
+                        <h2 class="mb-3">Registrieren als {{ rolle }}</h2>
                         <hr>
                         
-                        {{ render_form(form) }}
+                        <form method="POST">
+                            {{ form.hidden_tag() }}
+
+                            {{ render_field(form.vorname) }}
+                            {{ render_field(form.nachname) }}
+                            {{ render_field(form.geschlecht) }}
+                            {{ render_field(form.geburtsdatum) }}
+                            {{ render_field(form.adresse) }}
+                            {{ render_field(form.plz) }}
+                            {{ render_field(form.ort) }}
+                            {{ render_field(form.email) }}
+                            {{ render_field(form.passwort) }}
+                            {{ render_field(form.passwort_wiederholen) }}
+                            {{ render_field(form.telefon) }}
+                            
+                            {% if rolle == 'Helfer' %}
+                                {{ render_field(form.profil_text) }}
+                            {% endif %}
+
+                            <div class="mt-4">
+                                {{ render_field(form.registrieren) }}
+                            </div>
+                        </form>
                         
                     </div>
                 </div>
