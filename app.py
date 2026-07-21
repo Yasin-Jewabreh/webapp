@@ -33,7 +33,103 @@ db.init_app(app)
 bootstrap = Bootstrap5(app)
 
 with app.app_context():
-    db.create_all()
+            db.create_all()
+            admin = db.session.execute(db.select(Nutzer).where(Nutzer.email == "admin@email.com")).scalar()
+            if not admin:
+                admin = Nutzer(
+                    vorname=ROLLE_ADMIN,
+                    nachname=ROLLE_ADMIN,
+                    geschlecht="Männlich",
+                    geburtsdatum=date(1995, 5, 20),
+                    adresse="Hauptstraße 42",
+                    plz="10115",
+                    ort="Berlin",
+                    email="admin@email.com",
+                    freigegeben=True,
+                    passwort=generate_password_hash("12345678"), 
+                    telefon="015112345678",
+                    rolle=ROLLE_ADMIN
+                )
+                db.session.add(admin)
+
+            helfer1 = db.session.execute(db.select(Nutzer).where(Nutzer.email == "helfer1@email.com")).scalar()
+            
+            if not helfer1:
+                helfer1 = Nutzer(
+                    vorname="Max",
+                    nachname=ROLLE_HELFER,
+                    geschlecht="Männlich",
+                    geburtsdatum=date(2001, 3, 12),
+                    adresse="Müllerstraße 20",
+                    plz="13353",
+                    ort="Berlin",
+                    email="helfer1@email.com",
+                    freigegeben=True,
+                    passwort=generate_password_hash("12345678"),
+                    telefon="015100000001",
+                    rolle=ROLLE_HELFER,
+                    vorstellungstext="Hallo, ich bin Max. Ich bin zuverlässig, geduldig und helfe gerne im Alltag. Besonders gerne unterstütze ich beim Einkaufen, bei Spaziergängen oder bei kleineren Erledigungen. Ein respektvoller und freundlicher Umgang ist mir besonders wichtig.")
+                db.session.add(helfer1)
+
+
+            helfer2 = db.session.execute(db.select(Nutzer).where(Nutzer.email == "helfer2@email.com")).scalar()
+            if not helfer2:
+                helfer2 = Nutzer(
+                    vorname="Lena",
+                    nachname="Hilfsbereit",
+                    geschlecht="Weiblich",
+                    geburtsdatum=date(2000, 8, 25),
+                    adresse="Turmstraße 15",
+                    plz="10559",
+                    ort="Berlin",
+                    email="helfer2@email.com",
+                    freigegeben=True,
+                    passwort=generate_password_hash("12345678"),
+                    telefon="015100000002",
+                    rolle=ROLLE_HELFER,
+                    vorstellungstext="Hallo, ich bin Lena. Ich bin eine offene und verantwortungsbewusste Person und unterstütze gerne bei Arztbesuchen, Einkäufen, Spaziergängen oder im Haushalt. Dabei sind mir Zuverlässigkeit, Geduld und Vertrauen besonders wichtig."
+                )
+                db.session.add(helfer2)
+
+
+            pp1 = db.session.execute(db.select(Nutzer).where(Nutzer.email == "pp1@email.com")).scalar()
+
+            if not pp1:
+                pp1 = Nutzer(
+                    vorname="Maria",
+                    nachname="Mustermann",
+                    geschlecht="Weiblich",
+                    geburtsdatum=date(1948, 6, 10),
+                    adresse="Alt-Moabit 80",
+                    plz="10555",
+                    ort="Berlin",
+                    email="pp1@email.com",
+                    freigegeben=True,
+                    passwort=generate_password_hash("12345678"),
+                    telefon="015100000003",
+                    rolle = ROLLE_PP
+                )
+                db.session.add(pp1)
+
+
+            pp2 = db.session.execute(db.select(Nutzer).where(Nutzer.email == "pp2@email.com")).scalar()
+            if not pp2:
+                pp2 = Nutzer(
+                    vorname="Peter",
+                    nachname="Beispiel",
+                    geschlecht="Männlich",
+                    geburtsdatum=date(1952, 11, 4),
+                    adresse="Invalidenstraße 30",
+                    plz="10115",
+                    ort="Berlin",
+                    email="pp2@email.com",
+                    freigegeben=True,
+                    passwort=generate_password_hash("12345678"),
+                    telefon="015100000004",
+                    rolle = ROLLE_PP
+                )
+                db.session.add(pp2)
+            db.session.commit()
 
 @app.route("/")
 @app.route("/startseite")
@@ -701,104 +797,7 @@ def http_internal_server_error(e):
 
 @app.errorhandler(403)
 def http_access_denied(e):
-    return render_template('403.html', message = e.description), 403
-
-with app.app_context():
-            admin = db.session.execute(db.select(Nutzer).where(Nutzer.email == "admin@email.com")).scalar()
-            if not admin:
-                admin = Nutzer(
-                    vorname=ROLLE_ADMIN,
-                    nachname=ROLLE_ADMIN,
-                    geschlecht="Männlich",
-                    geburtsdatum=date(1995, 5, 20),
-                    adresse="Hauptstraße 42",
-                    plz="10115",
-                    ort="Berlin",
-                    email="admin@email.com",
-                    freigegeben=True,
-                    passwort=generate_password_hash("12345678"), 
-                    telefon="015112345678",
-                    rolle=ROLLE_ADMIN
-                )
-                db.session.add(admin)
-
-            helfer1 = db.session.execute(db.select(Nutzer).where(Nutzer.email == "helfer1@email.com")).scalar()
-            
-            if not helfer1:
-                helfer1 = Nutzer(
-                    vorname="Max",
-                    nachname=ROLLE_HELFER,
-                    geschlecht="Männlich",
-                    geburtsdatum=date(2001, 3, 12),
-                    adresse="Müllerstraße 20",
-                    plz="13353",
-                    ort="Berlin",
-                    email="helfer1@email.com",
-                    freigegeben=True,
-                    passwort=generate_password_hash("12345678"),
-                    telefon="015100000001",
-                    rolle=ROLLE_HELFER
-                )
-                db.session.add(helfer1)
-
-
-            helfer2 = db.session.execute(db.select(Nutzer).where(Nutzer.email == "helfer2@email.com")).scalar()
-            if not helfer2:
-                helfer2 = Nutzer(
-                    vorname="Lena",
-                    nachname="Hilfsbereit",
-                    geschlecht="Weiblich",
-                    geburtsdatum=date(2000, 8, 25),
-                    adresse="Turmstraße 15",
-                    plz="10559",
-                    ort="Berlin",
-                    email="helfer2@email.com",
-                    freigegeben=True,
-                    passwort=generate_password_hash("12345678"),
-                    telefon="015100000002",
-                    rolle=ROLLE_HELFER
-                )
-                db.session.add(helfer2)
-
-
-            pp1 = db.session.execute(db.select(Nutzer).where(Nutzer.email == "pp1@email.com")).scalar()
-
-            if not pp1:
-                pp1 = Nutzer(
-                    vorname="Maria",
-                    nachname="Mustermann",
-                    geschlecht="Weiblich",
-                    geburtsdatum=date(1948, 6, 10),
-                    adresse="Alt-Moabit 80",
-                    plz="10555",
-                    ort="Berlin",
-                    email="pp1@email.com",
-                    freigegeben=True,
-                    passwort=generate_password_hash("12345678"),
-                    telefon="015100000003",
-                    rolle = ROLLE_PP
-                )
-                db.session.add(pp1)
-
-
-            pp2 = db.session.execute(db.select(Nutzer).where(Nutzer.email == "pp2@email.com")).scalar()
-            if not pp2:
-                pp2 = Nutzer(
-                    vorname="Peter",
-                    nachname="Beispiel",
-                    geschlecht="Männlich",
-                    geburtsdatum=date(1952, 11, 4),
-                    adresse="Invalidenstraße 30",
-                    plz="10115",
-                    ort="Berlin",
-                    email="pp2@email.com",
-                    freigegeben=True,
-                    passwort=generate_password_hash("12345678"),
-                    telefon="015100000004",
-                    rolle = ROLLE_PP
-                )
-                db.session.add(pp2)
-            db.session.commit()
+    return render_template('403.html', message = e.description), 403            
 
 if __name__ == "__main__":
     app.run(debug=True)
