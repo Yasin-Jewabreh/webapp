@@ -256,7 +256,7 @@ def auftrag_bewerben(auftrag_id):
     stmt = db.select(Auftrag).where(Auftrag.id == auftrag_id)
     auftrag = db.session.scalar(stmt)
 
-    if current_user.rolle != "Helfer":
+    if current_user.rolle != ROLLE_HELFER:
         abort(403, description="Nur Helfer können sich bewerben.")
         
     if not auftrag:
@@ -285,7 +285,7 @@ def auftrag_bewerben(auftrag_id):
 @app.route("/pp/anfragen", methods=["GET", "POST"])
 @login_required
 def pp_anfragen():
-    if current_user.rolle != "PP":
+    if current_user.rolle != ROLLE_PP:
         abort(403, description="Nur Pflegebedürftige können diese Seite sehen")
     
     if request.method == "POST":
