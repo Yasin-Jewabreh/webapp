@@ -81,7 +81,7 @@ Alles auf dem Branch calendar.html gehört zu meinen Contributions
 | 02  |      GEMINI   |        Anzeigen von Flash Messages        |       base.html                          |         Das ist die einzige Sache, die ich einfach von der KI reinkopiert habe, sonst habe ich alles selbst geschrieben.                    |
 | 03 |     GEMINI    |        Fehlermessages erklären        |         app.py                        |        Ich hatte Fehlercodes, als ich eine Liste mit .scalars() (wie im Tutorial) angelegt habe. Gemini  hat mir dann gesagt, dass ich ein .all() einfügen kann damit es klappt. Danach hat es geklappt .                  |
 | 04 | GEMINI | Probleme mit der JSON Headless API lösen | app.py | Mit dem Code aus dem Tutorial allein, kamen nur Fehlercodes und ich habe es allein nicht geschafft, es zum laufen zu kriegen. Gemini hat mir z.B. dabei geholfen, dass ich die Date- Variablen in einen String umwandeln muss.
-| 05 | CHATGPT | Formulierung der README.md | README.md | Anhand des Codes und meiner erklärungen wurde eine README.md erstellt. Diese habe ich dann händisch angepasst.
+| 05 | CHATGPT | Formulierung der README.md und index.md | README.md, index.md | Anhand meines Inputs wurde der Text für README.md und index.md formuliert. Diese habe ich dann händisch angepasst.
 
 Nachtrag zu Eintrag 1 des AI Directories: Die Funktion, den Tabelleninhalt anzuklicken, um den Termin zu bearbeiten, wurde entfernt. Da der Vorschlag von GEMINI KI enthielt. 
 
