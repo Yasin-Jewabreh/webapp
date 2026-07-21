@@ -140,19 +140,13 @@ cd Projekt_Team14
 python -m venv venv
 ```
 
-### 3. Virtuelle Umgebung unter Windows aktivieren
-
-```powershell
-.\venv\Scripts\Activate.ps1
-```
-
-### 4. Abhängigkeiten installieren
+### 3. Abhängigkeiten installieren
 
 ```bash
 python -m pip install -r requirements.txt
 ```
 
-### 5. Anwendung starten
+### 4. Anwendung starten
 
 ```bash
 python app.py
