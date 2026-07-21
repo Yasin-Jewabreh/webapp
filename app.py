@@ -150,29 +150,16 @@ def dashboard():
 @app.route("/profil", methods=["GET", "POST"])
 @login_required
 def profil():
-    if current_user.freigegeben == False:
+    if not current_user.freigegeben:
         return render_template("warten_auf_bestaetigung.html")
-    
-    form = ProfilFormular()
+
+    form = ProfilFormular(obj=current_user)
+
     if form.validate_on_submit():
-        current_user.vorname = form.vorname.data
-        current_user.nachname = form.nachname.data
-        current_user.email = form.email.data
-        current_user.telefon = form.telefon.data
-        current_user.adresse = form.adresse.data
-        current_user.plz = form.plz.data
-        current_user.ort = form.ort.data
+        form.populate_obj(current_user)
         db.session.commit()
         flash("Profil erfolgreich aktualisiert!", "success")
         return redirect(url_for("dashboard"))
-    elif request.method == "GET":
-        form.vorname.data = current_user.vorname
-        form.nachname.data = current_user.nachname
-        form.email.data = current_user.email
-        form.telefon.data = current_user.telefon
-        form.adresse.data = current_user.adresse
-        form.plz.data = current_user.plz
-        form.ort.data = current_user.ort
     return render_template("profil.html", form=form)
 
 @app.route("/logout")
@@ -256,7 +243,7 @@ def auftrag_bewerben(auftrag_id):
     stmt = db.select(Auftrag).where(Auftrag.id == auftrag_id)
     auftrag = db.session.scalar(stmt)
 
-    if current_user.rolle != "Helfer":
+    if current_user.rolle != ROLLE_HELFER:
         abort(403, description="Nur Helfer können sich bewerben.")
         
     if not auftrag:
@@ -285,7 +272,7 @@ def auftrag_bewerben(auftrag_id):
 @app.route("/pp/anfragen", methods=["GET", "POST"])
 @login_required
 def pp_anfragen():
-    if current_user.rolle != "PP":
+    if current_user.rolle != ROLLE_PP:
         abort(403, description="Nur Pflegebedürftige können diese Seite sehen")
     
     if request.method == "POST":

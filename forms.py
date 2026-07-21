@@ -4,6 +4,7 @@ from wtforms import SelectField, TextAreaField, SubmitField, BooleanField, DateF
 from wtforms.validators import DataRequired, Length, InputRequired, Optional, ValidationError, Email, EqualTo
 from datetime import date, datetime
 from flask_wtf.file import FileField, FileRequired, FileAllowed
+from flask_login import current_user
 
 
 class RollenWahlForm(FlaskForm):
@@ -23,7 +24,7 @@ class RegistrierungFormular(FlaskForm):
     adresse = StringField("Adresse:", validators=[InputRequired()])
     plz = StringField("Postleitzahl:", validators=[InputRequired()])
     ort = SelectField("Ort:", validators=[InputRequired()], choices = [("","--Bitte wählen--"), ("Berlin", "Berlin")])
-    email = EmailField("Email:", validators=[InputRequired()])
+    email = EmailField("Email:", validators=[InputRequired(), Email(message="Bitte gib eine gültige E-Mail-Adresse ein.")])
     passwort = PasswordField("Passwort:", validators=[InputRequired(), Length(min=8, message = "Das Passwort muss mindestens 8 Zeichen lang sein!")])
     passwort_wiederholen = PasswordField("Passwort wiederholen:", validators=[InputRequired(), EqualTo("passwort", message = "Die Passwörter müssen übereinstimmen!")])
     telefon = StringField("Telefon:", validators=[InputRequired()])
@@ -33,7 +34,8 @@ class RegistrierungPP(RegistrierungFormular):
 
 class RegistrierungHelfer(RegistrierungFormular):  
     fuehrungszeugnis = FileField("Führungszeugnis", validators=[FileRequired(), FileAllowed(['pdf'], "Bitte lade eine PDF Datei hoch!")])
-    vorstellungstext = TextAreaField("Über mich", validators=[DataRequired(message="Bitte erzähle etwas über dich. Dieser Text wird angezeigt, wenn du dich für einen Auftrag bewirbst."),                                                    Length(max=500, message="Die Beschreibung darf maximal 500 Zeichen lang sein.")])
+    vorstellungstext = TextAreaField("Über mich", validators=[DataRequired(message="Bitte erzähle etwas über dich. Dieser Text wird angezeigt, wenn du dich für einen Auftrag bewirbst."),
+                                                              Length(max=500, message="Die Beschreibung darf maximal 500 Zeichen lang sein.")])
     registrieren = SubmitField("Registrieren")
 
 
@@ -106,12 +108,17 @@ class TerminBearbeitenForm(FlaskForm):
     entfernen = SubmitField("Termin löschen", render_kw = {"class": "btn btn-outline-danger"})
     zurueck = SubmitField("Zurück", render_kw={"class": "btn btn-info"})
 
+def validate_vorstellungstext(self, field):
+        if current_user.rolle == "Helfer" and not field.data.strip():
+            raise ValidationError("Dieses Feld darf nicht leer bleiben")
+        
 class ProfilFormular(FlaskForm):
     vorname = StringField('Vorname', validators=[DataRequired(message="Bitte Vornamen eingeben.")])
     nachname = StringField('Nachname', validators=[DataRequired(message="Bitte Nachnamen eingeben.")])
-    email = StringField('E-Mail', validators=[DataRequired(message="Bitte E-Mail eingeben."), Email(message="Ungültige E-Mail.")])
+    email = EmailField("Email:", validators=[InputRequired(), Email(message="Bitte gib eine gültige E-Mail-Adresse ein.")])
     telefon = StringField('Telefonnummer', validators=[DataRequired(message="Bitte Telefonnummer eingeben.")])
     adresse = StringField('Adresse', validators=[DataRequired(message="Bitte Adresse eingeben.")])
     plz = StringField('PLZ', validators=[DataRequired(message="Bitte PLZ eingeben.")])
     ort = StringField('Ort', validators=[DataRequired(message="Bitte Ort eingeben.")])
+    vorstellungstext = TextAreaField("Über mich", validators=[validate_vorstellungstext, Length(max=500, message="Die Beschreibung darf maximal 500 Zeichen lang sein.")])
     submit = SubmitField('Änderungen speichern')
