@@ -58,7 +58,6 @@
                     {% endfor %}
                     
                 {% elif auftrag.angenommen %}
-                    <h5 class="text-muted border-bottom pb-2 mt-3">Auftrag: {{ auftrag.wohnsituation }}</h5>
                     <div class="alert alert-success mt-2">
                         Dieser Auftrag wurde bereits an <strong>{{ auftrag.helfer.vorname }} {{ auftrag.helfer.nachname }}</strong> vergeben.
                     </div>
