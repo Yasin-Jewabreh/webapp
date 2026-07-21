@@ -541,9 +541,13 @@ def termin(id):
     
     if not termin or termin.complete:
          abort(404, description = "Termin nicht gefunden")
-
+    
     if (termin.helfer_id!= current_user.id and termin.pp_id != current_user.id):
          abort(404, description = "Termin nicht gefunden")
+    
+    if termin.auftrag_id is None:
+        flash("Der zugehörige Auftrag wurde gelöscht. Der Termin kann nicht mehr bearbeitet werden.","warning")
+        return redirect(url_for("termine"))
     
     form = TerminBearbeitenForm(obj=termin)
 
@@ -700,14 +704,32 @@ def chat(empfaenger_id=None):
                 )
             )
         ).scalars().first()
+        
+        vorhandene_nachricht = db.session.scalar(
+            db.select(Nachricht).where(
+                (
+                    (Nachricht.sender_id == current_user.id)
+                    & (Nachricht.empfaenger_id == empfaenger_id)
+                )
+                |
+                (
+                    (Nachricht.sender_id == empfaenger_id)
+                    & (Nachricht.empfaenger_id == current_user.id)
+                )
+            )
+        )
 
-        if not gemeinsamer_auftrag:
-            abort(404, description = "Chat nicht gefunden")
+        if not gemeinsamer_auftrag and not vorhandene_nachricht:
+            abort(404, description="Chat nicht gefunden")
 
         if aktiver_partner and aktiver_partner not in chat_partner:
             chat_partner.append(aktiver_partner)
 
         if request.method == "POST" and request.form.get("inhalt"):
+            if not gemeinsamer_auftrag:
+                flash("Der Auftrag wurde gelöscht. Es können keine neuen Nachrichten mehr gesendet werden.","warning")
+                return redirect(url_for("chat", empfaenger_id=empfaenger_id))
+            
             neue_nachricht = Nachricht(
                 inhalt=request.form["inhalt"],
                 sender_id=current_user.id,

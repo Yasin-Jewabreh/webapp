@@ -49,7 +49,7 @@ class Auftrag(db.Model):
 
     pp = db.relationship("Nutzer", foreign_keys=[pp_id], backref="erstellte_auftraege")
     helfer = db.relationship("Nutzer", foreign_keys=[helfer_id], backref="angenommene_auftraege")
-    termine = db.relationship("Termin", backref="auftrag", cascade="all, delete-orphan")
+    termine = db.relationship("Termin", backref="auftrag")
     bewerbungen = db.relationship('Bewerbung', back_populates='auftrag', cascade="all, delete-orphan")
 
 class Bewerbung(db.Model):
@@ -58,7 +58,7 @@ class Bewerbung(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     auftrag_id = db.Column(db.Integer, db.ForeignKey('auftrag.id'), nullable=False)
     helfer_id = db.Column(db.Integer, db.ForeignKey('nutzer.id'), nullable=False)
-    status = db.Column(db.String(20), default='ausstehend') # 'ausstehend', 'akzeptiert', 'abgelehnt'
+    status = db.Column(db.String(20), default='ausstehend', nullable = False) # 'ausstehend', 'akzeptiert', 'abgelehnt'
     erstellt_am = db.Column(db.DateTime, default= berlin_time)
 
     auftrag = db.relationship('Auftrag', back_populates='bewerbungen')
@@ -82,7 +82,7 @@ class Termin(db.Model):
 
     id = db.Column(db.Integer, primary_key = True, index = True)
     helfer_id = db.Column("helfer_id", db.ForeignKey("nutzer.id"), nullable = False)
-    auftrag_id = db.Column("auftrag_id", db.ForeignKey("auftrag.id"), nullable = False)
+    auftrag_id = db.Column("auftrag_id", db.ForeignKey("auftrag.id"), nullable = True)
     pp_id = db.Column("pp_id", db.ForeignKey("nutzer.id"), nullable = False)
     notizen = db.Column(db.String(200), nullable = True)
     datum = db.Column(db.Date, nullable = False)
