@@ -14,9 +14,11 @@
                     <div class="card-body p-4">
                         <h2 class="mb-3">Registrieren</h2>
                         <hr>
-                        
-                        {{ render_form(form) }}
-                        
+                        {% if rolle == "Helfer"%}
+                        {{ render_form(helfer_form) }}
+                        {%elif rolle == "PP"%}
+                        {{ render_form(pp_form)}}
+                        {% endif %}
                     </div>
                 </div>
             </div>

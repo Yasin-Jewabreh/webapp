@@ -1,10 +1,12 @@
 from datetime import date, datetime
+import os
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
-from forms import TerminBearbeitenForm, TerminErstellenForm, RollenWahlForm, RegistrierungFormular, LoginFormular, AuftragFormular, ProfilFormular
-from flask import Flask, render_template, redirect, url_for, request, session, flash, abort
+from forms import TerminBearbeitenForm, TerminErstellenForm, RollenWahlForm, RegistrierungPP, LoginFormular, AuftragFormular, ProfilFormular, RegistrierungHelfer
+from flask import Flask, render_template, redirect, url_for, request, session, flash, abort, send_from_directory
 from flask_bootstrap import Bootstrap5
 from db import db
 from models import Nutzer, Auftrag, Termin, Nachricht, berlin_time
+from werkzeug.utils import secure_filename
 
 app = Flask(__name__)
 
@@ -43,36 +45,67 @@ def rolle_waehlen():
             gewaehlte_rolle = "Helfer"
         elif form.suchender_btn.data:
             gewaehlte_rolle = "PP"
-            #Sicherheitshalber setzen wir die Rolle auf "PP", falls keine der beiden Rollen ausgewählt wurde
-        else:
-            gewaehlte_rolle = "PP"
+        
         session["rollenwahl"] = gewaehlte_rolle
         return redirect(url_for('register'))
     return render_template('rolle_auswaehlen.html', form=form)
 
 @app.route("/register", methods=["GET", "POST"])
 def register():
+    gewaehlte_rolle = session.get("rollenwahl")
+    if not gewaehlte_rolle:
+        return redirect(url_for("rolle_waehlen"))
     
-    form = RegistrierungFormular()
-    if form.validate_on_submit():
-        gewaehlte_rolle = session.get("rollenwahl", "PP")
-        neuer_nutzer = Nutzer(
-            vorname=form.vorname.data,
-            nachname=form.nachname.data,
-            geschlecht=form.geschlecht.data,
-            geburtsdatum=form.geburtsdatum.data,
-            adresse=form.adresse.data,
-            plz=form.plz.data,
-            ort=form.ort.data,
-            email=form.email.data,
-            telefon=form.telefon.data,
-            passwort=form.passwort.data,
-            rolle=gewaehlte_rolle
-        )
-        db.session.add(neuer_nutzer)
-        db.session.commit()
-        return redirect(url_for("login"))
-    return render_template("register.html", form=form)
+    helfer_form = RegistrierungHelfer()
+    pp_form = RegistrierungPP()
+
+    if gewaehlte_rolle == "Helfer":
+        if helfer_form.validate_on_submit():
+            neuer_nutzer = Nutzer(
+                vorname=helfer_form.vorname.data,
+                nachname=helfer_form.nachname.data,
+                geschlecht=helfer_form.geschlecht.data,
+                geburtsdatum=helfer_form.geburtsdatum.data,
+                adresse=helfer_form.adresse.data,
+                plz=helfer_form.plz.data,
+                ort=helfer_form.ort.data,
+                email=helfer_form.email.data,
+                telefon=helfer_form.telefon.data,
+                passwort=helfer_form.passwort.data,
+                rolle=gewaehlte_rolle,
+                vorstellungstext = helfer_form.vorstellungstext.data
+            )
+            db.session.add(neuer_nutzer)
+            db.session.flush()
+
+            f = helfer_form.fuehrungszeugnis.data
+            filename = f"{neuer_nutzer.id}_{secure_filename(f.filename)}"
+            f.save(os.path.join(app.static_folder, "fuehrungszeugnisse", filename))
+            neuer_nutzer.fuehrungszeugnis_dateiname = filename
+            db.session.commit()
+            return redirect(url_for("login"))
+
+    elif gewaehlte_rolle == "PP":
+        if pp_form.validate_on_submit():
+            neuer_nutzer = Nutzer(
+                vorname=pp_form.vorname.data,
+                nachname=pp_form.nachname.data,
+                geschlecht=pp_form.geschlecht.data,
+                geburtsdatum=pp_form.geburtsdatum.data,
+                adresse=pp_form.adresse.data,
+                plz=pp_form.plz.data,
+                ort=pp_form.ort.data,
+                email=pp_form.email.data,
+                telefon=pp_form.telefon.data,
+                passwort=pp_form.passwort.data,
+                rolle=gewaehlte_rolle
+            )
+            db.session.add(neuer_nutzer)
+            db.session.commit()
+            return redirect(url_for("login"))
+
+       
+    return render_template("register.html", helfer_form =helfer_form, pp_form = pp_form, rolle = gewaehlte_rolle)
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
@@ -573,6 +606,49 @@ def chat_loeschen(partner_id):
     db.session.commit()
     return redirect(url_for("chat", empfaenger_id=partner_id))
 
+@app.route("/nutzeruebersicht", methods=["GET", "POST"])
+@login_required
+def nutzeruebersicht():
+    if current_user.rolle != "Admin":
+        abort(404)
+
+    nicht_freigegebene_liste = []
+    nicht_freigegebene_liste = db.session.execute(db.select(Nutzer).where(Nutzer.rolle != "Admin", Nutzer.freigegeben == False)).scalars().all()
+    freigegebene_liste = []
+    freigegebene_liste = db.session.execute(db.select(Nutzer).where(Nutzer.rolle != "Admin", Nutzer.freigegeben == True)).scalars().all()
+   
+    if request.method == "GET":
+        return(render_template("nutzer_bestaetigen.html", nicht_freigegebene = nicht_freigegebene_liste, freigegebene = freigegebene_liste))
+    else:
+        if "freigeben_id" in request.form:
+            nutzer_id = int(request.form.get("freigeben_id"))
+            nutzer = db.session.get(Nutzer,nutzer_id)
+            if nutzer:
+                nutzer.freigegeben = True
+                db.session.commit()
+                flash("Nutzer erfolgreich freigegeben!", "success")
+            
+        if "deaktivieren_id" in request.form:
+            nutzer_id = int(request.form.get("deaktivieren_id"))
+            nutzer = db.session.get(Nutzer,nutzer_id)
+            if nutzer:
+                nutzer.freigegeben = False
+                db.session.commit()
+                flash("Nutzer erfolgreich deaktiviert!", "success")
+        return redirect("nutzeruebersicht")
+
+
+@app.errorhandler(404)
+def http_not_found(e):
+    return render_template('404.html', message = e.description), 404
+
+@app.errorhandler(500)
+def http_internal_server_error(e):
+    return render_template('500.html'), 500
+
+@app.errorhandler(403)
+def http_access_denied(e):
+    return render_template('403.html', message = e.description), 403
 
 with app.app_context():
             admin = db.session.execute(db.select(Nutzer).where(Nutzer.email == "admin@email.com")).scalar()
@@ -670,51 +746,6 @@ with app.app_context():
                 )
                 db.session.add(pp2)
             db.session.commit()
-
-
-@app.route("/nutzeruebersicht", methods=["GET", "POST"])
-@login_required
-def nutzeruebersicht():
-    if current_user.rolle != "Admin":
-        abort(404)
-
-    nicht_freigegebene_liste = []
-    nicht_freigegebene_liste = db.session.execute(db.select(Nutzer).where(Nutzer.rolle != "Admin", Nutzer.freigegeben == False)).scalars().all()
-    freigegebene_liste = []
-    freigegebene_liste = db.session.execute(db.select(Nutzer).where(Nutzer.rolle != "Admin", Nutzer.freigegeben == True)).scalars().all()
-   
-    if request.method == "GET":
-        return(render_template("nutzer_bestaetigen.html", nicht_freigegebene = nicht_freigegebene_liste, freigegebene = freigegebene_liste))
-    else:
-        if "freigeben_id" in request.form:
-            nutzer_id = int(request.form.get("freigeben_id"))
-            nutzer = db.session.get(Nutzer,nutzer_id)
-            if nutzer:
-                nutzer.freigegeben = True
-                db.session.commit()
-                flash("Nutzer erfolgreich freigegeben!", "success")
-            
-        if "deaktivieren_id" in request.form:
-            nutzer_id = int(request.form.get("deaktivieren_id"))
-            nutzer = db.session.get(Nutzer,nutzer_id)
-            if nutzer:
-                nutzer.freigegeben = False
-                db.session.commit()
-                flash("Nutzer erfolgreich deaktiviert!", "success")
-        return redirect("nutzeruebersicht")
-
-
-@app.errorhandler(404)
-def http_not_found(e):
-    return render_template('404.html', message = e.description), 404
-
-@app.errorhandler(500)
-def http_internal_server_error(e):
-    return render_template('500.html'), 500
-
-@app.errorhandler(403)
-def http_access_denied(e):
-    return render_template('403.html', message = e.description), 403
 
 if __name__ == "__main__":
     app.run(debug=True)
