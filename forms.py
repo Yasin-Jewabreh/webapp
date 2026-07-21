@@ -14,7 +14,7 @@ class RollenWahlForm(FlaskForm):
     suchender_btn = SubmitField('Hilfe suchen')
 
 def validate_email(self, field):
-        field.data = field.data.strip().lower()
+        field.data = field.data.strip().lower() if field.data else ""
         if current_user.is_authenticated:
             vorhandener_nutzer = db.session.scalar(db.select(Nutzer).where(Nutzer.email == field.data,Nutzer.id != current_user.id))
         else:
@@ -23,7 +23,7 @@ def validate_email(self, field):
             raise ValidationError("Diese E-Mail-Adresse wird bereits verwendet.")
 
 def validate_telefon(self, field):
-        field.data = field.data.strip().lower()
+        field.data = field.data.strip() if field.data else ""
         if current_user.is_authenticated:
             vorhandener_nutzer = db.session.scalar(db.select(Nutzer).where(Nutzer.telefon == field.data,Nutzer.id != current_user.id))
         else:
