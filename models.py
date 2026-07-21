@@ -3,6 +3,10 @@ from datetime import datetime
 import pytz
 from flask_login import UserMixin
 
+def berlin_time():
+    tz_berlin =pytz.timezone("Europe/Berlin")
+    return datetime.now(tz_berlin)
+
 class Nutzer(db.Model, UserMixin):
     __tablename__ = "nutzer"
 
@@ -35,11 +39,19 @@ class Auftrag(db.Model):
     pp = db.relationship("Nutzer", foreign_keys=[pp_id], backref="erstellte_auftraege")
     helfer = db.relationship("Nutzer", foreign_keys=[helfer_id], backref="angenommene_auftraege")
     termine = db.relationship("Termin", backref="auftrag", cascade="all, delete-orphan")
+    bewerbungen = db.relationship('Bewerbung', back_populates='auftrag', cascade="all, delete-orphan")
 
+class Bewerbung(db.Model):
+    __tablename__ = 'bewerbung'
 
-def berlin_time():
-    tz_berlin =pytz.timezone("Europe/Berlin")
-    return datetime.now(tz_berlin)
+    id = db.Column(db.Integer, primary_key=True)
+    auftrag_id = db.Column(db.Integer, db.ForeignKey('auftrag.id'), nullable=False)
+    helfer_id = db.Column(db.Integer, db.ForeignKey('nutzer.id'), nullable=False)
+    status = db.Column(db.String(20), default='ausstehend') # 'ausstehend', 'akzeptiert', 'abgelehnt'
+    erstellt_am = db.Column(db.DateTime, default= berlin_time)
+
+    auftrag = db.relationship('Auftrag', back_populates='bewerbungen')
+    helfer = db.relationship('Nutzer', back_populates='bewerbungen')
 
 class Nachricht (db.Model):
     __tablename__ = "nachricht"
