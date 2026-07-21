@@ -1,8 +1,9 @@
 from datetime import date
 from flask_wtf import FlaskForm
-from wtforms import SelectField, TextAreaField, SubmitField, BooleanField, DateField, TimeField, HiddenField, TextAreaField, EmailField, PasswordField, StringField, FileField
-from wtforms.validators import DataRequired, Length, InputRequired, Optional, ValidationError, Email, EqualTo, FileRequired, FileAllowed
+from wtforms import SelectField, TextAreaField, SubmitField, BooleanField, DateField, TimeField, HiddenField, TextAreaField, EmailField, PasswordField, StringField
+from wtforms.validators import DataRequired, Length, InputRequired, Optional, ValidationError, Email, EqualTo
 from datetime import date, datetime
+from flask_wtf.file import FileField, FileRequired, FileAllowed
 
 
 class RollenWahlForm(FlaskForm):
@@ -31,7 +32,7 @@ class RegistrierungPP(RegistrierungFormular):
     registrieren = SubmitField("Registrieren")
 
 class RegistrierungHelfer(RegistrierungFormular):  
-    fuehrungszeugnis = FileField("Führungszeugnis", validators=[FileRequired(), FileAllowed(['pdf'])])
+    fuehrungszeugnis = FileField("Führungszeugnis", validators=[FileRequired(), FileAllowed(['pdf'], "Bitte lade eine PDF Datei hoch!")])
     vorstellungstext = TextAreaField("Über mich", validators=[DataRequired(message="Bitte erzähle etwas über dich. Dieser Text wird angezeigt, wenn du dich für einen Auftrag bewirbst."),                                                    Length(max=500, message="Die Beschreibung darf maximal 500 Zeichen lang sein.")])
     registrieren = SubmitField("Registrieren")
 

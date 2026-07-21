@@ -8,7 +8,7 @@
                         <div class = "rounded-3 overflow-hidden border shadow-sm">
                             <table class = "table table-hover mb-0">
                                 <thead class ="table-light">
-                                    <tr> <th>Freizugebende Nutzer</th> <th></th> </tr>
+                                    <tr> <th>Freizugebende Nutzer</th> <th>Führungszeugnis</th> <th></th></tr>
                                 </thead>
                                 <tbody>
                                 {% for n in nicht_freigegebene%}
@@ -20,7 +20,26 @@
                                         Adresse: {{n.adresse}}, {{n.plz}} {{n.ort}}<br>
                                         Email: {{n.email}}<br>
                                         Telefon: {{n.telefon}}<br>
-                                        Rolle: {{n.rolle}}
+                                        Rolle: {{n.rolle}} <br>
+                                        Vorstellungstext:<br> {{n.vorstellungstext}}
+                                        </td>
+                                        <td>
+                                            {% if n.rolle == "Helfer" and n.fuehrungszeugnis_dateiname %}
+                                                <a
+                                                    href="{{ url_for(
+                                                        'static',
+                                                        filename='fuehrungszeugnisse/' ~ n.fuehrungszeugnis_dateiname
+                                                    ) }}"
+                                                    download
+                                                    title="Führungszeugnis herunterladen"
+                                                    aria-label="Führungszeugnis herunterladen"
+                                                    class="text-decoration-none fs-4"
+                                                >
+                                                    📄
+                                                </a>
+                                            {% else %}
+                                                <span class="text-muted">–</span>
+                                            {% endif %}
                                         </td>
                                         <td>
                                             <form method="POST">
@@ -42,7 +61,7 @@
                             </table>
                             <table class = "table table-hover mb-0">
                                 <thead class ="table-light">
-                                    <tr> <th>Freigegebene Nutzer</th> <th></th> </tr>
+                                    <tr> <th>Freigegebene Nutzer</th> <th> Führungszeugnis </th> <th></th></tr>
                                 </thead>
                                 <tbody>
                                 {% for n in freigegebene%}
@@ -54,7 +73,25 @@
                                         Adresse: {{n.adresse}}, {{n.plz}} {{n.ort}}<br>
                                         Email: {{n.email}}<br>
                                         Telefon: {{n.telefon}}<br>
-                                        Rolle: {{n.rolle}}
+                                        Rolle: {{n.rolle}} <br>
+                                        Vorstellungstext:<br> {{n.vorstellungstext}}                                        </td>
+                                        <td>
+                                            {% if n.rolle == "Helfer" and n.fuehrungszeugnis_dateiname %}
+                                                <a
+                                                    href="{{ url_for(
+                                                        'static',
+                                                        filename='fuehrungszeugnisse/' ~ n.fuehrungszeugnis_dateiname
+                                                    ) }}"
+                                                    download
+                                                    title="Führungszeugnis herunterladen"
+                                                    aria-label="Führungszeugnis herunterladen"
+                                                    class="text-decoration-none fs-4"
+                                                >
+                                                    📄
+                                                </a>
+                                            {% else %}
+                                                <span class="text-muted">–</span>
+                                            {% endif %}
                                         </td>
                                         <td>
                                             <form method="POST">

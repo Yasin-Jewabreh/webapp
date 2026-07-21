@@ -2,7 +2,7 @@ from datetime import date, datetime
 import os
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 from forms import TerminBearbeitenForm, TerminErstellenForm, RollenWahlForm, RegistrierungPP, LoginFormular, AuftragFormular, ProfilFormular, RegistrierungHelfer
-from flask import Flask, render_template, redirect, url_for, request, session, flash, abort
+from flask import Flask, render_template, redirect, url_for, request, session, flash, abort, send_from_directory
 from flask_bootstrap import Bootstrap5
 from db import db
 from models import Nutzer, Auftrag, Termin, Nachricht, berlin_time
@@ -80,9 +80,11 @@ def register():
 
             f = helfer_form.fuehrungszeugnis.data
             filename = f"{neuer_nutzer.id}_{secure_filename(f.filename)}"
-            f.save(os.path.join(app.instance_path, "fuehrungszeugnisse", filename))
+            f.save(os.path.join(app.static_folder, "fuehrungszeugnisse", filename))
             neuer_nutzer.fuehrungszeugnis_dateiname = filename
             db.session.commit()
+            return redirect(url_for("login"))
+
     elif gewaehlte_rolle == "PP":
         if pp_form.validate_on_submit():
             neuer_nutzer = Nutzer(
@@ -100,10 +102,9 @@ def register():
             )
             db.session.add(neuer_nutzer)
             db.session.commit()
+            return redirect(url_for("login"))
 
-        
-
-        return redirect(url_for("login"))
+       
     return render_template("register.html", helfer_form =helfer_form, pp_form = pp_form, rolle = gewaehlte_rolle)
 
 @app.route("/login", methods=["GET", "POST"])
@@ -538,7 +539,8 @@ def chat(empfaenger_id=None):
         ).order_by(Nachricht.zeitstempel.asc()).all()
 
     return render_template("chat.html", chat_partner=chat_partner, aktiver_partner=aktiver_partner, nachrichten=nachrichten)
-'''
+
+
 @app.route("/chat/loeschen/<int:partner_id>", methods=["POST"])
 @login_required
 def chat_loeschen(partner_id):
@@ -556,46 +558,6 @@ def chat_loeschen(partner_id):
             n.geloescht_fuer_empfaenger = True
     db.session.commit()
     return redirect(url_for("chat", empfaenger_id=partner_id))
-
-
-with app.app_context():
-        admin = db.session.execute(db.select(Nutzer).where(Nutzer.email == "admin@email.com")).scalar()
-        if admin:
-            db.session.delete(admin)
-            db.session.commit()
-            admin = Nutzer(
-                vorname="Admin",
-                nachname="Admin",
-                geschlecht="Männlich",
-                geburtsdatum=date(1995, 5, 20),
-                adresse="Hauptstraße 42",
-                plz="10115",
-                ort="Berlin",
-                email="admin@email.com",
-                freigegeben=True,
-                passwort="12345678", 
-                telefon="015112345678",
-                rolle="Admin"
-            )
-            db.session.add(admin)
-            db.session.commit()
-        else:
-            admin = Nutzer(
-                vorname="Admin",
-                nachname="Admin",
-                geschlecht="Männlich",
-                geburtsdatum=date(1995, 5, 20),
-                adresse="Hauptstraße 42",
-                plz="10115",
-                ort="Berlin",
-                email="admin@email.com",
-                freigegeben=True,
-                passwort="12345678", 
-                telefon="015112345678",
-                rolle="Admin"
-            )
-            db.session.add(admin)
-            db.session.commit()  
 
 @app.route("/nutzeruebersicht", methods=["GET", "POST"])
 @login_required
@@ -628,7 +590,7 @@ def nutzeruebersicht():
                 flash("Nutzer erfolgreich deaktiviert!", "success")
         return redirect("nutzeruebersicht")
 
-'''
+
 @app.errorhandler(404)
 def http_not_found(e):
     return render_template('404.html', message = e.description), 404
@@ -640,6 +602,103 @@ def http_internal_server_error(e):
 @app.errorhandler(403)
 def http_access_denied(e):
     return render_template('403.html', message = e.description), 403
+
+with app.app_context():
+            admin = db.session.execute(db.select(Nutzer).where(Nutzer.email == "admin@email.com")).scalar()
+            if not admin:
+                admin = Nutzer(
+                    vorname="Admin",
+                    nachname="Admin",
+                    geschlecht="Männlich",
+                    geburtsdatum=date(1995, 5, 20),
+                    adresse="Hauptstraße 42",
+                    plz="10115",
+                    ort="Berlin",
+                    email="admin@email.com",
+                    freigegeben=True,
+                    passwort="12345678", 
+                    telefon="015112345678",
+                    rolle="Admin"
+                )
+                db.session.add(admin)
+
+            helfer1 = db.session.execute(db.select(Nutzer).where(Nutzer.email == "helfer1@email.com")).scalar()
+            
+            if not helfer1:
+                helfer1 = Nutzer(
+                    vorname="Max",
+                    nachname="Helfer",
+                    geschlecht="Männlich",
+                    geburtsdatum=date(2001, 3, 12),
+                    adresse="Müllerstraße 20",
+                    plz="13353",
+                    ort="Berlin",
+                    email="helfer1@email.com",
+                    freigegeben=True,
+                    passwort="12345678",
+                    telefon="015100000001",
+                    rolle="Helfer"
+                )
+                db.session.add(helfer1)
+
+
+            helfer2 = db.session.execute(db.select(Nutzer).where(Nutzer.email == "helfer2@email.com")).scalar()
+            if not helfer2:
+                helfer2 = Nutzer(
+                    vorname="Lena",
+                    nachname="Hilfsbereit",
+                    geschlecht="Weiblich",
+                    geburtsdatum=date(2000, 8, 25),
+                    adresse="Turmstraße 15",
+                    plz="10559",
+                    ort="Berlin",
+                    email="helfer2@email.com",
+                    freigegeben=True,
+                    passwort="12345678",
+                    telefon="015100000002",
+                    rolle="Helfer"
+                )
+                db.session.add(helfer2)
+
+
+            pp1 = db.session.execute(db.select(Nutzer).where(Nutzer.email == "pp1@email.com")).scalar()
+
+            if not pp1:
+                pp1 = Nutzer(
+                    vorname="Maria",
+                    nachname="Mustermann",
+                    geschlecht="Weiblich",
+                    geburtsdatum=date(1948, 6, 10),
+                    adresse="Alt-Moabit 80",
+                    plz="10555",
+                    ort="Berlin",
+                    email="pp1@email.com",
+                    freigegeben=True,
+                    passwort="12345678",
+                    telefon="015100000003",
+                    rolle="PP"
+                )
+                db.session.add(pp1)
+
+
+            pp2 = db.session.execute(db.select(Nutzer).where(Nutzer.email == "pp2@email.com")).scalar()
+            if not pp2:
+                pp2 = Nutzer(
+                    vorname="Peter",
+                    nachname="Beispiel",
+                    geschlecht="Männlich",
+                    geburtsdatum=date(1952, 11, 4),
+                    adresse="Invalidenstraße 30",
+                    plz="10115",
+                    ort="Berlin",
+                    email="pp2@email.com",
+                    freigegeben=True,
+                    passwort="12345678",
+                    telefon="015100000004",
+                    rolle="PP"
+                )
+                db.session.add(pp2)
+            db.session.commit()
 
 if __name__ == "__main__":
     app.run(debug=True)

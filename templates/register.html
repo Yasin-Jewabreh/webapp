@@ -15,10 +15,10 @@
                         <h2 class="mb-3">Registrieren</h2>
                         <hr>
                         {% if rolle == "Helfer"%}
-                        {{ render_form(pp_form) }}
-                        {%elseif rolle == "PP"%}
-                        {{ render_form(helfer_form)}}
-                        {{%endif%}}
+                        {{ render_form(helfer_form) }}
+                        {%elif rolle == "PP"%}
+                        {{ render_form(pp_form)}}
+                        {% endif %}
                     </div>
                 </div>
             </div>
